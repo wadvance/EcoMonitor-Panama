@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -64,8 +64,7 @@
   .sensor-value { font-variant-numeric: tabular-nums; }
   @keyframes spin-slow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
   .spin-slow { animation: spin-slow 8s linear infinite; }
-  .install-btn { display: none; }
-  .install-btn.visible { display: inline-flex; }
+  .install-btn { display: inline-flex; }
   .ios-install-banner { display: none; }
   .ios-install-banner.visible { display: flex; }
   @keyframes slideUp { from{transform:translateY(100%);opacity:0} to{transform:translateY(0);opacity:1} }
@@ -625,6 +624,7 @@
         <button onclick="showManualSection('sensores')" title="Información sobre los sensores en tiempo real" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">📡 Sensores</button>
         <button onclick="showManualSection('navegacion')" title="Monitoreo de frecuencias para navegación aérea" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">✈️ Navegación</button>
         <button onclick="showManualSection('alarmas')" title="Cómo funcionan las alarmas y notificaciones" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">🚨 Alarmas</button>
+        <button onclick="showManualSection('instalacion')" title="Cómo instalar EcoMonitor en tu celular" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">📲 Instalación</button>
         <button onclick="showManualSection('faq')" title="Preguntas frecuentes sobre EcoMonitor" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">❓ FAQ</button>
       </div>
       <div class="p-5 overflow-y-auto max-h-[70vh]" id="manualContent"></div>
@@ -1579,6 +1579,7 @@ const manualSections = {
   sensores: { title: '📡 Sensores', content: `<h3 class="text-xl font-bold mb-3">Sensores en Tiempo Real</h3><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">⏱️ Frecuencia de actualización</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>🎨 <b>Sismógrafos</b>: Cada 30ms (30 fps), dibujados con Canvas</li><li>📳 <b>Sensores sísmicos</b>: Cada 4 segundos</li><li>🌊 <b>Mareógrafos</b>: Cada 4 segundos</li><li>🌍 <b>Datos ambientales</b>: Cada 5 segundos</li><li>🌤️ <b>Clima (API)</b>: Cada 15 minutos</li><li>🛰️ <b>Frecuencias espaciales</b>: Cada 2 segundos</li></ul></div><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🎛️ Cómo controlar los sensores</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• <b>Switch individual</b>: Activá/desactivá cada sensor con su toggle</li><li>• <b>Botones por tipo</b>: 📳 Sísmicos, 🌊 Tsunami, 📏 Mareógrafos, 📍 GPS</li><li>• <b>Toggle Master</b>: Activa o desactiva los 20 sensores de una vez</li><li>• Los sensores activos tienen un resplandor verde (<b>sensor-online</b>)</li><li>• Los desactivados se atenúan (<b>sensor-offline</b>)</li></ul></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">📊 Datos en vivo</h4><p class="text-xs text-slate-300">Cada sensor muestra: nombre, ubicación, tipo, señal (%) y lectura actual. Los valores fluctúan en tiempo real para simular condiciones reales.</p></div>` },
   navegacion: { title: '✈️ Navegación Aérea', content: `<h3 class="text-xl font-bold mb-3">Monitoreo de Navegación Aérea</h3><p class="text-sm text-slate-300 mb-3">El monitor de frecuencias espaciales permite visualizar el espectro de radiofrecuencias utilizado para la navegación aérea en Panamá.</p><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🛩️ ¿Qué muestra el monitor de frecuencias?</h4><p class="text-xs text-slate-300">Las barras verticales representan distintas bandas de frecuencia detectadas en tiempo real. Cada color agrupa un tipo de señal:</p><ul class="text-xs text-slate-300 space-y-1 ml-4 mt-2"><li>🟢 <b>Verde (cian)</b>: Comunicaciones VHF aeronáuticas (118-137 MHz) — torres de control y pilotos</li><li>🟢 <b>Verde (esmeralda)</b>: Radioayudas a la navegación (VOR, ILS, DME)</li><li>🟣 <b>Índigo-púrpura</b>: Radar primario y secundario (ATC)</li><li>🔵 <b>Azul</b>: Comunicaciones satelitales y datos meteorológicos aeronáuticos</li></ul></div><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🛫 Aeropuertos Monitoreados</h4><div class="space-y-2 mt-2"><div class="glass rounded-lg p-2 border-l-4 border-cyan-500"><p class="text-xs font-bold text-cyan-400">Aeropuerto Internacional de Tocumen (PTY/MPTO)</p><p class="text-[10px] text-slate-400">Ciudad de Panamá · Vuelos nacionales e internacionales · 14 millones de pasajeros/año</p><p class="text-[10px] text-slate-400">Frecuencias: Torre 118.1 MHz · Approach 119.7 MHz · Ground 121.9 MHz</p></div><div class="glass rounded-lg p-2 border-l-4 border-emerald-500"><p class="text-xs font-bold text-emerald-400">Aeropuerto Internacional Enrique Malek (DAV/MPDA)</p><p class="text-[10px] text-slate-400">David, Chiriquí · Vuelos nacionales e internacionales · Conexión con Centroamérica</p><p class="text-[10px] text-slate-400">Frecuencias: Torre 118.5 MHz · Approach 119.7 MHz</p></div><div class="glass rounded-lg p-2 border-l-4 border-amber-500"><p class="text-xs font-bold text-amber-400">Aeropuerto Marcos A. Gelabert (PAC/MPMG)</p><p class="text-[10px] text-slate-400">Albrook, Ciudad de Panamá · Vuelos nacionales e internacionales</p></div></div></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">📡 Importancia del Monitoreo Espacial para la Aviación</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• La <b>radiación solar</b> y las <b>tormentas geomagnéticas</b> pueden afectar las comunicaciones por radio VHF/HF</li><li>• El <b>campo magnético terrestre</b> es esencial para la navegación por brújula y los sistemas de aterrizaje instrumental (ILS)</li><li>• Los <b>rayos cósmicos</b> en altitudes de crucero (10-12 km) son monitoreados para proteger a pasajeros y tripulación</li><li>• La actividad solar (índice Kp) determina la calidad de las comunicaciones HF en rutas transoceánicas</li></ul></div>` },
   alarmas: { title: '🚨 Alarmas', content: `<h3 class="text-xl font-bold mb-3">Sistema de Alarmas y Notificaciones</h3><div class="glass rounded-xl p-3 mb-3 border border-rose-500/30"><h4 class="font-bold text-sm mb-2 text-rose-400">🔔 ¿Cuándo se activa una alarma?</h4><ul class="text-xs text-slate-300 space-y-1.5 ml-4"><li>• <b>Sismo 5.0 - 6.9</b>: Alerta amarilla con notificación</li><li>• <b>Sismo 7+</b>: Alarma roja con sonido, vibración y alerta de tsunami</li><li>• <b>Sismo + profundidad &lt;50km</b>: Alerta de tsunami automática</li></ul></div><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🔊 Tipos de Alerta</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>🔴 <b>Visual</b>: Banner rojo parpadeante con título, mensaje y hora</li><li>🔔 <b>Sonora</b>: 3 beeps agudos (880Hz) que se repiten cada 2.5 segundos</li><li>📳 <b>Vibración</b>: Patrón SOS en dispositivos móviles</li><li>💬 <b>Push</b>: Notificación del navegador (si hay permiso)</li></ul></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">⚙️ Cómo configurar</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• <b>🔔 Notificaciones</b>: Tocá el ícono de campana en el header → "Activar"</li><li>• <b>🔊 Sonido</b>: En el centro de notificaciones, toggle de "Alarma sonora"</li><li>• <b>📳 Vibración</b>: En el centro de notificaciones, toggle de "Vibración"</li><li>• <b>🔕 Silenciar</b>: Cuando suene una alarma, tocá "Silenciar" en el banner rojo</li></ul></div>` },
+  instalacion: { title: '📲 Instalación', content: '<h3 class="text-xl font-bold mb-3">Cómo Instalar EcoMonitor en tu Celular</h3><p class="text-sm text-slate-300 mb-3">Instalá EcoMonitor como una app nativa para acceder rápido, recibir notificaciones push y usarla sin conexión a internet.</p><div class="space-y-3 mb-4"><div class="glass rounded-xl p-3 border-l-4 border-cyan-400"><h4 class="font-bold text-sm text-cyan-400 mb-1">🤖 Android (Chrome)</h4><ol class="text-xs text-slate-300 space-y-1 ml-4 list-decimal"><li>Abrí en <b>Chrome</b></li><li>Andá a: <b>wadvance.github.io/EcoMonitor-Panama</b></li><li>Tocá el botón <b>📲 Instalar</b> arriba</li><li>Si no aparece, tocá <b>⋮</b> → <b>Instalar aplicación</b></li><li>Confirmá tocando <b>Instalar</b> 🎉</li></ol><p class="text-xs text-slate-400 mt-1">💡 También podés esperar al banner 📲 que aparece abajo.</p></div><div class="glass rounded-xl p-3 border-l-4 border-amber-400"><h4 class="font-bold text-sm text-amber-400 mb-1">🍎 iPhone / iPad (Safari)</h4><ol class="text-xs text-slate-300 space-y-1 ml-4 list-decimal"><li>Abrí <b>Safari</b> (NO Chrome en iOS)</li><li>Andá a: <b>wadvance.github.io/EcoMonitor-Panama</b></li><li>Tocá <b>⎙</b> (Compartir) en la barra inferior</li><li>Desplazate y tocá <b>Agregar a pantalla de inicio</b></li><li>Tocá <b>Agregar</b> arriba a la derecha</li><li>Aparecerá en tu pantalla de inicio 📱✨</li></ol></div></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">✅ Beneficios</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>🚀 Acceso rápido desde pantalla de inicio</li><li>📴 Funciona sin internet</li><li>🔔 Notificaciones push de sismos y alertas</li><li>📦 Actualizaciones automáticas</li></ul></div>' },
   faq: { title: '❓ FAQ', content: `<h3 class="text-xl font-bold mb-3">Preguntas Frecuentes</h3><div class="space-y-2"><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">✈️ ¿Qué son las barras de frecuencias en la pestaña Espacial?</p><p class="text-xs text-slate-300">Representan las bandas de frecuencia utilizadas por la aviación en Panamá. Cada color corresponde a un tipo de señal: VHF de torres de control (118-137 MHz), radar ATC, ayudas a la navegación como ILS/VOR, y comunicaciones satelitales. Los aeropuertos de Tocumen (PTY) y David (DAV) son monitoreados. Las condiciones espaciales (radiación solar, campo magnético) pueden afectar estas frecuencias.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">🌤️ ¿Los datos del clima son reales?</p><p class="text-xs text-slate-300">Sí, vienen de la API gratuita <b>Open-Meteo</b> (sin necesidad de API key). Si falla la conexión a internet, se usan datos simulados realistas para Panamá.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">🔄 ¿Con qué frecuencia se actualizan los datos?</p><p class="text-xs text-slate-300">El clima se actualiza cada 15 minutos. Los sensores sísmicos y mareógrafos cada 4 segundos. Los datos ambientales cada 5 segundos. Los sismógrafos en vivo van a 30 fps.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">📶 ¿Los sensores funcionan sin internet?</p><p class="text-xs text-slate-300">Los sensores simulados (sísmicos, mareógrafos, ambientales, espaciales) funcionan offline. El clima requiere internet para obtener datos reales. El service worker cachea la app para que puedas abrirla sin conexión.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">📲 ¿Cómo instalo la app en mi celular?</p><p class="text-xs text-slate-300"><b>Android:</b> Abrí en Chrome → tocá el botón 📲 Instalar en el header o el banner inferior.<br><b>iPhone/iPad:</b> Abrí en Safari → tocá Compartir ⎙ → "Agregar a pantalla de inicio".</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">🌙 ¿Funciona de noche?</p><p class="text-xs text-slate-300">Sí, todos los sensores operan 24/7. La app cambia automáticamente al modo noche (fondo más oscuro) entre las 19:00 y las 06:00.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">🚨 ¿Cómo pruebo las alarmas?</p><p class="text-xs text-slate-300">Andá a la pestaña 🌋 Sísmico, ajustá la magnitud a 5 o más y tocá "Simular Sismo". Se activará la alarma sonora, visual y de vibración.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">💾 ¿La app guarda datos?</p><p class="text-xs text-slate-300">Solo guarda localmente tus preferencias (sonido, vibración) y las notificaciones durante la sesión. No se envía ningún dato a servidores externos.</p></div></div>` }
 };
 function showManualSection(id) {
@@ -1649,29 +1650,45 @@ function init() {
 }
 init();
 
+// ============================================
+// 📲 INSTALACIÓN PWA (Android + iOS)
+// ============================================
 let deferredPrompt = null;
 const installBtn = document.getElementById('installBtn');
+const installModal = document.getElementById('installModal');
 
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredPrompt = e;
-  installBtn.classList.add('visible');
+  if (!isInstalled()) showFloatingInstallCard();
 });
 
-installBtn.addEventListener('click', async () => {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  const result = await deferredPrompt.userChoice;
-  if (result.outcome === 'accepted') {
-    installBtn.classList.remove('visible');
-    deferredPrompt = null;
-    addNotification('success', '📲 EcoMonitor instalado', 'Gracias por instalar la aplicación');
+installBtn.addEventListener('click', () => handleInstallClick());
+window._handleInstallBtn = handleInstallClick;
+
+function handleInstallClick() {
+  if (isInstalled()) {
+    addNotification('info', '✅ App instalada', 'EcoMonitor ya está en tu dispositivo');
+    return;
   }
-});
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(result => {
+      if (result.outcome === 'accepted') {
+        deferredPrompt = null;
+        hideFloatingInstallCard();
+        addNotification('success', '📲 EcoMonitor instalado', 'Gracias por instalar la aplicación');
+      }
+    });
+  } else {
+    showInstallGuide();
+  }
+}
 
 window.addEventListener('appinstalled', () => {
-  installBtn.classList.remove('visible');
   deferredPrompt = null;
+  hideFloatingInstallCard();
+  removeInstallBanner();
   addNotification('success', '✅ App instalada', 'EcoMonitor ya está en tu dispositivo');
 });
 
@@ -1684,9 +1701,130 @@ function isInstalled() {
          window.navigator.standalone === true;
 }
 
-function dismissIOSBanner() {
-  document.getElementById('iosInstallBanner').classList.remove('visible');
-  localStorage.setItem('ecomonitor-ios-dismissed', 'true');
+function getOS() {
+  const ua = navigator.userAgent;
+  if (/android/i.test(ua)) return 'android';
+  if (isIOS()) return 'ios';
+  return 'other';
+}
+
+// --- Guía de instalación (modal) ---
+function showInstallGuide() {
+  const os = getOS();
+  let guide = '';
+  if (os === 'android') {
+    guide = `<div class="space-y-3">
+      <div class="flex items-center gap-3 glass rounded-xl p-3">
+        <span class="text-2xl">1️⃣</span>
+        <p class="text-sm">Abrí <b>Chrome</b> (no otros navegadores)</p>
+      </div>
+      <div class="flex items-center gap-3 glass rounded-xl p-3">
+        <span class="text-2xl">2️⃣</span>
+        <p class="text-sm">Tocá el icono <b>⋮</b> (menú) → <b>Instalar aplicación</b></p>
+      </div>
+      <div class="flex items-center gap-3 glass rounded-xl p-3">
+        <span class="text-2xl">3️⃣</span>
+        <p class="text-sm">Tocá <b>Instalar</b> y listo 🎉</p>
+      </div>
+      <p class="text-xs text-slate-400 mt-2">También podés buscar "EcoMonitor" en Chrome y aparecerá el botón de instalar.</p>
+    </div>`;
+  } else {
+    guide = `<div class="space-y-3">
+      <div class="flex items-center gap-3 glass rounded-xl p-3">
+        <span class="text-2xl">1️⃣</span>
+        <p class="text-sm">Abrí <b>Safari</b> (no Chrome en iOS)</p>
+      </div>
+      <div class="flex items-center gap-3 glass rounded-xl p-3">
+        <span class="text-2xl">2️⃣</span>
+        <p class="text-sm">Tocá el icono <b>⎙</b> (Compartir) en la barra inferior</p>
+      </div>
+      <div class="flex items-center gap-3 glass rounded-xl p-3">
+        <span class="text-2xl">3️⃣</span>
+        <p class="text-sm">Desplazate y tocá <b>Agregar a pantalla de inicio</b></p>
+      </div>
+      <div class="flex items-center gap-3 glass rounded-xl p-3">
+        <span class="text-2xl">4️⃣</span>
+        <p class="text-sm">Tocá <b>Agregar</b> (arriba a la derecha) ✅</p>
+      </div>
+    </div>`;
+  }
+  openModal(
+    '📲 Instalar EcoMonitor',
+    `<p class="text-sm text-slate-300 mb-3">En ${os === 'android' ? 'Android' : 'iPhone/iPad'}, seguí estos pasos:</p>${guide}`,
+    true
+  );
+}
+
+// --- Banner inferior universal ---
+function showInstallBanner() {
+  const existing = document.getElementById('installBanner');
+  if (existing) return;
+  const os = getOS();
+  const btnText = os === 'ios' ? 'Ver guía' : 'Instalar ahora';
+  const banner = document.createElement('div');
+  banner.id = 'installBanner';
+  banner.className = 'fixed bottom-4 left-4 right-4 z-50 glass rounded-2xl p-4 border border-cyan-500/30 slide-up';
+  banner.innerHTML = `<div class="flex items-start gap-3">
+    <div class="text-2xl">📲</div>
+    <div class="flex-1">
+      <p class="text-sm font-bold">Instala EcoMonitor</p>
+      <p class="text-xs text-slate-300 mt-1">${os === 'ios' ? 'Agregá esta app a tu pantalla de inicio para acceso rápido' : 'Agregá esta app a tu dispositivo para acceso rápido y sin internet'}</p>
+      <div class="flex gap-2 mt-2">
+        <button onclick="buttonInstallHandler()" class="inst-banner-btn px-3 py-1.5 rounded-lg bg-cyan-500 text-black text-xs font-bold">${btnText}</button>
+        <button onclick="dismissInstallBanner()" class="px-3 py-1.5 rounded-lg text-xs text-slate-400">Ahora no</button>
+      </div>
+    </div>
+  </div>`;
+  document.body.appendChild(banner);
+}
+function buttonInstallHandler() {
+  if (getOS() === 'ios') {
+    showInstallGuide();
+  } else {
+    handleInstallClick();
+  }
+}
+function dismissInstallBanner() {
+  const b = document.getElementById('installBanner');
+  if (b) b.remove();
+  localStorage.setItem('ecomonitor-inst-banner-dismissed', 'true');
+}
+function removeInstallBanner() {
+  const b = document.getElementById('installBanner');
+  if (b) b.remove();
+  const ib = document.getElementById('iosInstallBanner');
+  if (ib) ib.classList.remove('visible');
+}
+
+function showFloatingInstallCard() {
+  const existing = document.getElementById('floatingInstallCard');
+  if (existing) return;
+  const card = document.createElement('div');
+  card.id = 'floatingInstallCard';
+  card.className = 'fixed bottom-20 right-4 z-40 glass rounded-xl p-3 border border-cyan-500/30 shadow-lg cursor-pointer max-w-[200px]';
+  card.innerHTML = `<div class="flex items-center gap-2" onclick="handleInstallClick()">
+    <span class="text-xl">📲</span>
+    <div class="flex-1">
+      <p class="text-xs font-bold">Instalar app</p>
+      <p class="text-[9px] text-slate-400">Sin conexión</p>
+    </div>
+  </div>`;
+  document.body.appendChild(card);
+}
+function hideFloatingInstallCard() {
+  const c = document.getElementById('floatingInstallCard');
+  if (c) c.remove();
+}
+
+function showInstallPrompts() {
+  if (isInstalled()) return;
+  if (!localStorage.getItem('ecomonitor-inst-banner-dismissed')) {
+    setTimeout(showInstallBanner, 3000);
+  }
+  // Also try to show the legacy iOS banner for old iOS
+  if (getOS() === 'ios' && !localStorage.getItem('ecomonitor-ios-dismissed')) {
+    document.getElementById('iosInstallBanner').classList.add('visible');
+  }
 }
 
 window.addEventListener('load', () => {
@@ -1695,10 +1833,7 @@ window.addEventListener('load', () => {
       console.log('SW registrado');
     }).catch(() => {});
   }
-
-  if (isIOS() && !isInstalled() && !localStorage.getItem('ecomonitor-ios-dismissed')) {
-    document.getElementById('iosInstallBanner').classList.add('visible');
-  }
+  showInstallPrompts();
 });
 </script>
 </body>
