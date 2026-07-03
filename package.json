@@ -1,0 +1,8 @@
+{
+  "name": "ecomonitor-panama",
+  "version": "1.0.0",
+  "description": "EcoMonitor Panamá - Sistema integral de monitoreo ambiental",
+  "scripts": {
+    "start": "npx serve ."
+  }
+}

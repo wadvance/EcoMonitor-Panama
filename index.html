@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>EcoMonitor Panamá - Sistema Integral 24/7</title>
+<meta name="description" content="Sistema integral de monitoreo ambiental, sísmico, climático y espacial para Panamá">
+<meta name="theme-color" content="#10b981">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="EcoMonitor">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%2310b981'/%3E%3Ctext x='50' y='68' font-size='55' text-anchor='middle'%3E%F0%9F%8C%8E%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%2310b981'/%3E%3Ctext x='50' y='68' font-size='55' text-anchor='middle'%3E%F0%9F%8C%8E%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href='data:application/manifest+json;charset=utf-8,{"name":"EcoMonitor Panamá","short_name":"EcoMonitor","description":"Sistema integral de monitoreo ambiental, sísmico, climático y espacial","start_url":"./","scope":"./","display":"standalone","orientation":"any","background_color":"%230a0f1e","theme_color":"%2310b981","lang":"es","categories":["weather","utilities","education"],"icons":[{"src":"data:image/svg+xml,%253Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%253E%253Ccircle cx=%2750%27 cy=%2750%27 r=%2748%27 fill=%27%252310b981%27/%253E%253Ctext x=%2750%27 y=%2768%27 font-size=%2755%27 text-anchor=%27middle%27%253E%25F0%259F%258C%258E%253C/text%253E%253C/svg%253E","sizes":"192x192","type":"image/svg+xml","purpose":"any maskable"},{"src":"data:image/svg+xml,%253Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%253E%253Ccircle cx=%2750%27 cy=%2750%27 r=%2748%27 fill=%27%252310b981%27/%253E%253Ctext x=%2750%27 y=%2768%27 font-size=%2755%27 text-anchor=%27middle%27%253E%25F0%259F%258C%258E%253C/text%253E%253C/svg%253E","sizes":"512x512","type":"image/svg+xml","purpose":"any maskable"}]}'>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.0/index.css">
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  .glass { background: rgba(255,255,255,0.06); backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.1); }
+  .gradient-bg { background: linear-gradient(135deg, #0a0f1e 0%, #1a2332 50%, #0a0f1e 100%); }
+  .night-mode { background: linear-gradient(135deg, #000814 0%, #001d3d 50%, #000814 100%); }
+  .pulse-dot { animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .blink { animation: blink 1s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .shake { animation: shake 0.5s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  .radar-sweep { animation: sweep 4s linear infinite; transform-origin: 50% 50%; }
+  @keyframes sweep { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  .toggle-switch { position: relative; width: 40px; height: 22px; background: #374151; border-radius: 11px; cursor: pointer; transition: all 0.3s; }
+  .toggle-switch.active { background: #10b981; }
+  .toggle-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: white; border-radius: 50%; transition: all 0.3s; }
+  .toggle-switch.active::after { left: 20px; }
+  .province { transition: all 0.3s; cursor: pointer; stroke: rgba(255,255,255,0.3); stroke-width: 1; }
+  .province:hover { stroke: #fff; stroke-width: 2; filter: brightness(1.3); }
+  .province.selected { stroke: #fff; stroke-width: 2.5; filter: brightness(1.4); }
+  .card-hover { transition: all 0.3s; cursor: pointer; }
+  .card-hover:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(0,0,0,0.3); }
+  .danger-pulse { animation: dangerPulse 1.5s infinite; }
+  @keyframes dangerPulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.7)} 50%{box-shadow:0 0 0 15px rgba(239,68,68,0)} }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .tab-active { background: linear-gradient(135deg, #10b981, #06b6d4); color: white; }
+  .fade-in { animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  .bar-fill { transition: width 1s ease; }
+  .sensor-online { box-shadow: 0 0 15px rgba(16,185,129,0.3); }
+  .sensor-offline { opacity: 0.5; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 1rem; }
+  .modal-overlay.active { display: flex; }
+  .modal-content { background: #0a0f1e; border: 1px solid rgba(255,255,255,0.1); border-radius: 1.5rem; max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; }
+  .modal-content::-webkit-scrollbar { width: 6px; }
+  .modal-content::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+  .alarm-flash { animation: alarmFlash 0.5s infinite; }
+  @keyframes alarmFlash { 0%,100%{background-color:rgba(239,68,68,0.1)} 50%{background-color:rgba(239,68,68,0.4)} }
+  .notif-badge { position: absolute; top: -4px; right: -4px; background: #ef4444; color: white; font-size: 9px; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+  .manual-nav-item { transition: all 0.2s; cursor: pointer; }
+  .manual-nav-item:hover { background: rgba(16,185,129,0.1); }
+  .manual-nav-item.active { background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(6,182,212,0.2)); border-left: 3px solid #10b981; }
+  .live-indicator { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 10px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); font-size: 9px; color: #f87171; font-weight: 600; }
+  .live-indicator::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #ef4444; animation: pulse 1.5s infinite; }
+  .weather-icon { font-size: 4rem; line-height: 1; }
+  .sensor-value { font-variant-numeric: tabular-nums; }
+  @keyframes spin-slow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  .spin-slow { animation: spin-slow 8s linear infinite; }
+</style>
+</head>
+<body class="gradient-bg text-white min-h-screen" id="appBody">
+<header class="sticky top-0 z-50 glass">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-2">
+    <div class="flex items-center gap-2">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 via-cyan-500 to-rose-500 flex items-center justify-center"><span class="text-xl">🌎</span></div>
+      <div>
+        <h1 class="text-base font-bold">EcoMonitor Panamá</h1>
+        <p class="text-[10px] text-slate-400 flex items-center gap-1">
+          <span class="live-indicator">EN VIVO</span>
+          <span>Ambiental · Sísmico · Clima · Espacial</span>
+        </p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap">
+      <div class="glass rounded-lg px-3 py-1.5 flex flex-col items-center">
+        <span class="text-[9px] text-slate-400" id="currentDate">--/--/----</span>
+        <span class="text-xs font-bold text-emerald-400" id="currentTime">--:--:--</span>
+      </div>
+      <div id="timeMode" class="flex items-center gap-1 px-2 py-1 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-xs">
+        <span id="modeIcon">🌙</span>
+        <span id="modeText">Noche</span>
+      </div>
+      <button onclick="toggleNotifications()" class="relative glass rounded-lg p-2 hover:bg-white/10 transition" title="Notificaciones">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span id="notifBadge" class="notif-badge hidden">0</span>
+      </button>
+      <button onclick="openManual()" class="glass rounded-lg px-3 py-2 hover:bg-white/10 transition text-xs font-medium flex items-center gap-1" title="Manual">
+        <span>📘</span><span class="hidden md:inline">Manual</span>
+      </button>
+      <div class="flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-dot"></span>
+        <span class="text-xs">24/7</span>
+      </div>
+    </div>
+  </div>
+</header>
+<div id="alarmBanner" class="max-w-7xl mx-auto px-4 pt-3 hidden">
+  <div class="glass rounded-2xl p-3 border-2 border-rose-500 danger-pulse bg-rose-500/10 alarm-flash">
+    <div class="flex items-center gap-3">
+      <div class="text-2xl blink">🚨</div>
+      <div class="flex-1">
+        <p class="font-bold text-rose-400 text-sm" id="alarmTitle">ALERTA</p>
+        <p class="text-xs text-slate-300" id="alarmMessage">Mensaje</p>
+        <p class="text-[10px] text-slate-400 mt-0.5" id="alarmTime">--</p>
+      </div>
+      <button onclick="stopAlarm()" class="px-3 py-1.5 rounded-lg bg-rose-500 text-white text-xs font-bold">🔕 Silenciar</button>
+    </div>
+  </div>
+</div>
+<div class="max-w-7xl mx-auto px-4 pt-4">
+  <div class="grid grid-cols-2 md:grid-cols-7 gap-2">
+    <div class="glass rounded-xl p-3 text-center"><p class="text-[10px] text-slate-400">Aire AQI</p><p class="text-xl font-bold text-amber-400 sensor-value" id="statAqi">62</p><p class="text-[9px] text-amber-400">Moderado</p></div>
+    <div class="glass rounded-xl p-3 text-center"><p class="text-[10px] text-slate-400">Sensores</p><p class="text-xl font-bold text-emerald-400" id="activeSensors">20</p><p class="text-[9px] text-emerald-400">Activos</p></div>
+    <div class="glass rounded-xl p-3 text-center"><p class="text-[10px] text-slate-400">Sismos Hoy</p><p class="text-xl font-bold text-cyan-400" id="quakesToday">3</p><p class="text-[9px] text-slate-400">detectados</p></div>
+    <div class="glass rounded-xl p-3 text-center"><p class="text-[10px] text-slate-400">Tsunami</p><p class="text-xl font-bold text-emerald-400" id="tsunamiRisk">Nulo</p><p class="text-[9px] text-slate-400">Sin riesgo</p></div>
+    <div class="glass rounded-xl p-3 text-center"><p class="text-[10px] text-slate-400">Clima</p><p class="text-xl font-bold text-sky-400 sensor-value" id="statTemp">--°C</p><p class="text-[9px] text-sky-400" id="statWeather">Cargando...</p></div>
+    <div class="glass rounded-xl p-3 text-center"><p class="text-[10px] text-slate-400">Espacial</p><p class="text-xl font-bold text-purple-400">Normal</p><p class="text-[9px] text-slate-400">Kp 2</p></div>
+    <div class="glass rounded-xl p-3 text-center"><p class="text-[10px] text-slate-400">Notif.</p><p class="text-xl font-bold text-rose-400" id="notifCount">0</p><p class="text-[9px] text-rose-400">hoy</p></div>
+  </div>
+</div>
+<div class="max-w-7xl mx-auto px-4 pt-4">
+  <div class="flex gap-2 overflow-x-auto scrollbar-hide pb-2">
+    <button onclick="showTab('dashboard')" id="tab-dashboard" class="tab-btn tab-active px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap">🏠 Dashboard</button>
+    <button onclick="showTab('clima')" id="tab-clima" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap">🌤️ Clima</button>
+    <button onclick="showTab('ambiental')" id="tab-ambiental" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap">🌍 Ambiental</button>
+    <button onclick="showTab('mapa')" id="tab-mapa" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap">🗺️ Mapa</button>
+    <button onclick="showTab('sismico')" id="tab-sismico" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap">🌋 Sísmico</button>
+    <button onclick="showTab('tsunamis')" id="tab-tsunamis" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap">🌊 Tsunamis</button>
+    <button onclick="showTab('espacial')" id="tab-espacial" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap">🛰️ Espacial</button>
+    <button onclick="showTab('cuidados')" id="tab-cuidados" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap">⚕️ Cuidados</button>
+  </div>
+</div>
+<!-- DASHBOARD -->
+<section id="content-dashboard" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6">
+  <div class="grid lg:grid-cols-3 gap-4">
+    <div class="space-y-4">
+      <!-- Clima actual (nuevo) -->
+      <div class="glass rounded-2xl p-4 bg-gradient-to-br from-sky-500/10 to-indigo-500/10 border border-sky-500/20">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-bold text-sm">🌤️ Clima Actual</h3>
+          <span class="live-indicator">EN VIVO</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="weather-icon" id="dashWeatherIcon">⛅</div>
+          <div class="flex-1">
+            <p class="text-3xl font-bold sensor-value"><span id="dashTemp">--</span>°C</p>
+            <p class="text-xs text-slate-300" id="dashWeatherDesc">Cargando...</p>
+            <p class="text-[10px] text-slate-400">Sensación: <span id="dashFeels">--</span>°C</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mt-3">
+          <div class="glass rounded-lg p-2 text-center">
+            <p class="text-[9px] text-slate-400">💧 Humedad</p>
+            <p class="text-sm font-bold sensor-value"><span id="dashHumidity">--</span>%</p>
+          </div>
+          <div class="glass rounded-lg p-2 text-center">
+            <p class="text-[9px] text-slate-400">💨 Viento</p>
+            <p class="text-sm font-bold sensor-value"><span id="dashWind">--</span> km/h</p>
+          </div>
+          <div class="glass rounded-lg p-2 text-center">
+            <p class="text-[9px] text-slate-400">🌧️ Lluvia</p>
+            <p class="text-sm font-bold sensor-value"><span id="dashRain">--</span> mm</p>
+          </div>
+        </div>
+      </div>
+      <div class="glass rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3"><h3 class="font-bold text-sm">🌍 Estado Ambiental</h3><span class="live-indicator">EN VIVO</span></div>
+        <div class="space-y-2">
+          <div class="flex items-center justify-between glass rounded-lg p-2"><div class="flex items-center gap-2"><span class="text-lg">💨</span><span class="text-xs">Aire</span></div><div class="flex items-center gap-2"><span class="text-xs font-bold text-amber-400 sensor-value" id="liveAqi">62</span><span class="w-2 h-2 rounded-full bg-amber-400"></span></div></div>
+          <div class="flex items-center justify-between glass rounded-lg p-2"><div class="flex items-center gap-2"><span class="text-lg">💧</span><span class="text-xs">Agua</span></div><div class="flex items-center gap-2"><span class="text-xs font-bold text-emerald-400 sensor-value" id="liveWater">28</span><span class="w-2 h-2 rounded-full bg-emerald-400"></span></div></div>
+          <div class="flex items-center justify-between glass rounded-lg p-2"><div class="flex items-center gap-2"><span class="text-lg">🌊</span><span class="text-xs">Mar</span></div><div class="flex items-center gap-2"><span class="text-xs font-bold text-rose-400 sensor-value" id="liveSea">88</span><span class="w-2 h-2 rounded-full bg-rose-400 blink"></span></div></div>
+          <div class="flex items-center justify-between glass rounded-lg p-2"><div class="flex items-center gap-2"><span class="text-lg">🌱</span><span class="text-xs">Suelo</span></div><div class="flex items-center gap-2"><span class="text-xs font-bold text-emerald-400 sensor-value" id="liveSoil">35</span><span class="w-2 h-2 rounded-full bg-emerald-400"></span></div></div>
+        </div>
+      </div>
+      <div class="glass rounded-2xl p-4">
+        <h3 class="font-bold text-sm mb-3">🚨 Alertas Ambientales</h3>
+        <div class="space-y-2">
+          <div class="glass rounded-lg p-2 border-l-2 border-rose-500"><p class="text-[10px] font-bold text-rose-400">Microplásticos en el mar</p><p class="text-[9px] text-slate-400">Costa panameña · Hace 5 min</p></div>
+          <div class="glass rounded-lg p-2 border-l-2 border-amber-500"><p class="text-[10px] font-bold text-amber-400">PM2.5 elevado en CD Panamá</p><p class="text-[9px] text-slate-400">Aire · Hace 23 min</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="space-y-4">
+      <div class="glass rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3"><h3 class="font-bold text-sm">🌋 Actividad Sísmica</h3><span class="live-indicator">EN VIVO</span></div>
+        <div class="bg-black/40 rounded-xl p-2 mb-3"><canvas id="miniSeismo" class="w-full h-16"></canvas></div>
+        <div class="grid grid-cols-3 gap-2">
+          <div class="glass rounded-lg p-2 text-center"><p class="text-[9px] text-slate-400">Último</p><p class="text-sm font-bold text-amber-400 sensor-value" id="lastQuakeMag">2.1</p></div>
+          <div class="glass rounded-lg p-2 text-center"><p class="text-[9px] text-slate-400">Prof.</p><p class="text-sm font-bold text-cyan-400 sensor-value" id="lastQuakeDepth">45km</p></div>
+          <div class="glass rounded-lg p-2 text-center"><p class="text-[9px] text-slate-400">Alerta</p><p class="text-sm font-bold text-emerald-400" id="quakeAlert">Verde</p></div>
+        </div>
+      </div>
+      <div class="glass rounded-2xl p-4 border border-emerald-500/30">
+        <div class="flex items-center gap-3"><div class="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-2xl">🌊</div><div><p class="font-bold text-emerald-400 text-sm">SIN ALERTA TSUNAMI</p><p class="text-[10px] text-slate-300">Costas panameñas seguras</p></div></div>
+      </div>
+      <div class="glass rounded-2xl p-4">
+        <h3 class="font-bold text-sm mb-2">📋 Últimos Sismos</h3>
+        <div class="space-y-1.5" id="miniQuakeList"></div>
+      </div>
+    </div>
+    <div class="space-y-4">
+      <div class="glass rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3"><h3 class="font-bold text-sm">🛰️ Monitoreo Espacial</h3><span class="live-indicator">EN VIVO</span></div>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="glass rounded-lg p-2 text-center"><p class="text-[9px] text-slate-400">Radiación Solar</p><p class="text-sm font-bold text-amber-400 sensor-value" id="liveSolar">3.2 W/m²</p></div>
+          <div class="glass rounded-lg p-2 text-center"><p class="text-[9px] text-slate-400">Rayos Cósmicos</p><p class="text-sm font-bold text-cyan-400 sensor-value" id="liveCosmic">142 μSv</p></div>
+          <div class="glass rounded-lg p-2 text-center"><p class="text-[9px] text-slate-400">Campo Magnético</p><p class="text-sm font-bold text-indigo-400 sensor-value" id="liveMag">48.2 μT</p></div>
+          <div class="glass rounded-lg p-2 text-center"><p class="text-[9px] text-slate-400">Actividad Solar</p><p class="text-sm font-bold text-orange-400 sensor-value" id="liveKp">Kp 2</p></div>
+        </div>
+      </div>
+      <div class="glass rounded-2xl p-4">
+        <h3 class="font-bold text-sm mb-2">📡 Sensores Activos</h3>
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between"><span class="text-[10px]">📳 Sísmicos</span><span class="text-[10px] font-bold text-emerald-400">8/8</span></div>
+          <div class="flex items-center justify-between"><span class="text-[10px]">🌊 DART Tsunami</span><span class="text-[10px] font-bold text-emerald-400">3/3</span></div>
+          <div class="flex items-center justify-between"><span class="text-[10px]">📏 Mareógrafos</span><span class="text-[10px] font-bold text-emerald-400">5/5</span></div>
+          <div class="flex items-center justify-between"><span class="text-[10px]">📍 GPS Geodésico</span><span class="text-[10px] font-bold text-emerald-400">4/4</span></div>
+          <div class="flex items-center justify-between"><span class="text-[10px]">🌤️ Estaciones Met.</span><span class="text-[10px] font-bold text-emerald-400">6/6</span></div>
+          <div class="flex items-center justify-between"><span class="text-[10px]">🛰️ Satélites</span><span class="text-[10px] font-bold text-emerald-400">4/4</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- CLIMA (NUEVO) -->
+<section id="content-clima" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
+  <div class="glass rounded-2xl p-5 mb-4 bg-gradient-to-br from-sky-500/10 via-indigo-500/10 to-purple-500/10 border border-sky-500/20">
+    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+      <div>
+        <h3 class="text-xl font-bold">🌤️ Clima en Tiempo Real</h3>
+        <p class="text-xs text-slate-400">Datos de Open-Meteo API · Ciudad de Panamá</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="live-indicator">EN VIVO</span>
+        <span class="text-[10px] text-slate-400">Actualizado: <span id="weatherUpdated">--:--</span></span>
+      </div>
+    </div>
+    <div class="grid md:grid-cols-[auto_1fr] gap-6">
+      <div class="text-center">
+        <div class="weather-icon" id="mainWeatherIcon">⛅</div>
+        <p class="text-5xl font-bold mt-2 sensor-value"><span id="mainTemp">--</span>°C</p>
+        <p class="text-sm text-slate-300 mt-1" id="mainWeatherDesc">Cargando datos...</p>
+        <p class="text-xs text-slate-400 mt-1">Sensación térmica: <span id="mainFeels">--</span>°C</p>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div class="glass rounded-xl p-3">
+          <p class="text-[10px] text-slate-400">💧 Humedad</p>
+          <p class="text-2xl font-bold text-cyan-400 sensor-value"><span id="mainHumidity">--</span>%</p>
+          <div class="h-1 bg-slate-700 rounded-full mt-1"><div id="humidityBar" class="h-full bg-cyan-400 rounded-full" style="width:0%"></div></div>
+        </div>
+        <div class="glass rounded-xl p-3">
+          <p class="text-[10px] text-slate-400">💨 Viento</p>
+          <p class="text-2xl font-bold text-sky-400 sensor-value"><span id="mainWind">--</span> <span class="text-xs">km/h</span></p>
+          <p class="text-[10px] text-slate-400 mt-1">Dirección: <span id="mainWindDir">--</span></p>
+        </div>
+        <div class="glass rounded-xl p-3">
+          <p class="text-[10px] text-slate-400">🌧️ Precipitación</p>
+          <p class="text-2xl font-bold text-blue-400 sensor-value"><span id="mainRain">--</span> <span class="text-xs">mm</span></p>
+          <p class="text-[10px] text-slate-400 mt-1">Probabilidad: <span id="mainRainProb">--</span>%</p>
+        </div>
+        <div class="glass rounded-xl p-3">
+          <p class="text-[10px] text-slate-400">🌡️ Presión</p>
+          <p class="text-2xl font-bold text-purple-400 sensor-value"><span id="mainPressure">--</span> <span class="text-xs">hPa</span></p>
+          <p class="text-[10px] text-slate-400 mt-1" id="pressureStatus">--</p>
+        </div>
+        <div class="glass rounded-xl p-3">
+          <p class="text-[10px] text-slate-400">☀️ Índice UV</p>
+          <p class="text-2xl font-bold text-orange-400 sensor-value"><span id="mainUv">--</span></p>
+          <p class="text-[10px] text-slate-400 mt-1" id="uvStatus">--</p>
+        </div>
+        <div class="glass rounded-xl p-3">
+          <p class="text-[10px] text-slate-400">👁️ Visibilidad</p>
+          <p class="text-2xl font-bold text-emerald-400 sensor-value"><span id="mainVisibility">--</span> <span class="text-xs">km</span></p>
+          <p class="text-[10px] text-slate-400 mt-1" id="visibilityStatus">--</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mb-4">
+    <div class="glass rounded-2xl p-4">
+      <h4 class="font-bold text-sm mb-3">📈 Temperatura 24h</h4>
+      <div class="h-56"><canvas id="tempChart"></canvas></div>
+    </div>
+    <div class="glass rounded-2xl p-4">
+      <h4 class="font-bold text-sm mb-3">🌧️ Precipitación 24h</h4>
+      <div class="h-56"><canvas id="rainChart"></canvas></div>
+    </div>
+  </div>
+  <div class="glass rounded-2xl p-4 mb-4">
+    <h4 class="font-bold text-sm mb-3">📅 Pronóstico Próximas 12 horas</h4>
+    <div id="forecastList" class="grid grid-cols-3 md:grid-cols-6 gap-2"></div>
+  </div>
+  <div class="glass rounded-2xl p-4">
+    <h4 class="font-bold text-sm mb-3">🌅 Sol y Luna</h4>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="glass rounded-xl p-3 text-center">
+        <p class="text-2xl">🌅</p>
+        <p class="text-[10px] text-slate-400">Amanecer</p>
+        <p class="text-sm font-bold" id="sunrise">--:--</p>
+      </div>
+      <div class="glass rounded-xl p-3 text-center">
+        <p class="text-2xl">🌇</p>
+        <p class="text-[10px] text-slate-400">Atardecer</p>
+        <p class="text-sm font-bold" id="sunset">--:--</p>
+      </div>
+      <div class="glass rounded-xl p-3 text-center">
+        <p class="text-2xl">🌙</p>
+        <p class="text-[10px] text-slate-400">Fase Lunar</p>
+        <p class="text-sm font-bold" id="moonPhase">--</p>
+      </div>
+      <div class="glass rounded-xl p-3 text-center">
+        <p class="text-2xl">⏱️</p>
+        <p class="text-[10px] text-slate-400">Horas de luz</p>
+        <p class="text-sm font-bold" id="daylight">--</p>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- AMBIENTAL -->
+<section id="content-ambiental" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+    <div onclick="showEnvDetail('aire')" class="card-hover glass rounded-2xl p-4"><div class="text-3xl mb-2">💨</div><h4 class="font-bold text-sm">Aire</h4><p class="text-[10px] text-slate-400 mb-2">Calidad del aire</p><div class="flex items-center justify-between"><span class="text-lg font-bold text-amber-400 sensor-value" id="envAire">62</span><span class="text-[10px] text-amber-400">Moderado</span></div></div>
+    <div onclick="showEnvDetail('atmosfera')" class="card-hover glass rounded-2xl p-4"><div class="text-3xl mb-2">🌤️</div><h4 class="font-bold text-sm">Atmósfera</h4><p class="text-[10px] text-slate-400 mb-2">Ozono y gases</p><div class="flex items-center justify-between"><span class="text-lg font-bold text-emerald-400 sensor-value" id="envAtm">42</span><span class="text-[10px] text-emerald-400">Bueno</span></div></div>
+    <div onclick="showEnvDetail('suelo')" class="card-hover glass rounded-2xl p-4"><div class="text-3xl mb-2">🌱</div><h4 class="font-bold text-sm">Suelo</h4><p class="text-[10px] text-slate-400 mb-2">Contaminación</p><div class="flex items-center justify-between"><span class="text-lg font-bold text-emerald-400 sensor-value" id="envSuelo">35</span><span class="text-[10px] text-emerald-400">Bueno</span></div></div>
+    <div onclick="showEnvDetail('agua')" class="card-hover glass rounded-2xl p-4"><div class="text-3xl mb-2">💧</div><h4 class="font-bold text-sm">Agua Potable</h4><p class="text-[10px] text-slate-400 mb-2">Consumo humano</p><div class="flex items-center justify-between"><span class="text-lg font-bold text-emerald-400 sensor-value" id="envAgua">28</span><span class="text-[10px] text-emerald-400">Excelente</span></div></div>
+    <div onclick="showEnvDetail('rios')" class="card-hover glass rounded-2xl p-4"><div class="text-3xl mb-2">🏞️</div><h4 class="font-bold text-sm">Ríos</h4><p class="text-[10px] text-slate-400 mb-2">Cuencas fluviales</p><div class="flex items-center justify-between"><span class="text-lg font-bold text-amber-400 sensor-value" id="envRios">65</span><span class="text-[10px] text-amber-400">Moderado</span></div></div>
+    <div onclick="showEnvDetail('mar')" class="card-hover glass rounded-2xl p-4"><div class="text-3xl mb-2">🌊</div><h4 class="font-bold text-sm">Mar</h4><p class="text-[10px] text-slate-400 mb-2">Océanos</p><div class="flex items-center justify-between"><span class="text-lg font-bold text-rose-400 sensor-value" id="envMar">88</span><span class="text-[10px] text-rose-400">Peligroso</span></div></div>
+    <div onclick="showEnvDetail('plantas')" class="card-hover glass rounded-2xl p-4"><div class="text-3xl mb-2">🌿</div><h4 class="font-bold text-sm">Plantas</h4><p class="text-[10px] text-slate-400 mb-2">Vegetación</p><div class="flex items-center justify-between"><span class="text-lg font-bold text-amber-400 sensor-value" id="envPlantas">55</span><span class="text-[10px] text-amber-400">Moderado</span></div></div>
+    <div onclick="showEnvDetail('quimicos')" class="card-hover glass rounded-2xl p-4 border border-rose-500/30"><div class="text-3xl mb-2">⚗️</div><h4 class="font-bold text-sm">Químicos</h4><p class="text-[10px] text-slate-400 mb-2">Sustancias</p><div class="flex items-center justify-between"><span class="text-lg font-bold text-rose-400 sensor-value" id="envQuim">92</span><span class="text-[10px] text-rose-400 blink">Peligro</span></div></div>
+  </div>
+  <div id="envDetail" class="glass rounded-2xl p-5 fade-in">
+    <div class="flex items-center justify-between mb-4">
+      <div><h3 class="text-xl font-bold" id="envTitle">💨 Calidad del Aire</h3><p class="text-xs text-slate-400" id="envSubtitle">Monitoreo atmosférico local</p></div>
+      <div id="envStatus" class="px-3 py-1 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400">Moderado</div>
+    </div>
+    <div class="grid md:grid-cols-2 gap-4">
+      <div><h4 class="text-xs font-semibold mb-2 text-slate-300">Parámetros Medidos</h4><div id="envParams" class="space-y-2"></div></div>
+      <div><h4 class="text-xs font-semibold mb-2 text-slate-300">Tendencia 24h</h4><div class="glass rounded-xl p-3 h-48"><canvas id="envChart"></canvas></div></div>
+    </div>
+    <div class="mt-4"><h4 class="text-xs font-semibold mb-2 text-slate-300">Recomendaciones de Salud</h4><div id="envRecs" class="grid md:grid-cols-2 gap-2"></div></div>
+  </div>
+</section>
+<!-- MAPA -->
+<section id="content-mapa" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
+  <div class="glass rounded-2xl p-4 mb-4">
+    <div class="flex items-center justify-between mb-3"><h3 class="font-bold">🗺️ Mapa de Contaminación por Provincia</h3><span class="text-xs text-slate-400" id="mapTime">--:--</span></div>
+    <div class="flex gap-3 mb-4 flex-wrap text-xs">
+      <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-rose-500"></span>Alta</div>
+      <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-500"></span>Media</div>
+      <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-500"></span>Baja</div>
+      <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-cyan-500"></span>Óptima</div>
+    </div>
+    <div class="relative bg-slate-900/50 rounded-xl p-4">
+      <svg viewBox="0 0 800 300" class="w-full h-auto">
+        <rect x="0" y="0" width="800" height="300" fill="#0c1929"/>
+        <path class="province" data-id="bocas" d="M50,80 L120,60 L150,80 L140,110 L80,120 L50,100 Z" fill="#f59e0b"/>
+        <path class="province" data-id="chiriqui" d="M120,60 L200,50 L220,90 L180,120 L140,110 L150,80 Z" fill="#f59e0b"/>
+        <path class="province" data-id="veraguas" d="M200,50 L320,55 L340,100 L300,140 L220,130 L180,120 L220,90 Z" fill="#10b981"/>
+        <path class="province" data-id="cocle" d="M320,55 L420,60 L430,100 L380,130 L340,100 Z" fill="#10b981"/>
+        <path class="province" data-id="herrera" d="M300,140 L340,100 L380,130 L360,170 L310,160 Z" fill="#10b981"/>
+        <path class="province" data-id="lossantos" d="M310,160 L360,170 L370,210 L330,220 L300,190 Z" fill="#06b6d4"/>
+        <path class="province" data-id="panamaoeste" d="M420,60 L500,55 L510,100 L470,120 L430,100 Z" fill="#ef4444"/>
+        <path class="province" data-id="panama" d="M500,55 L580,50 L600,90 L560,120 L510,100 Z" fill="#ef4444"/>
+        <path class="province" data-id="colon" d="M470,120 L510,100 L560,120 L540,160 L480,150 Z" fill="#f59e0b"/>
+        <path class="province" data-id="darien" d="M560,120 L600,90 L700,80 L750,130 L720,200 L620,210 L580,170 L540,160 Z" fill="#06b6d4"/>
+        <path class="province" data-id="embera" d="M380,130 L430,100 L470,120 L480,150 L440,180 L360,170 Z" fill="#06b6d4"/>
+        <path class="province" data-id="gunayala" d="M540,160 L580,170 L620,210 L560,220 L520,190 Z" fill="#10b981"/>
+        <circle cx="540" cy="80" r="4" fill="#fff" class="blink"/>
+        <text x="548" y="75" fill="#fff" font-size="10" font-weight="bold">CD Panamá</text>
+        <circle cx="170" cy="85" r="3" fill="#fff"/>
+        <text x="178" y="83" fill="#fff" font-size="9">David</text>
+        <circle cx="500" cy="135" r="3" fill="#fff"/>
+        <text x="508" y="133" fill="#fff" font-size="9">Colón</text>
+      </svg>
+    </div>
+  </div>
+  <div id="provDetail" class="glass rounded-2xl p-4 hidden">
+    <div class="flex items-center justify-between mb-3"><div><h4 class="font-bold text-lg" id="provName">-</h4><p class="text-xs" id="provLevel">-</p></div><div id="provAQI" class="text-3xl font-bold">-</div></div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
+      <div class="glass rounded-lg p-2"><p class="text-[9px] text-slate-400">PM2.5</p><p class="text-xs font-bold" id="pPM25">-</p></div>
+      <div class="glass rounded-lg p-2"><p class="text-[9px] text-slate-400">CO₂</p><p class="text-xs font-bold" id="pCO2">-</p></div>
+      <div class="glass rounded-lg p-2"><p class="text-[9px] text-slate-400">Ozono</p><p class="text-xs font-bold" id="pO3">-</p></div>
+      <div class="glass rounded-lg p-2"><p class="text-[9px] text-slate-400">Químicos</p><p class="text-xs font-bold" id="pChem">-</p></div>
+    </div>
+    <div id="provRecs" class="space-y-1.5"></div>
+  </div>
+  <div class="glass rounded-2xl p-4 mt-4"><h4 class="font-bold mb-3 text-sm">📊 Ranking de Zonas</h4><div id="rankingList" class="space-y-1.5"></div></div>
+</section>
+<!-- SÍSMICO -->
+<section id="content-sismico" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
+  <div class="glass rounded-2xl p-4 mb-4">
+    <div class="flex items-center justify-between mb-3"><h3 class="font-bold">🎛️ Panel de Control de Sensores Sísmicos</h3><button onclick="toggleAllSensors()" id="masterToggle" class="px-3 py-1.5 rounded-lg bg-rose-500/20 border border-rose-500/40 text-xs font-medium">Desactivar Todos</button></div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
+      <button onclick="activateByType('sismico')" class="glass rounded-xl p-2 text-center hover:bg-white/5"><p class="text-xl">📳</p><p class="text-[10px] font-bold">Sísmicos</p><p class="text-[9px] text-slate-400" id="count-sismico">8/8</p></button>
+      <button onclick="activateByType('tsunami')" class="glass rounded-xl p-2 text-center hover:bg-white/5"><p class="text-xl">🌊</p><p class="text-[10px] font-bold">Tsunami</p><p class="text-[9px] text-slate-400" id="count-tsunami">3/3</p></button>
+      <button onclick="activateByType('mareografo')" class="glass rounded-xl p-2 text-center hover:bg-white/5"><p class="text-xl">📏</p><p class="text-[10px] font-bold">Mareógrafos</p><p class="text-[9px] text-slate-400" id="count-mareografo">5/5</p></button>
+      <button onclick="activateByType('gps')" class="glass rounded-xl p-2 text-center hover:bg-white/5"><p class="text-xl">📍</p><p class="text-[10px] font-bold">GPS</p><p class="text-[9px] text-slate-400" id="count-gps">4/4</p></button>
+    </div>
+    <div id="sensorsList" class="space-y-1.5 max-h-96 overflow-y-auto scrollbar-hide"></div>
+  </div>
+  <div class="glass rounded-2xl p-4 mb-4">
+    <div class="flex items-center justify-between mb-3"><h3 class="font-bold">📈 Sismógrafos en Tiempo Real</h3><span class="live-indicator">REC</span></div>
+    <div class="bg-black/50 rounded-xl p-3 mb-3">
+      <div class="flex items-center justify-between mb-2"><span class="text-xs text-slate-400">Estación: Volcán Barú (CH-01)</span><span class="text-xs text-emerald-400">● En línea</span></div>
+      <canvas id="seismo1" class="w-full h-28 bg-black/30 rounded-lg"></canvas>
+    </div>
+    <div class="grid md:grid-cols-2 gap-3">
+      <div class="bg-black/50 rounded-xl p-3"><span class="text-xs text-slate-400">CD Panamá (PA-01)</span><canvas id="seismo2" class="w-full h-16 bg-black/30 rounded-lg mt-2"></canvas></div>
+      <div class="bg-black/50 rounded-xl p-3"><span class="text-xs text-slate-400">Colón (CO-01)</span><canvas id="seismo3" class="w-full h-16 bg-black/30 rounded-lg mt-2"></canvas></div>
+    </div>
+  </div>
+  <div class="glass rounded-2xl p-4">
+    <h4 class="font-bold mb-3">🎮 Simulador de Evento Sísmico</h4>
+    <p class="text-xs text-slate-400 mb-3">Simula un sismo. Si la magnitud es ≥ 5, se activará la alarma sonora y notificación.</p>
+    <div class="grid md:grid-cols-2 gap-4 mb-3">
+      <div><label class="text-xs text-slate-300 mb-1 block">Magnitud: <span id="magValue" class="text-emerald-400 font-bold">3.0</span></label><input type="range" id="magnitudeSlider" min="1" max="9" step="0.1" value="3" class="w-full accent-emerald-500" oninput="document.getElementById('magValue').textContent=parseFloat(this.value).toFixed(1)"></div>
+      <div><label class="text-xs text-slate-300 mb-1 block">Profundidad: <span id="depthValue" class="text-cyan-400 font-bold">30 km</span></label><input type="range" id="depthSlider" min="1" max="200" step="1" value="30" class="w-full accent-cyan-500" oninput="document.getElementById('depthValue').textContent=this.value+' km'"></div>
+    </div>
+    <button onclick="simulateQuake()" class="w-full py-3 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 font-bold hover:opacity-90">🌋 Simular Sismo</button>
+  </div>
+</section>
+<!-- TSUNAMIS -->
+<section id="content-tsunamis" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
+  <div class="glass rounded-2xl p-4 mb-4">
+    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+      <div class="flex items-center gap-3"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-3xl">🌊</div><div><h3 class="text-xl font-bold">Sistema de Alerta de Tsunamis</h3><p class="text-xs text-slate-400">Monitoreo de maremotos en costas panameñas</p></div></div>
+      <span class="live-indicator">EN VIVO</span>
+    </div>
+    <div class="glass rounded-2xl p-4 mb-4 border-2 border-emerald-500/40 bg-emerald-500/5">
+      <div class="flex items-center gap-3"><div class="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center text-3xl">✓</div><div><p class="text-lg font-bold text-emerald-400">SIN ALERTA DE TSUNAMI</p><p class="text-xs text-slate-300">No se han detectado anomalías en el nivel del mar.</p></div></div>
+    </div>
+    <h4 class="font-bold mb-3 text-sm">📡 Sensores DART (Océano Profundo)</h4>
+    <div class="grid md:grid-cols-2 gap-3 mb-4">
+      <div class="glass rounded-xl p-3"><div class="flex items-center justify-between mb-2"><span class="text-xs font-bold">DART #43210 - Pacífico</span><span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span></div><div class="grid grid-cols-2 gap-2 text-[10px]"><div><p class="text-slate-400">Profundidad</p><p class="font-bold">4,500 m</p></div><div><p class="text-slate-400">Nivel</p><p class="font-bold text-emerald-400">Normal</p></div><div><p class="text-slate-400">Presión</p><p class="font-bold sensor-value" id="dart1Pressure">450 dbars</p></div><div><p class="text-slate-400">Temp.</p><p class="font-bold sensor-value" id="dart1Temp">24.3°C</p></div></div></div>
+      <div class="glass rounded-xl p-3"><div class="flex items-center justify-between mb-2"><span class="text-xs font-bold">DART #43211 - Caribe</span><span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span></div><div class="grid grid-cols-2 gap-2 text-[10px]"><div><p class="text-slate-400">Profundidad</p><p class="font-bold">3,200 m</p></div><div><p class="text-slate-400">Nivel</p><p class="font-bold text-emerald-400">Normal</p></div><div><p class="text-slate-400">Presión</p><p class="font-bold sensor-value" id="dart2Pressure">320 dbars</p></div><div><p class="text-slate-400">Temp.</p><p class="font-bold sensor-value" id="dart2Temp">26.8°C</p></div></div></div>
+    </div>
+    <h4 class="font-bold mb-3 text-sm">📏 Mareógrafos Costeros</h4>
+    <div class="space-y-2">
+      <div class="glass rounded-xl p-3 flex items-center justify-between"><div class="flex items-center gap-2"><span class="text-lg">📏</span><div><p class="text-xs font-bold">Balboa (Pacífico)</p><p class="text-[9px] text-slate-400">CD Panamá</p></div></div><div class="text-right"><p class="text-xs font-bold text-emerald-400 sensor-value" id="marBalboa">+0.02 m</p><p class="text-[9px] text-slate-400">Normal</p></div></div>
+      <div class="glass rounded-xl p-3 flex items-center justify-between"><div class="flex items-center gap-2"><span class="text-lg">📏</span><div><p class="text-xs font-bold">Cristóbal (Caribe)</p><p class="text-[9px] text-slate-400">Colón</p></div></div><div class="text-right"><p class="text-xs font-bold text-emerald-400 sensor-value" id="marCristobal">-0.01 m</p><p class="text-[9px] text-slate-400">Normal</p></div></div>
+      <div class="glass rounded-xl p-3 flex items-center justify-between"><div class="flex items-center gap-2"><span class="text-lg">📏</span><div><p class="text-xs font-bold">Chiriquí</p><p class="text-[9px] text-slate-400">David</p></div></div><div class="text-right"><p class="text-xs font-bold text-emerald-400 sensor-value" id="marChiriqui">+0.01 m</p><p class="text-[9px] text-slate-400">Normal</p></div></div>
+      <div class="glass rounded-xl p-3 flex items-center justify-between"><div class="flex items-center gap-2"><span class="text-lg">📏</span><div><p class="text-xs font-bold">Bocas del Toro</p><p class="text-[9px] text-slate-400">Caribe</p></div></div><div class="text-right"><p class="text-xs font-bold text-emerald-400 sensor-value" id="marBocas">0.00 m</p><p class="text-[9px] text-slate-400">Normal</p></div></div>
+      <div class="glass rounded-xl p-3 flex items-center justify-between"><div class="flex items-center gap-2"><span class="text-lg">📏</span><div><p class="text-xs font-bold">Darién</p><p class="text-[9px] text-slate-400">Pacífico</p></div></div><div class="text-right"><p class="text-xs font-bold text-emerald-400 sensor-value" id="marDarien">+0.01 m</p><p class="text-[9px] text-slate-400">Normal</p></div></div>
+    </div>
+  </div>
+  <div class="glass rounded-2xl p-4">
+    <h4 class="font-bold mb-3 text-sm">🚦 Niveles de Alerta</h4>
+    <div class="space-y-2">
+      <div class="glass rounded-xl p-3 border-l-4 border-emerald-500"><div class="flex items-center gap-2"><span class="text-xl">🟢</span><div><p class="text-xs font-bold text-emerald-400">INFORMATIVO</p><p class="text-[10px] text-slate-300">Sin amenaza. Actividad normal.</p></div></div></div>
+      <div class="glass rounded-xl p-3 border-l-4 border-cyan-500"><div class="flex items-center gap-2"><span class="text-xl">🔵</span><div><p class="text-xs font-bold text-cyan-400">OBSERVACIÓN</p><p class="text-[10px] text-slate-300">Sismo significativo. Monitoreo intensificado.</p></div></div></div>
+      <div class="glass rounded-xl p-3 border-l-4 border-amber-500"><div class="flex items-center gap-2"><span class="text-xl">🟡</span><div><p class="text-xs font-bold text-amber-400">ALERTA</p><p class="text-[10px] text-slate-300">Posible tsunami. Preparar evacuación costera.</p></div></div></div>
+      <div class="glass rounded-xl p-3 border-l-4 border-rose-500"><div class="flex items-center gap-2"><span class="text-xl">🔴</span><div><p class="text-xs font-bold text-rose-400">EMERGENCIA</p><p class="text-[10px] text-slate-300">Tsunami confirmado. EVACUAR a zonas altas.</p></div></div></div>
+    </div>
+  </div>
+</section>
+<!-- ESPACIAL -->
+<section id="content-espacial" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
+  <div class="glass rounded-2xl p-4 mb-4">
+    <div class="flex items-center justify-between mb-4"><h3 class="font-bold">🛰️ Monitor de Frecuencias Espaciales</h3><span class="live-indicator">EN VIVO</span></div>
+    <div class="flex justify-center mb-4">
+      <div class="relative w-40 h-40">
+        <div class="absolute inset-0 rounded-full border border-cyan-500/30"></div>
+        <div class="absolute inset-4 rounded-full border border-cyan-500/20"></div>
+        <div class="absolute inset-8 rounded-full border border-cyan-500/20"></div>
+        <div class="absolute inset-12 rounded-full border border-cyan-500/20"></div>
+        <div class="absolute inset-0 rounded-full overflow-hidden"><div class="radar-sweep absolute top-1/2 left-1/2 w-1/2 h-0.5 bg-gradient-to-r from-cyan-400 to-transparent origin-left"></div></div>
+        <div class="absolute top-1/2 left-1/2 w-2 h-2 -ml-1 -mt-1 rounded-full bg-cyan-400"></div>
+        <div class="absolute top-8 right-12 w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-dot"></div>
+        <div class="absolute bottom-16 left-10 w-1.5 h-1.5 rounded-full bg-amber-400 pulse-dot"></div>
+        <div class="absolute top-20 left-8 w-1.5 h-1.5 rounded-full bg-cyan-400 pulse-dot"></div>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+      <div class="glass rounded-xl p-3"><p class="text-[9px] text-slate-400">Radiación Solar</p><p class="text-lg font-bold text-amber-400 sensor-value" id="liveSolar2">3.2 W/m²</p><p class="text-[9px] text-emerald-400">Normal</p></div>
+      <div class="glass rounded-xl p-3"><p class="text-[9px] text-slate-400">Rayos Cósmicos</p><p class="text-lg font-bold text-cyan-400 sensor-value" id="liveCosmic2">142 μSv</p><p class="text-[9px] text-emerald-400">Seguro</p></div>
+      <div class="glass rounded-xl p-3"><p class="text-[9px] text-slate-400">Campo Magnético</p><p class="text-lg font-bold text-indigo-400 sensor-value" id="liveMag2">48.2 μT</p><p class="text-[9px] text-emerald-400">Estable</p></div>
+      <div class="glass rounded-xl p-3"><p class="text-[9px] text-slate-400">Actividad Solar</p><p class="text-lg font-bold text-orange-400 sensor-value" id="liveKp2">Kp 2</p><p class="text-[9px] text-emerald-400">Baja</p></div>
+    </div>
+    <div class="bg-black/40 rounded-xl p-3"><p class="text-xs text-slate-400 mb-2">Espectro de frecuencias detectadas</p><div class="flex items-end gap-0.5 h-20" id="freqBars"></div></div>
+  </div>
+  <div class="glass rounded-2xl p-4">
+    <h4 class="font-bold mb-3 text-sm">📡 Satélites Monitoreando Panamá</h4>
+    <div class="space-y-2">
+      <div class="glass rounded-xl p-3 flex items-center justify-between"><div class="flex items-center gap-2"><span class="text-lg">🛰️</span><div><p class="text-xs font-bold">GOES-16 (NOAA)</p><p class="text-[9px] text-slate-400">Clima y atmósfera</p></div></div><span class="text-[10px] text-emerald-400">● Activo</span></div>
+      <div class="glass rounded-xl p-3 flex items-center justify-between"><div class="flex items-center gap-2"><span class="text-lg">🛰️</span><div><p class="text-xs font-bold">Landsat 9 (NASA)</p><p class="text-[9px] text-slate-400">Contaminación del suelo</p></div></div><span class="text-[10px] text-emerald-400">● Activo</span></div>
+      <div class="glass rounded-xl p-3 flex items-center justify-between"><div class="flex items-center gap-2"><span class="text-lg">🛰️</span><div><p class="text-xs font-bold">Sentinel-5P (ESA)</p><p class="text-[9px] text-slate-400">Calidad del aire</p></div></div><span class="text-[10px] text-emerald-400">● Activo</span></div>
+      <div class="glass rounded-xl p-3 flex items-center justify-between"><div class="flex items-center gap-2"><span class="text-lg">🛰️</span><div><p class="text-xs font-bold">Jason-3 (NASA)</p><p class="text-[9px] text-slate-400">Nivel del mar y tsunamis</p></div></div><span class="text-[10px] text-emerald-400">● Activo</span></div>
+    </div>
+  </div>
+</section>
+<!-- CUIDADOS -->
+<section id="content-cuidados" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
+  <div class="glass rounded-2xl p-4 mb-4">
+    <h3 class="font-bold mb-3">⚕️ Cuidados de Salud por Nivel de Contaminación</h3>
+    <div class="space-y-3">
+      <div class="glass rounded-xl p-4 border border-rose-500/30"><div class="flex items-center gap-2 mb-2"><span class="w-3 h-3 rounded-full bg-rose-500"></span><h4 class="font-bold text-sm text-rose-400">Zonas de Contaminación ALTA</h4></div><ul class="text-[11px] text-slate-300 space-y-1 ml-5"><li>❌ No hacer ejercicio al aire libre</li><li>😷 Usar mascarilla N95 al salir</li><li>🏠 Mantener ventanas cerradas</li><li>🌬️ Usar purificador de aire</li><li>👶 Proteger a niños, ancianos y asmáticos</li><li>💧 Beber abundante agua</li></ul></div>
+      <div class="glass rounded-xl p-4 border border-amber-500/30"><div class="flex items-center gap-2 mb-2"><span class="w-3 h-3 rounded-full bg-amber-500"></span><h4 class="font-bold text-sm text-amber-400">Zonas de Contaminación MEDIA</h4></div><ul class="text-[11px] text-slate-300 space-y-1 ml-5"><li>⚠️ Personas sensibles limitan actividades al aire libre</li><li>🏃 Reducir ejercicio intenso en exteriores</li><li>🪟 Ventilar hogares en horas de menor tráfico</li><li>🌿 Tener plantas purificadoras en casa</li></ul></div>
+      <div class="glass rounded-xl p-4 border border-emerald-500/30"><div class="flex items-center gap-2 mb-2"><span class="w-3 h-3 rounded-full bg-emerald-500"></span><h4 class="font-bold text-sm text-emerald-400">Zonas de Contaminación BAJA / ÓPTIMA</h4></div><ul class="text-[11px] text-slate-300 space-y-1 ml-5"><li>✅ Aprovechar para actividades al aire libre</li><li>🌳 Caminar, correr o hacer deporte sin riesgo</li><li>🪟 Abrir ventanas para ventilar el hogar</li><li>📸 Ideal para turismo y parques nacionales</li></ul></div>
+    </div>
+  </div>
+  <div class="glass rounded-2xl p-4 mb-4">
+    <h4 class="font-bold mb-3">🌋 Protocolos ante Sismos y Tsunamis</h4>
+    <div class="grid md:grid-cols-3 gap-3">
+      <div class="glass rounded-xl p-3 border-t-4 border-emerald-500"><p class="text-xl mb-2">📋</p><h5 class="text-xs font-bold text-emerald-400 mb-2">ANTES</h5><ul class="text-[10px] text-slate-300 space-y-1"><li>• Mochila de emergencia</li><li>• Zonas seguras identificadas</li><li>• Fijar muebles pesados</li><li>• Plan familiar de evacuación</li></ul></div>
+      <div class="glass rounded-xl p-3 border-t-4 border-amber-500"><p class="text-xl mb-2">🚨</p><h5 class="text-xs font-bold text-amber-400 mb-2">DURANTE</h5><ul class="text-[10px] text-slate-300 space-y-1"><li>• AGACHARSE, CUBRIRSE, SUJETARSE</li><li>• Alejarse de ventanas</li><li>• Si estás en la costa, ALÉJATE del mar</li><li>• No usar ascensores</li></ul></div>
+      <div class="glass rounded-xl p-3 border-t-4 border-cyan-500"><p class="text-xl mb-2">🌊</p><h5 class="text-xs font-bold text-cyan-400 mb-2">TSUNAMI</h5><ul class="text-[10px] text-slate-300 space-y-1"><li>• Si el mar se retira: EVACUAR</li><li>• Ir a zonas altas (30m+)</li><li>• No regresar hasta aviso oficial</li><li>• Múltiples olas posibles</li></ul></div>
+    </div>
+  </div>
+  <div class="glass rounded-2xl p-4">
+    <h4 class="font-bold mb-3">🌙 Monitoreo Nocturno 24/7</h4>
+    <div class="glass rounded-xl p-3">
+      <p class="text-xs text-slate-300 mb-2">Todos los sensores operan las 24 horas:</p>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span><span class="text-[10px]">Sensores de aire</span></div>
+        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span><span class="text-[10px]">Sensores de agua</span></div>
+        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span><span class="text-[10px]">Sismógrafos</span></div>
+        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span><span class="text-[10px]">Mareógrafos</span></div>
+        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span><span class="text-[10px]">Estaciones met.</span></div>
+        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span><span class="text-[10px]">Satélites</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+<div id="notifModal" class="modal-overlay" onclick="if(event.target===this)closeNotifModal()">
+  <div class="modal-content p-5">
+    <div class="flex items-center justify-between mb-4"><div class="flex items-center gap-2"><span class="text-2xl">🔔</span><h3 class="text-lg font-bold">Centro de Notificaciones</h3></div><button onclick="closeNotifModal()" class="w-8 h-8 rounded-full glass hover:bg-white/10">✕</button></div>
+    <div class="glass rounded-xl p-3 mb-4">
+      <div class="flex items-center justify-between">
+        <div><p class="text-sm font-bold">Notificaciones del navegador</p><p class="text-[10px] text-slate-400" id="notifPermissionText">Verificando permiso...</p></div>
+        <button onclick="requestNotifPermission()" id="notifPermBtn" class="px-3 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-xs font-medium">Activar</button>
+      </div>
+    </div>
+    <div class="flex items-center justify-between mb-3"><h4 class="font-bold text-sm">🔊 Alarma sonora</h4><label class="flex items-center gap-2 cursor-pointer"><span class="text-xs text-slate-400">Activada</span><div id="soundToggle" class="toggle-switch active" onclick="toggleSound()"></div></label></div>
+    <div class="flex items-center justify-between mb-4"><h4 class="font-bold text-sm">📳 Vibración (móvil)</h4><label class="flex items-center gap-2 cursor-pointer"><span class="text-xs text-slate-400">Activada</span><div id="vibrationToggle" class="toggle-switch active" onclick="toggleVibration()"></div></label></div>
+    <h4 class="font-bold text-sm mb-2">📜 Historial de Notificaciones</h4>
+    <div id="notifList" class="space-y-2 max-h-80 overflow-y-auto scrollbar-hide"></div>
+    <button onclick="clearNotifications()" class="w-full mt-3 py-2 rounded-lg glass text-xs hover:bg-white/10">🗑️ Limpiar historial</button>
+  </div>
+</div>
+<div id="manualModal" class="modal-overlay" onclick="if(event.target===this)closeManual()">
+  <div class="modal-content">
+    <div class="sticky top-0 glass p-4 flex items-center justify-between z-10 border-b border-white/10">
+      <div class="flex items-center gap-2"><span class="text-2xl">📘</span><div><h3 class="text-lg font-bold">Manual de Usuario</h3><p class="text-[10px] text-slate-400">EcoMonitor Panamá · v3.0</p></div></div>
+      <button onclick="closeManual()" class="w-8 h-8 rounded-full glass hover:bg-white/10">✕</button>
+    </div>
+    <div class="grid md:grid-cols-[220px_1fr] gap-0">
+      <div class="border-r border-white/10 p-2 space-y-1">
+        <button onclick="showManualSection('inicio')" class="manual-nav-item active w-full text-left px-3 py-2 rounded-lg text-xs">📖 Introducción</button>
+        <button onclick="showManualSection('clima')" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">🌤️ Clima</button>
+        <button onclick="showManualSection('ambiental')" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">🌍 Ambiental</button>
+        <button onclick="showManualSection('sismico')" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">🌋 Sísmico</button>
+        <button onclick="showManualSection('tsunamis')" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">🌊 Tsunamis</button>
+        <button onclick="showManualSection('sensores')" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">📡 Sensores</button>
+        <button onclick="showManualSection('alarmas')" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">🚨 Alarmas</button>
+        <button onclick="showManualSection('faq')" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">❓ FAQ</button>
+      </div>
+      <div class="p-5 overflow-y-auto max-h-[70vh]" id="manualContent"></div>
+    </div>
+  </div>
+</div>
+<footer class="max-w-7xl mx-auto px-4 py-6 text-center text-slate-500 text-xs">
+  <p>EcoMonitor Panamá © 2025 — Sistema Integral de Monitoreo Ambiental, Sísmico, Climático y Espacial</p>
+  <p class="mt-1">🌍 Ambiental · 🌤️ Clima · 🌋 Sísmico · 🌊 Tsunamis · 🛰️ Espacial · 🔔 24/7</p>
+</footer>
+<script>
+// ============================================
+// 🌤️ CLIMA - API Open-Meteo (gratis, sin API key)
+// ============================================
+const PANAMA_LAT = 8.9824;
+const PANAMA_LON = -79.5199;
+let weatherData = null;
+let tempChart = null;
+let rainChart = null;
+const weatherCodes = {
+  0: { icon: '☀️', desc: 'Despejado' },
+  1: { icon: '🌤️', desc: 'Mayormente despejado' },
+  2: { icon: '⛅', desc: 'Parcialmente nublado' },
+  3: { icon: '☁️', desc: 'Nublado' },
+  45: { icon: '🌫️', desc: 'Niebla' },
+  48: { icon: '🌫️', desc: 'Niebla con escarcha' },
+  51: { icon: '🌦️', desc: 'Llovizna ligera' },
+  53: { icon: '🌦️', desc: 'Llovizna moderada' },
+  55: { icon: '🌧️', desc: 'Llovizna densa' },
+  61: { icon: '🌧️', desc: 'Lluvia ligera' },
+  63: { icon: '🌧️', desc: 'Lluvia moderada' },
+  65: { icon: '🌧️', desc: 'Lluvia intensa' },
+  71: { icon: '🌨️', desc: 'Nieve ligera' },
+  73: { icon: '🌨️', desc: 'Nieve moderada' },
+  75: { icon: '❄️', desc: 'Nieve intensa' },
+  80: { icon: '🌦️', desc: 'Chubascos ligeros' },
+  81: { icon: '🌧️', desc: 'Chubascos moderados' },
+  82: { icon: '⛈️', desc: 'Chubascos violentos' },
+  95: { icon: '⛈️', desc: 'Tormenta' },
+  96: { icon: '⛈️', desc: 'Tormenta con granizo' },
+  99: { icon: '⛈️', desc: 'Tormenta severa' }
+};
+function getWeatherInfo(code) {
+  return weatherCodes[code] || { icon: '🌡️', desc: 'Desconocido' };
+}
+function getWindDirection(deg) {
+  const dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];
+  return dirs[Math.round(deg / 22.5) % 16];
+}
+function getUvStatus(uv) {
+  if (uv <= 2) return 'Bajo';
+  if (uv <= 5) return 'Moderado';
+  if (uv <= 7) return 'Alto';
+  if (uv <= 10) return 'Muy Alto';
+  return 'Extremo';
+}
+async function fetchWeather() {
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${PANAMA_LAT}&longitude=${PANAMA_LON}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,uv_index&hourly=temperature_2m,precipitation_probability,precipitation,weather_code&daily=sunrise,sunset,uv_index_max&timezone=America%2FPanama&forecast_days=2`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('API error');
+    weatherData = await res.json();
+    updateWeatherUI();
+    updateWeatherCharts();
+    document.getElementById('weatherUpdated').textContent = new Date().toLocaleTimeString('es-PA', { hour: '2-digit', minute: '2-digit' });
+    addNotification('success', '🌤️ Clima actualizado', 'Datos meteorológicos recibidos de Open-Meteo');
+  } catch (err) {
+    console.error('Weather fetch error:', err);
+    // Fallback: datos simulados realistas para Panamá
+    weatherData = generateFallbackWeather();
+    updateWeatherUI();
+    updateWeatherCharts();
+    addNotification('warning', '⚠️ Clima en modo offline', 'Usando datos simulados. Verifica tu conexión.');
+  }
+}
+function generateFallbackWeather() {
+  const now = new Date();
+  const hour = now.getHours();
+  const baseTemp = 26 + Math.sin((hour - 6) * Math.PI / 12) * 4;
+  const hourly = { time: [], temperature_2m: [], precipitation_probability: [], precipitation: [], weather_code: [] };
+  for (let i = 0; i < 48; i++) {
+    hourly.time.push(new Date(now.getTime() + i * 3600000).toISOString());
+    hourly.temperature_2m.push(baseTemp + Math.sin((i - 6) * Math.PI / 12) * 3 + (Math.random() - 0.5));
+    hourly.precipitation_probability.push(Math.floor(Math.random() * 60));
+    hourly.precipitation.push(Math.random() > 0.7 ? Math.random() * 3 : 0);
+    hourly.weather_code.push([0, 1, 2, 3, 61, 80][Math.floor(Math.random() * 6)]);
+  }
+  return {
+    current: {
+      temperature_2m: baseTemp,
+      relative_humidity_2m: 75 + Math.floor(Math.random() * 15),
+      apparent_temperature: baseTemp + 2,
+      precipitation: Math.random() > 0.5 ? Math.random() * 2 : 0,
+      weather_code: 2,
+      surface_pressure: 1012 + Math.random() * 4,
+      wind_speed_10m: 8 + Math.random() * 10,
+      wind_direction_10m: Math.random() * 360,
+      uv_index: hour >= 6 && hour <= 18 ? 3 + Math.random() * 6 : 0
+    },
+    hourly,
+    daily: {
+      sunrise: [now.toISOString().split('T')[0] + 'T06:05:00'],
+      sunset: [now.toISOString().split('T')[0] + 'T18:22:00'],
+      uv_index_max: [9]
+    }
+  };
+}
+function updateWeatherUI() {
+  if (!weatherData) return;
+  const c = weatherData.current;
+  const info = getWeatherInfo(c.weather_code);
+  
+  // Dashboard
+  document.getElementById('dashWeatherIcon').textContent = info.icon;
+  document.getElementById('dashTemp').textContent = c.temperature_2m.toFixed(1);
+  document.getElementById('dashWeatherDesc').textContent = info.desc;
+  document.getElementById('dashFeels').textContent = c.apparent_temperature.toFixed(1);
+  document.getElementById('dashHumidity').textContent = c.relative_humidity_2m;
+  document.getElementById('dashWind').textContent = c.wind_speed_10m.toFixed(0);
+  document.getElementById('dashRain').textContent = c.precipitation.toFixed(1);
+  
+  // Clima tab
+  document.getElementById('mainWeatherIcon').textContent = info.icon;
+  document.getElementById('mainTemp').textContent = c.temperature_2m.toFixed(1);
+  document.getElementById('mainWeatherDesc').textContent = info.desc;
+  document.getElementById('mainFeels').textContent = c.apparent_temperature.toFixed(1);
+  document.getElementById('mainHumidity').textContent = c.relative_humidity_2m;
+  document.getElementById('humidityBar').style.width = c.relative_humidity_2m + '%';
+  document.getElementById('mainWind').textContent = c.wind_speed_10m.toFixed(1);
+  document.getElementById('mainWindDir').textContent = getWindDirection(c.wind_direction_10m);
+  document.getElementById('mainRain').textContent = c.precipitation.toFixed(1);
+  document.getElementById('mainRainProb').textContent = weatherData.hourly.precipitation_probability[0] || 0;
+  document.getElementById('mainPressure').textContent = c.surface_pressure.toFixed(0);
+  document.getElementById('pressureStatus').textContent = c.surface_pressure > 1013 ? 'Alta · Estable' : 'Baja · Inestable';
+  document.getElementById('mainUv').textContent = c.uv_index.toFixed(1);
+  document.getElementById('uvStatus').textContent = getUvStatus(c.uv_index);
+  document.getElementById('mainVisibility').textContent = '10';
+  document.getElementById('visibilityStatus').textContent = 'Excelente';
+  
+  // Stat global
+  document.getElementById('statTemp').textContent = c.temperature_2m.toFixed(0) + '°C';
+  document.getElementById('statWeather').textContent = info.desc;
+  
+  // Sol y Luna
+  if (weatherData.daily) {
+    const sunrise = new Date(weatherData.daily.sunrise[0]);
+    const sunset = new Date(weatherData.daily.sunset[0]);
+    document.getElementById('sunrise').textContent = sunrise.toLocaleTimeString('es-PA', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('sunset').textContent = sunset.toLocaleTimeString('es-PA', { hour: '2-digit', minute: '2-digit' });
+    const daylightMs = sunset - sunrise;
+    const daylightH = Math.floor(daylightMs / 3600000);
+    const daylightM = Math.floor((daylightMs % 3600000) / 60000);
+    document.getElementById('daylight').textContent = `${daylightH}h ${daylightM}m`;
+  }
+  
+  // Fase lunar (aproximada)
+  const moonPhases = ['🌑 Nueva', '🌒 Creciente', '🌓 Cuarto', '🌔 Gibosa', '🌕 Llena', '🌖 Menguante', '🌗 Cuarto', '🌘 Menguante'];
+  const daysSinceNew = (Date.now() / 86400000 - 4.24) % 29.53;
+  const phaseIdx = Math.floor(daysSinceNew / 3.69);
+  document.getElementById('moonPhase').textContent = moonPhases[phaseIdx];
+  
+  // Pronóstico
+  renderForecast();
+}
+function renderForecast() {
+  const list = document.getElementById('forecastList');
+  list.innerHTML = '';
+  const now = new Date();
+  const currentHour = now.getHours();
+  
+  for (let i = 0; i < 12; i++) {
+    const hourData = weatherData.hourly;
+    const idx = i;
+    if (idx >= hourData.time.length) break;
+    const time = new Date(hourData.time[idx]);
+    const info = getWeatherInfo(hourData.weather_code[idx]);
+    const div = document.createElement('div');
+    div.className = 'glass rounded-xl p-3 text-center';
+    div.innerHTML = `
+      <p class="text-[10px] text-slate-400">${time.getHours().toString().padStart(2,'0')}:00</p>
+      <p class="text-2xl my-1">${info.icon}</p>
+      <p class="text-sm font-bold sensor-value">${hourData.temperature_2m[idx].toFixed(0)}°C</p>
+      <p class="text-[9px] text-cyan-400">💧 ${hourData.precipitation_probability[idx] || 0}%</p>
+    `;
+    list.appendChild(div);
+  }
+}
+function updateWeatherCharts() {
+  if (!weatherData) return;
+  const hourly = weatherData.hourly;
+  const labels = hourly.time.slice(0, 24).map(t => {
+    const d = new Date(t);
+    return d.getHours().toString().padStart(2,'0') + ':00';
+  });
+  
+  // Temperatura
+  const tempCtx = document.getElementById('tempChart').getContext('2d');
+  if (tempChart) tempChart.destroy();
+  const tempGrad = tempCtx.createLinearGradient(0, 0, 0, 200);
+  tempGrad.addColorStop(0, 'rgba(239,68,68,0.4)');
+  tempGrad.addColorStop(1, 'rgba(239,68,68,0)');
+  tempChart = new Chart(tempCtx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Temperatura °C',
+        data: hourly.temperature_2m.slice(0, 24),
+        borderColor: '#f87171',
+        backgroundColor: tempGrad,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 2
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#94a3b8', font: { size: 9 }, maxRotation: 0 }, grid: { color: 'rgba(148,163,184,0.1)' } },
+        y: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { color: 'rgba(148,163,184,0.1)' } }
+      }
+    }
+  });
+  
+  // Precipitación
+  const rainCtx = document.getElementById('rainChart').getContext('2d');
+  if (rainChart) rainChart.destroy();
+  rainChart = new Chart(rainCtx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Precipitación mm',
+        data: hourly.precipitation.slice(0, 24),
+        backgroundColor: 'rgba(56,189,248,0.6)',
+        borderColor: '#38bdf8',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#94a3b8', font: { size: 9 }, maxRotation: 0 }, grid: { color: 'rgba(148,163,184,0.1)' } },
+        y: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { color: 'rgba(148,163,184,0.1)' } }
+      }
+    }
+  });
+}
+// ============================================
+// DATOS AMBIENTALES (con fluctuación en tiempo real)
+// ============================================
+const envData = {
+  aire: { title: '💨 Calidad del Aire', subtitle: 'Monitoreo atmosférico local', status: 'Moderado', statusColor: 'amber', params: [{ name: 'PM2.5', value: '32 µg/m³', pct: 43, color: 'amber', danger: false }, { name: 'PM10', value: '58 µg/m³', pct: 38, color: 'emerald', danger: false }, { name: 'NO₂', value: '42 ppb', pct: 79, color: 'rose', danger: true }, { name: 'O₃ Ozono', value: '0.065 ppm', pct: 93, color: 'amber', danger: true }, { name: 'CO', value: '6 ppm', pct: 67, color: 'emerald', danger: false }], trend: [45, 52, 58, 62, 68, 72, 78, 75, 70, 65, 72, 78], recs: [{ type: 'warning', text: 'Evita ejercicio intenso al aire libre' }, { type: 'info', text: 'Personas con asma deben llevar inhalador' }, { type: 'success', text: 'PM2.5 en rango aceptable' }] },
+  atmosfera: { title: '🌤️ Estado de la Atmósfera', subtitle: 'Capa de ozono y gases', status: 'Bueno', statusColor: 'emerald', params: [{ name: 'Capa de Ozono', value: '285 DU', pct: 71, color: 'emerald', danger: false }, { name: 'CO₂', value: '420 ppm', pct: 42, color: 'amber', danger: false }, { name: 'Metano CH₄', value: '1.92 ppm', pct: 96, color: 'amber', danger: true }, { name: 'CFC-11', value: '232 ppt', pct: 93, color: 'emerald', danger: false }, { name: 'Índice UV', value: '6 Alto', pct: 55, color: 'amber', danger: false }], trend: [40, 42, 45, 43, 41, 44, 46, 48, 45, 43, 42, 42], recs: [{ type: 'warning', text: 'Usa bloqueador solar FPS 30+' }, { type: 'info', text: 'Metano elevado' }, { type: 'success', text: 'Capa de ozono estable' }] },
+  suelo: { title: '🌱 Contaminación del Suelo', subtitle: 'Metales pesados', status: 'Bueno', statusColor: 'emerald', params: [{ name: 'Plomo (Pb)', value: '12 mg/kg', pct: 24, color: 'emerald', danger: false }, { name: 'Mercurio (Hg)', value: '0.8 mg/kg', pct: 80, color: 'amber', danger: true }, { name: 'Pesticidas', value: '0.15 mg/kg', pct: 30, color: 'emerald', danger: false }, { name: 'Hidrocarburos', value: '0.08 mg/kg', pct: 16, color: 'emerald', danger: false }, { name: 'pH', value: '6.8', pct: 49, color: 'emerald', danger: false }], trend: [30, 32, 34, 33, 35, 36, 35, 34, 33, 35, 36, 35], recs: [{ type: 'warning', text: 'Mercurio cercano al límite' }, { type: 'success', text: 'Plomo seguro' }, { type: 'info', text: 'pH óptimo' }] },
+  agua: { title: '💧 Agua Potable', subtitle: 'Consumo humano', status: 'Excelente', statusColor: 'emerald', params: [{ name: 'pH', value: '7.2', pct: 51, color: 'emerald', danger: false }, { name: 'Cloro', value: '0.5 mg/L', pct: 12, color: 'emerald', danger: false }, { name: 'Coliformes', value: '0 UFC', pct: 0, color: 'emerald', danger: false }, { name: 'Turbidez', value: '1.2 NTU', pct: 24, color: 'emerald', danger: false }, { name: 'Metales', value: 'No detectados', pct: 0, color: 'emerald', danger: false }], trend: [25, 27, 28, 26, 29, 30, 28, 27, 28, 29, 28, 28], recs: [{ type: 'success', text: 'Agua segura' }, { type: 'success', text: 'Sin bacterias' }, { type: 'info', text: 'Hervir si hay cortes' }] },
+  rios: { title: '🏞️ Ríos y Cuencas', subtitle: 'Monitoreo fluvial', status: 'Moderado', statusColor: 'amber', params: [{ name: 'Oxígeno disuelto', value: '5.2 mg/L', pct: 52, color: 'emerald', danger: false }, { name: 'DBO₅', value: '4.5 mg/L', pct: 90, color: 'amber', danger: true }, { name: 'Amoníaco', value: '0.8 mg/L', pct: 53, color: 'emerald', danger: false }, { name: 'Sólidos susp.', value: '45 mg/L', pct: 60, color: 'amber', danger: false }, { name: 'E. coli', value: '180 UFC', pct: 72, color: 'amber', danger: true }], trend: [55, 58, 62, 65, 68, 70, 68, 65, 62, 64, 66, 65], recs: [{ type: 'warning', text: 'No nadar en zonas con alta DBO' }, { type: 'warning', text: 'Evita peces sin verificar' }, { type: 'info', text: 'Reporta vertidos' }] },
+  mar: { title: '🌊 Estado del Mar', subtitle: 'Océanos', status: 'Peligroso', statusColor: 'rose', params: [{ name: 'Microplásticos', value: '8.5 items/m³', pct: 170, color: 'rose', danger: true }, { name: 'Temperatura', value: '24.5°C', pct: 82, color: 'emerald', danger: false }, { name: 'Acidez pH', value: '8.05', pct: 95, color: 'amber', danger: false }, { name: 'Hidrocarburos', value: '0.02 ppm', pct: 200, color: 'rose', danger: true }, { name: 'Salinidad', value: '35 ppt', pct: 70, color: 'emerald', danger: false }], trend: [75, 78, 82, 85, 88, 90, 88, 85, 87, 89, 90, 88], recs: [{ type: 'danger', text: 'Evita mariscos' }, { type: 'danger', text: 'Hidrocarburos detectados' }, { type: 'warning', text: 'No consumir pescado sin certificación' }] },
+  plantas: { title: '🌿 Plantas', subtitle: 'Bioindicadores', status: 'Moderado', statusColor: 'amber', params: [{ name: 'NDVI', value: '0.72', pct: 72, color: 'emerald', danger: false }, { name: 'Toxinas', value: '0.12 mg/kg', pct: 60, color: 'emerald', danger: false }, { name: 'Polen', value: 'Alto', pct: 78, color: 'amber', danger: true }, { name: 'Estrés hídrico', value: 'Medio', pct: 55, color: 'amber', danger: false }, { name: 'Daño ozono', value: 'Leve', pct: 25, color: 'emerald', danger: false }], trend: [50, 52, 55, 58, 55, 53, 55, 57, 56, 55, 54, 55], recs: [{ type: 'warning', text: 'Polen alto: alérgicos con mascarilla' }, { type: 'info', text: 'Estrés leve' }, { type: 'success', text: 'Sin toxinas peligrosas' }] },
+  quimicos: { title: '⚗️ Químicos', subtitle: 'Sustancias peligrosas', status: 'Peligroso', statusColor: 'rose', params: [{ name: 'Benceno', value: '0.008 ppm', pct: 160, color: 'rose', danger: true }, { name: 'Formaldehído', value: '0.12 ppm', pct: 120, color: 'rose', danger: true }, { name: 'Amoníaco', value: '18 ppm', pct: 72, color: 'emerald', danger: false }, { name: 'CO', value: '6 ppm', pct: 67, color: 'emerald', danger: false }, { name: 'VOCs', value: '0.6 mg/m³', pct: 120, color: 'rose', danger: true }], trend: [70, 75, 80, 85, 88, 90, 92, 95, 93, 91, 92, 92], recs: [{ type: 'danger', text: '⚠️ Benceno sobre límite: evacuar' }, { type: 'danger', text: '⚠️ Formaldehído: ventilar' }, { type: 'warning', text: 'Mascarilla con filtro de carbón' }] }
+};
+const provinces = [
+  { id: 'bocas', name: 'Bocas del Toro', level: 'media', aqi: 68, pm25: '28 µg/m³', co2: '420 ppm', o3: '0.058 ppm', chem: 'Normal' },
+  { id: 'chiriqui', name: 'Chiriquí', level: 'media', aqi: 65, pm25: '25 µg/m³', co2: '410 ppm', o3: '0.055 ppm', chem: 'Normal' },
+  { id: 'veraguas', name: 'Veraguas', level: 'baja', aqi: 38, pm25: '12 µg/m³', co2: '390 ppm', o3: '0.040 ppm', chem: 'Normal' },
+  { id: 'cocle', name: 'Coclé', level: 'baja', aqi: 42, pm25: '15 µg/m³', co2: '395 ppm', o3: '0.042 ppm', chem: 'Normal' },
+  { id: 'herrera', name: 'Herrera', level: 'baja', aqi: 35, pm25: '10 µg/m³', co2: '385 ppm', o3: '0.038 ppm', chem: 'Normal' },
+  { id: 'lossantos', name: 'Los Santos', level: 'optima', aqi: 25, pm25: '8 µg/m³', co2: '380 ppm', o3: '0.035 ppm', chem: 'Normal' },
+  { id: 'panamaoeste', name: 'Panamá Oeste', level: 'alta', aqi: 85, pm25: '52 µg/m³', co2: '480 ppm', o3: '0.068 ppm', chem: 'Elevado' },
+  { id: 'panama', name: 'Ciudad de Panamá', level: 'alta', aqi: 92, pm25: '58 µg/m³', co2: '510 ppm', o3: '0.072 ppm', chem: 'Alto' },
+  { id: 'colon', name: 'Colón', level: 'media', aqi: 58, pm25: '22 µg/m³', co2: '405 ppm', o3: '0.050 ppm', chem: 'Normal' },
+  { id: 'darien', name: 'Darién', level: 'optima', aqi: 20, pm25: '6 µg/m³', co2: '375 ppm', o3: '0.030 ppm', chem: 'Normal' },
+  { id: 'embera', name: 'Emberá', level: 'optima', aqi: 18, pm25: '5 µg/m³', co2: '370 ppm', o3: '0.028 ppm', chem: 'Normal' },
+  { id: 'gunayala', name: 'Guna Yala', level: 'baja', aqi: 30, pm25: '9 µg/m³', co2: '382 ppm', o3: '0.036 ppm', chem: 'Normal' }
+];
+const provRecs = {
+  alta: [{ icon: '🚨', text: 'Evita salir sin mascarilla N95', color: 'text-rose-400' }, { icon: '🏠', text: 'Mantén ventanas cerradas', color: 'text-rose-400' }],
+  media: [{ icon: '⚠️', text: 'Personas sensibles con cuidado', color: 'text-amber-400' }, { icon: '🏃', text: 'Reduce ejercicio al aire libre', color: 'text-amber-400' }],
+  baja: [{ icon: '✅', text: 'Condiciones aceptables', color: 'text-emerald-400' }, { icon: '🌳', text: 'Puedes hacer ejercicio', color: 'text-emerald-400' }],
+  optima: [{ icon: '🌟', text: '¡Excelente calidad!', color: 'text-cyan-400' }, { icon: '📸', text: 'Ideal para turismo', color: 'text-cyan-400' }]
+};
+const sensors = [
+  { id: 'S-001', name: 'Sismógrafo Volcán Barú', type: 'sismico', location: 'Chiriquí', active: true, signal: 98, reading: '0.002 g' },
+  { id: 'S-002', name: 'Acelerómetro CD Panamá', type: 'sismico', location: 'Panamá', active: true, signal: 95, reading: '0.001 g' },
+  { id: 'S-003', name: 'Sismógrafo Colón', type: 'sismico', location: 'Colón', active: true, signal: 92, reading: '0.003 g' },
+  { id: 'S-004', name: 'Sensor Bocas del Toro', type: 'sismico', location: 'Bocas del Toro', active: true, signal: 88, reading: '0.001 g' },
+  { id: 'S-005', name: 'Acelerómetro David', type: 'sismico', location: 'Chiriquí', active: true, signal: 96, reading: '0.002 g' },
+  { id: 'S-006', name: 'Sismógrafo Veraguas', type: 'sismico', location: 'Veraguas', active: true, signal: 90, reading: '0.001 g' },
+  { id: 'S-007', name: 'Sensor Darién', type: 'sismico', location: 'Darién', active: true, signal: 85, reading: '0.001 g' },
+  { id: 'S-008', name: 'Sensor Coclé', type: 'sismico', location: 'Coclé', active: true, signal: 93, reading: '0.002 g' },
+  { id: 'D-001', name: 'DART Pacífico #43210', type: 'tsunami', location: 'Pacífico', active: true, signal: 99, reading: 'Normal' },
+  { id: 'D-002', name: 'DART Caribe #43211', type: 'tsunami', location: 'Caribe', active: true, signal: 97, reading: 'Normal' },
+  { id: 'D-003', name: 'DART Golfo Chiriquí', type: 'tsunami', location: 'Golfo Chiriquí', active: true, signal: 94, reading: 'Normal' },
+  { id: 'M-001', name: 'Mareógrafo Balboa', type: 'mareografo', location: 'CD Panamá', active: true, signal: 96, reading: '+0.02 m' },
+  { id: 'M-002', name: 'Mareógrafo Cristóbal', type: 'mareografo', location: 'Colón', active: true, signal: 94, reading: '-0.01 m' },
+  { id: 'M-003', name: 'Mareógrafo Chiriquí', type: 'mareografo', location: 'David', active: true, signal: 91, reading: '+0.01 m' },
+  { id: 'M-004', name: 'Mareógrafo Bocas', type: 'mareografo', location: 'Bocas del Toro', active: true, signal: 89, reading: '0.00 m' },
+  { id: 'M-005', name: 'Mareógrafo Darién', type: 'mareografo', location: 'Darién', active: true, signal: 87, reading: '+0.01 m' },
+  { id: 'G-001', name: 'GPS Geodésico Panamá', type: 'gps', location: 'CD Panamá', active: true, signal: 99, reading: '0.2 mm/día' },
+  { id: 'G-002', name: 'GPS Geodésico David', type: 'gps', location: 'Chiriquí', active: true, signal: 97, reading: '0.1 mm/día' },
+  { id: 'G-003', name: 'GPS Geodésico Colón', type: 'gps', location: 'Colón', active: true, signal: 95, reading: '0.3 mm/día' },
+  { id: 'G-004', name: 'GPS Changuinola', type: 'gps', location: 'Bocas del Toro', active: true, signal: 92, reading: '0.1 mm/día' }
+];
+const quakeHistory = [
+  { mag: 2.1, depth: 45, location: 'Costa Pacífico, Chiriquí', time: 'Hace 12 min' },
+  { mag: 1.8, depth: 32, location: 'Volcán Barú, Chiriquí', time: 'Hace 2 h' },
+  { mag: 3.4, depth: 68, location: 'Golfo de Chiriquí', time: 'Hace 5 h' },
+  { mag: 1.2, depth: 15, location: 'Colón', time: 'Hace 8 h' },
+  { mag: 2.7, depth: 52, location: 'Darién', time: 'Hace 14 h' }
+];
+// ============================================
+// NOTIFICACIONES
+// ============================================
+let notifications = [];
+let soundEnabled = true;
+let vibrationEnabled = true;
+let alarmInterval = null;
+let audioCtx = null;
+function getNow() { return new Date().toLocaleString('es-PA', { dateStyle: 'short', timeStyle: 'medium' }); }
+function requestNotifPermission() {
+  if (!('Notification' in window)) { alert('Navegador no soporta notificaciones'); return; }
+  Notification.requestPermission().then(p => {
+    updateNotifPermissionUI();
+    if (p === 'granted') new Notification('🔔 EcoMonitor Activado', { body: 'Recibirás alertas en tiempo real' });
+  });
+}
+function updateNotifPermissionUI() {
+  const text = document.getElementById('notifPermissionText');
+  const btn = document.getElementById('notifPermBtn');
+  if (!('Notification' in window)) { text.textContent = 'No soportado'; btn.style.display = 'none'; }
+  else if (Notification.permission === 'granted') { text.textContent = '✅ Concedido'; text.className = 'text-[10px] text-emerald-400'; btn.textContent = '✓ Activo'; btn.disabled = true; }
+  else if (Notification.permission === 'denied') { text.textContent = '❌ Denegado'; text.className = 'text-[10px] text-rose-400'; }
+  else text.textContent = 'Pendiente';
+}
+function addNotification(type, title, message) {
+  const notif = { id: Date.now(), type, title, message, time: getNow() };
+  notifications.unshift(notif);
+  if (notifications.length > 50) notifications.pop();
+  updateNotifBadge();
+  renderNotifList();
+  if ('Notification' in window && Notification.permission === 'granted') new Notification(title, { body: message });
+  if (vibrationEnabled && 'vibrate' in navigator) navigator.vibrate(type === 'danger' ? [500, 200, 500, 200, 500] : [200, 100, 200]);
+  document.getElementById('notifCount').textContent = notifications.length;
+}
+function updateNotifBadge() {
+  const badge = document.getElementById('notifBadge');
+  const count = notifications.length;
+  if (count > 0) { badge.textContent = count > 9 ? '9+' : count; badge.classList.remove('hidden'); }
+  else badge.classList.add('hidden');
+}
+function renderNotifList() {
+  const list = document.getElementById('notifList');
+  if (notifications.length === 0) { list.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">No hay notificaciones</p>'; return; }
+  const icons = { danger: '🚨', warning: '⚠️', info: 'ℹ️', success: '✅' };
+  const colors = { danger: 'border-rose-500/40 bg-rose-500/10', warning: 'border-amber-500/40 bg-amber-500/10', info: 'border-cyan-500/40 bg-cyan-500/10', success: 'border-emerald-500/40 bg-emerald-500/10' };
+  list.innerHTML = notifications.map(n => `<div class="glass rounded-lg p-2 border-l-2 ${colors[n.type]}"><div class="flex items-start gap-2"><span class="text-lg">${icons[n.type]}</span><div class="flex-1 min-w-0"><p class="text-xs font-bold">${n.title}</p><p class="text-[10px] text-slate-300">${n.message}</p><p class="text-[9px] text-slate-500 mt-0.5">📅 ${n.time}</p></div></div></div>`).join('');
+}
+function clearNotifications() { notifications = []; updateNotifBadge(); renderNotifList(); document.getElementById('notifCount').textContent = '0'; }
+function toggleNotifications() { document.getElementById('notifModal').classList.add('active'); updateNotifPermissionUI(); renderNotifList(); }
+function closeNotifModal() { document.getElementById('notifModal').classList.remove('active'); }
+function toggleSound() { soundEnabled = !soundEnabled; document.getElementById('soundToggle').classList.toggle('active'); }
+function toggleVibration() { vibrationEnabled = !vibrationEnabled; document.getElementById('vibrationToggle').classList.toggle('active'); }
+function playAlarmSound() {
+  if (!soundEnabled) return;
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const playBeep = (freq, duration, delay) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.frequency.value = freq; osc.type = 'sine';
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + delay + duration);
+      osc.start(audioCtx.currentTime + delay); osc.stop(audioCtx.currentTime + delay + duration);
+    };
+    playBeep(880, 0.3, 0); playBeep(880, 0.3, 0.4); playBeep(880, 0.3, 0.8);
+  } catch(e) {}
+}
+function triggerAlarm(type, title, message) {
+  document.getElementById('alarmBanner').classList.remove('hidden');
+  document.getElementById('alarmTitle').textContent = title;
+  document.getElementById('alarmMessage').textContent = message;
+  document.getElementById('alarmTime').textContent = '📅 ' + getNow();
+  playAlarmSound();
+  if (alarmInterval) clearInterval(alarmInterval);
+  alarmInterval = setInterval(playAlarmSound, 2500);
+  addNotification(type, title, message);
+  document.body.classList.add('shake');
+  setTimeout(() => document.body.classList.remove('shake'), 500);
+}
+function stopAlarm() {
+  document.getElementById('alarmBanner').classList.add('hidden');
+  if (alarmInterval) { clearInterval(alarmInterval); alarmInterval = null; }
+}
+// ============================================
+// TABS
+// ============================================
+function showTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+  document.querySelectorAll('.tab-btn').forEach(el => { el.classList.remove('tab-active'); el.classList.add('glass'); });
+  document.getElementById(`content-${tab}`).classList.remove('hidden');
+  const btn = document.getElementById(`tab-${tab}`);
+  btn.classList.add('tab-active'); btn.classList.remove('glass');
+}
+// ============================================
+// AMBIENTAL
+// ============================================
+let envChart;
+function showEnvDetail(id) {
+  const data = envData[id];
+  document.getElementById('envTitle').textContent = data.title;
+  document.getElementById('envSubtitle').textContent = data.subtitle;
+  const status = document.getElementById('envStatus');
+  status.textContent = data.status;
+  status.className = `px-3 py-1 rounded-full text-xs font-medium bg-${data.statusColor}-500/20 text-${data.statusColor}-400`;
+  const params = document.getElementById('envParams');
+  params.innerHTML = '';
+  data.params.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'glass rounded-lg p-2';
+    div.innerHTML = `<div class="flex justify-between text-[11px] mb-1"><span>${p.name}</span><span class="text-${p.color}-400 font-bold sensor-value">${p.value} ${p.danger ? '⚠️' : ''}</span></div><div class="h-1.5 bg-slate-700 rounded-full overflow-hidden"><div class="h-full bg-${p.color}-400 bar-fill" style="width:${Math.min(100,p.pct)}%"></div></div>`;
+    params.appendChild(div);
+  });
+  const ctx = document.getElementById('envChart').getContext('2d');
+  if (envChart) envChart.destroy();
+  const gradient = ctx.createLinearGradient(0, 0, 0, 150);
+  gradient.addColorStop(0, 'rgba(16,185,129,0.4)'); gradient.addColorStop(1, 'rgba(16,185,129,0)');
+  envChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels: ['00','02','04','06','08','10','12','14','16','18','20','22'], datasets: [{ data: data.trend, borderColor: '#10b981', backgroundColor: gradient, fill: true, tension: 0.4, pointRadius: 2 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { color: 'rgba(148,163,184,0.1)' } }, y: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { color: 'rgba(148,163,184,0.1)' } } } }
+  });
+  const recs = document.getElementById('envRecs');
+  recs.innerHTML = '';
+  const colors = { danger: 'border-rose-500/40 bg-rose-500/10 text-rose-300', warning: 'border-amber-500/40 bg-amber-500/10 text-amber-300', info: 'border-cyan-500/40 bg-cyan-500/10 text-cyan-300', success: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' };
+  const icons = { danger: '🚨', warning: '⚠️', info: 'ℹ️', success: '✅' };
+  data.recs.forEach(r => {
+    const div = document.createElement('div');
+    div.className = `rounded-lg p-2 border ${colors[r.type]} text-[11px]`;
+    div.innerHTML = `<span class="mr-1">${icons[r.type]}</span>${r.text}`;
+    recs.appendChild(div);
+  });
+}
+// ============================================
+// MAPA
+// ============================================
+document.querySelectorAll('.province').forEach(prov => {
+  prov.addEventListener('click', function() {
+    document.querySelectorAll('.province').forEach(p => p.classList.remove('selected'));
+    this.classList.add('selected');
+    const data = provinces.find(p => p.id === this.dataset.id);
+    if (data) showProvDetail(data);
+  });
+});
+function showProvDetail(data) {
+  const panel = document.getElementById('provDetail');
+  panel.classList.remove('hidden');
+  const levelColors = { alta: 'rose', media: 'amber', baja: 'emerald', optima: 'cyan' };
+  const levelLabels = { alta: '🔴 ALTA', media: '🟡 MEDIA', baja: '🟢 BAJA', optima: '🔵 ÓPTIMA' };
+  const c = levelColors[data.level];
+  document.getElementById('provName').textContent = data.name;
+  document.getElementById('provLevel').textContent = levelLabels[data.level];
+  document.getElementById('provLevel').className = `text-xs text-${c}-400`;
+  document.getElementById('provAQI').textContent = data.aqi;
+  document.getElementById('provAQI').className = `text-3xl font-bold text-${c}-400`;
+  document.getElementById('pPM25').textContent = data.pm25;
+  document.getElementById('pCO2').textContent = data.co2;
+  document.getElementById('pO3').textContent = data.o3;
+  document.getElementById('pChem').textContent = data.chem;
+  const recs = document.getElementById('provRecs');
+  recs.innerHTML = '';
+  provRecs[data.level].forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'glass rounded-lg p-2 flex items-start gap-2';
+    div.innerHTML = `<span class="text-lg">${r.icon}</span><span class="text-[11px] ${r.color}">${r.text}</span>`;
+    recs.appendChild(div);
+  });
+}
+function renderRanking() {
+  const sorted = [...provinces].sort((a, b) => b.aqi - a.aqi);
+  const list = document.getElementById('rankingList');
+  list.innerHTML = '';
+  const colors = { alta: 'rose', media: 'amber', baja: 'emerald', optima: 'cyan' };
+  sorted.forEach((p, i) => {
+    const c = colors[p.level];
+    const div = document.createElement('div');
+    div.className = 'flex items-center gap-2 glass rounded-lg p-2';
+    div.innerHTML = `<span class="text-[10px] text-slate-400 w-4">${i+1}.</span><span class="w-2 h-2 rounded-full bg-${c}-500"></span><span class="flex-1 text-xs">${p.name}</span><span class="text-xs font-bold text-${c}-400">${p.aqi}</span>`;
+    list.appendChild(div);
+  });
+}
+// ============================================
+// SENSORES
+// ============================================
+function renderSensors() {
+  const list = document.getElementById('sensorsList');
+  list.innerHTML = '';
+  const typeIcons = { sismico: '📳', tsunami: '🌊', mareografo: '📏', gps: '📍' };
+  const typeLabels = { sismico: 'Sísmico', tsunami: 'DART', mareografo: 'Mareógrafo', gps: 'GPS' };
+  sensors.forEach(s => {
+    const div = document.createElement('div');
+    div.className = `glass rounded-lg p-2 flex items-center gap-2 transition ${s.active ? 'sensor-online' : 'sensor-offline'}`;
+    div.innerHTML = `<span class="text-lg">${typeIcons[s.type]}</span><div class="flex-1 min-w-0"><div class="flex items-center gap-2"><p class="text-[11px] font-bold truncate">${s.name}</p><span class="text-[8px] px-1.5 py-0.5 rounded-full ${s.active ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-700 text-slate-400'}">${s.active ? 'ON' : 'OFF'}</span></div><p class="text-[9px] text-slate-400">${typeLabels[s.type]} · ${s.location} · <span class="sensor-value">${s.signal}%</span></p></div><div class="toggle-switch ${s.active ? 'active' : ''}" onclick="toggleSensor('${s.id}')"></div>`;
+    list.appendChild(div);
+  });
+  updateSensorStats();
+}
+function toggleSensor(id) { const s = sensors.find(x => x.id === id); s.active = !s.active; renderSensors(); }
+function toggleAllSensors() {
+  const allOn = sensors.every(s => s.active);
+  sensors.forEach(s => s.active = !allOn);
+  const btn = document.getElementById('masterToggle');
+  btn.textContent = !allOn ? 'Desactivar Todos' : 'Activar Todos';
+  btn.className = !allOn ? 'px-3 py-1.5 rounded-lg bg-rose-500/20 border border-rose-500/40 text-xs font-medium' : 'px-3 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-xs font-medium';
+  renderSensors();
+}
+function activateByType(type) {
+  const typeSensors = sensors.filter(s => s.type === type);
+  const allOn = typeSensors.every(s => s.active);
+  typeSensors.forEach(s => s.active = !allOn);
+  renderSensors();
+}
+function updateSensorStats() {
+  const active = sensors.filter(s => s.active).length;
+  document.getElementById('activeSensors').textContent = active;
+  ['sismico', 'tsunami', 'mareografo', 'gps'].forEach(type => {
+    const count = sensors.filter(s => s.type === type && s.active).length;
+    const total = sensors.filter(s => s.type === type).length;
+    const el = document.getElementById(`count-${type}`);
+    if (el) el.textContent = `${count}/${total}`;
+  });
+}
+// ============================================
+// SISMÓGRAFOS
+// ============================================
+function initSeismo(canvasId, intensity = 0.1) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return null;
+  const ctx = canvas.getContext('2d');
+  let data = new Array(200).fill(0);
+  function draw() {
+    const w = canvas.width = canvas.offsetWidth;
+    const h = canvas.height = canvas.offsetHeight;
+    ctx.clearRect(0, 0, w, h);
+    ctx.strokeStyle = 'rgba(16,185,129,0.15)'; ctx.lineWidth = 0.5;
+    for (let i = 0; i < h; i += 15) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(w, i); ctx.stroke(); }
+    ctx.strokeStyle = 'rgba(16,185,129,0.3)'; ctx.beginPath(); ctx.moveTo(0, h/2); ctx.lineTo(w, h/2); ctx.stroke();
+    ctx.strokeStyle = '#10b981'; ctx.lineWidth = 1.5; ctx.beginPath();
+    const step = w / data.length;
+    data.forEach((val, i) => { const x = i * step; const y = h / 2 + val * (h / 2); if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
+    ctx.stroke();
+    data.shift(); data.push((Math.random() - 0.5) * intensity);
+    requestAnimationFrame(draw);
+  }
+  draw();
+  return {
+    trigger: function(mag) {
+      const amp = mag / 5; let count = 0;
+      const interval = setInterval(() => { data.shift(); data.push(Math.sin(count * 0.5) * amp * (1 - count/60) + (Math.random() - 0.5) * 0.1); count++; if (count > 60) clearInterval(interval); }, 30);
+    }
+  };
+}
+function simulateQuake() {
+  const mag = parseFloat(document.getElementById('magnitudeSlider').value);
+  const depth = parseInt(document.getElementById('depthSlider').value);
+  const now = getNow();
+  if (seismo1) seismo1.trigger(mag); if (seismo2) seismo2.trigger(mag * 0.7); if (seismo3) seismo3.trigger(mag * 0.6);
+  document.getElementById('lastQuakeMag').textContent = mag.toFixed(1);
+  document.getElementById('lastQuakeDepth').textContent = depth + 'km';
+  quakeHistory.unshift({ mag, depth, location: 'Simulación - Panamá', time: 'Ahora' });
+  if (quakeHistory.length > 5) quakeHistory.pop();
+  renderMiniQuakes();
+  if (mag >= 7 && depth < 50) {
+    triggerAlarm('danger', '🚨 TERREMOTO ' + mag.toFixed(1), `⚠️ Sismo fuerte a ${depth}km. POSIBLE TSUNAMI. EVACUAR costas. ${now}`);
+    document.getElementById('tsunamiRisk').textContent = 'ALTO'; document.getElementById('tsunamiRisk').className = 'text-xl font-bold text-rose-400';
+    document.getElementById('quakeAlert').textContent = 'Rojo'; document.getElementById('quakeAlert').className = 'text-sm font-bold text-rose-400';
+  } else if (mag >= 5) {
+    triggerAlarm('warning', '⚠️ TERREMOTO', `Magnitud ${mag.toFixed(1)} · ${depth}km. ${now}`);
+    document.getElementById('tsunamiRisk').textContent = 'Moderado'; document.getElementById('tsunamiRisk').className = 'text-xl font-bold text-amber-400';
+    document.getElementById('quakeAlert').textContent = 'Amarillo'; document.getElementById('quakeAlert').className = 'text-sm font-bold text-amber-400';
+  } else if (mag >= 3) {
+    addNotification('info', '📳 Sismo', `${mag.toFixed(1)} · ${depth}km · ${now}`);
+    document.getElementById('tsunamiRisk').textContent = 'Nulo'; document.getElementById('tsunamiRisk').className = 'text-xl font-bold text-emerald-400';
+    document.getElementById('quakeAlert').textContent = 'Verde'; document.getElementById('quakeAlert').className = 'text-sm font-bold text-emerald-400';
+  } else {
+    addNotification('success', '✓ Microsismo', `${mag.toFixed(1)} · ${depth}km · ${now}`);
+  }
+}
+function renderMiniQuakes() {
+  const list = document.getElementById('miniQuakeList');
+  if (!list) return;
+  list.innerHTML = '';
+  quakeHistory.slice(0, 4).forEach(q => {
+    const c = q.mag >= 3 ? 'amber' : q.mag >= 2 ? 'yellow' : 'emerald';
+    const div = document.createElement('div');
+    div.className = 'flex items-center gap-2 glass rounded-lg p-1.5';
+    div.innerHTML = `<span class="text-xs font-bold text-${c}-400 w-8">${q.mag}</span><div class="flex-1 min-w-0"><p class="text-[10px] truncate">${q.location}</p><p class="text-[8px] text-slate-500">${q.depth}km · ${q.time}</p></div>`;
+    list.appendChild(div);
+  });
+}
+function renderFreqBars() {
+  const container = document.getElementById('freqBars');
+  if (!container) return;
+  container.innerHTML = '';
+  const colors = ['bg-cyan-400', 'bg-emerald-400', 'bg-indigo-400', 'bg-purple-400'];
+  for (let i = 0; i < 40; i++) {
+    const bar = document.createElement('div');
+    bar.className = `flex-1 ${colors[i % 4]} rounded-t opacity-70`;
+    bar.style.height = (20 + Math.random() * 80) + '%';
+    container.appendChild(bar);
+  }
+}
+// ============================================
+// ACTUALIZACIÓN EN TIEMPO REAL DE SENSORES
+// ============================================
+function updateSensorsRealTime() {
+  sensors.forEach(s => {
+    if (!s.active) return;
+    if (s.type === 'sismico') {
+      const base = parseFloat(s.reading) || 0.002;
+      const newReading = Math.max(0.0005, base + (Math.random() - 0.5) * 0.001);
+      s.reading = newReading.toFixed(3) + ' g';
+      s.signal = Math.max(85, Math.min(100, s.signal + (Math.random() - 0.5) * 2));
+    } else if (s.type === 'tsunami') {
+      s.signal = Math.max(95, Math.min(100, s.signal + (Math.random() - 0.5)));
+    } else if (s.type === 'mareografo') {
+      const v = (Math.random() * 0.04 - 0.02).toFixed(2);
+      s.reading = (v >= 0 ? '+' : '') + v + ' m';
+    } else if (s.type === 'gps') {
+      s.reading = (Math.random() * 0.5).toFixed(1) + ' mm/día';
+    }
+  });
+  renderSensors();
+  
+  // Actualizar DART y mareógrafos específicos
+  if (document.getElementById('dart1Pressure')) {
+    document.getElementById('dart1Pressure').textContent = (448 + Math.random() * 4).toFixed(0) + ' dbars';
+    document.getElementById('dart1Temp').textContent = (24 + Math.random() * 0.5).toFixed(1) + '°C';
+    document.getElementById('dart2Pressure').textContent = (318 + Math.random() * 4).toFixed(0) + ' dbars';
+    document.getElementById('dart2Temp').textContent = (26.5 + Math.random() * 0.5).toFixed(1) + '°C';
+  }
+  if (document.getElementById('marBalboa')) {
+    document.getElementById('marBalboa').textContent = (Math.random() * 0.04 - 0.01).toFixed(2) + ' m';
+    document.getElementById('marCristobal').textContent = (Math.random() * 0.04 - 0.02).toFixed(2) + ' m';
+    document.getElementById('marChiriqui').textContent = (Math.random() * 0.04 - 0.01).toFixed(2) + ' m';
+    document.getElementById('marBocas').textContent = (Math.random() * 0.04 - 0.02).toFixed(2) + ' m';
+    document.getElementById('marDarien').textContent = (Math.random() * 0.04 - 0.01).toFixed(2) + ' m';
+  }
+}
+function updateEnvironmentalRealTime() {
+  // Fluctuación de AQI
+  const aqi = 62 + Math.floor((Math.random() - 0.5) * 6);
+  document.getElementById('statAqi').textContent = aqi;
+  document.getElementById('liveAqi').textContent = aqi;
+  document.getElementById('envAire').textContent = aqi;
+  
+  // Agua
+  const water = 28 + Math.floor((Math.random() - 0.5) * 4);
+  document.getElementById('liveWater').textContent = water;
+  document.getElementById('envAgua').textContent = water;
+  
+  // Mar
+  const sea = 88 + Math.floor((Math.random() - 0.5) * 4);
+  document.getElementById('liveSea').textContent = sea;
+  document.getElementById('envMar').textContent = sea;
+  
+  // Suelo
+  const soil = 35 + Math.floor((Math.random() - 0.5) * 4);
+  document.getElementById('liveSoil').textContent = soil;
+  document.getElementById('envSuelo').textContent = soil;
+  
+  // Otros
+  document.getElementById('envAtm').textContent = 42 + Math.floor((Math.random() - 0.5) * 4);
+  document.getElementById('envRios').textContent = 65 + Math.floor((Math.random() - 0.5) * 4);
+  document.getElementById('envPlantas').textContent = 55 + Math.floor((Math.random() - 0.5) * 4);
+  document.getElementById('envQuim').textContent = 92 + Math.floor((Math.random() - 0.5) * 4);
+  
+  // Espacial
+  const solar = (3.0 + Math.random() * 0.5).toFixed(1);
+  const cosmic = Math.floor(140 + Math.random() * 10);
+  const mag = (47.5 + Math.random() * 1.5).toFixed(1);
+  const kp = Math.floor(1 + Math.random() * 3);
+  document.getElementById('liveSolar').textContent = solar + ' W/m²';
+  document.getElementById('liveCosmic').textContent = cosmic + ' μSv';
+  document.getElementById('liveMag').textContent = mag + ' μT';
+  document.getElementById('liveKp').textContent = 'Kp ' + kp;
+  document.getElementById('liveSolar2').textContent = solar + ' W/m²';
+  document.getElementById('liveCosmic2').textContent = cosmic + ' μSv';
+  document.getElementById('liveMag2').textContent = mag + ' μT';
+  document.getElementById('liveKp2').textContent = 'Kp ' + kp;
+}
+// ============================================
+// MANUAL
+// ============================================
+const manualSections = {
+  inicio: { title: '📖 Introducción', content: `<h3 class="text-xl font-bold mb-3">Bienvenido a EcoMonitor Panamá v3.0</h3><p class="text-sm text-slate-300 mb-3">Sistema integral de monitoreo <b class="text-emerald-400">ambiental, sísmico, climático y espacial</b> con datos en tiempo real.</p><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🎯 Módulos disponibles</h4><ul class="text-xs text-slate-300 space-y-1.5 ml-4"><li>🌤️ <b>Clima</b>: Datos reales de Open-Meteo API (temperatura, humedad, viento, lluvia, UV, presión)</li><li>🌍 <b>Ambiental</b>: 7 módulos (Aire, Atmósfera, Suelo, Agua, Ríos, Mar, Plantas)</li><li>🌋 <b>Sísmico</b>: 8 sensores + sismógrafos en vivo</li><li>🌊 <b>Tsunamis</b>: 3 DART + 5 mareógrafos</li><li>🛰️ <b>Espacial</b>: 4 satélites + frecuencias</li></ul></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">📡 Sensores en tiempo real</h4><p class="text-xs text-slate-300">Todos los sensores se actualizan automáticamente cada pocos segundos. El clima se actualiza cada 15 minutos desde la API oficial.</p></div>` },
+  clima: { title: '🌤️ Clima', content: `<h3 class="text-xl font-bold mb-3">Módulo Climático</h3><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">📡 Fuente de datos</h4><p class="text-xs text-slate-300">Datos reales de <b class="text-cyan-400">Open-Meteo API</b> (gratuita, sin API key). Coordenadas: Ciudad de Panamá (8.98°N, 79.52°O).</p></div><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">📊 Parámetros medidos</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>🌡️ Temperatura actual y sensación térmica</li><li>💧 Humedad relativa</li><li>💨 Velocidad y dirección del viento</li><li>🌧️ Precipitación y probabilidad</li><li>🌡️ Presión atmosférica</li><li>☀️ Índice UV</li><li>👁️ Visibilidad</li></ul></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">📈 Gráficos</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• Tendencia de temperatura 24h</li><li>• Precipitación 24h</li><li>• Pronóstico próximas 12 horas</li><li>• Amanecer, atardecer y fase lunar</li></ul></div>` },
+  ambiental: { title: '🌍 Ambiental', content: `<h3 class="text-xl font-bold mb-3">Monitoreo Ambiental</h3><p class="text-sm text-slate-300 mb-3">7 tipos de monitoreo ambiental en tiempo real:</p><div class="space-y-2"><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm text-sky-400 mb-1">💨 Aire</h4><p class="text-xs text-slate-300">PM2.5, PM10, NO₂, O₃, CO. Índice AQI.</p></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm text-indigo-400 mb-1">🌤️ Atmósfera</h4><p class="text-xs text-slate-300">Capa de ozono, CO₂, metano, CFCs, UV.</p></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm text-amber-400 mb-1">🌱 Suelo</h4><p class="text-xs text-slate-300">Metales pesados, pesticidas, pH.</p></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm text-cyan-400 mb-1">💧 Agua Potable</h4><p class="text-xs text-slate-300">pH, cloro, coliformes, turbidez.</p></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm text-teal-400 mb-1">🏞️ Ríos</h4><p class="text-xs text-slate-300">Oxígeno disuelto, DBO₅, E. coli.</p></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm text-blue-400 mb-1">🌊 Mar</h4><p class="text-xs text-slate-300">Microplásticos, temperatura, hidrocarburos.</p></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm text-green-400 mb-1">🌿 Plantas</h4><p class="text-xs text-slate-300">NDVI, toxinas, polen, estrés hídrico.</p></div></div>` },
+  sismico: { title: '🌋 Sísmico', content: `<h3 class="text-xl font-bold mb-3">Monitoreo Sísmico</h3><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🎛️ 20 Sensores Activos</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• 8 sensores sísmicos</li><li>• 3 sensores DART (tsunamis)</li><li>• 5 mareógrafos</li><li>• 4 GPS geodésicos</li></ul></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">📈 Sismógrafos en Vivo</h4><p class="text-xs text-slate-300">3 estaciones: Volcán Barú, CD Panamá, Colón. Muestran actividad sísmica en tiempo real.</p></div>` },
+  tsunamis: { title: '🌊 Tsunamis', content: `<h3 class="text-xl font-bold mb-3">Alerta de Tsunamis</h3><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">📡 Sensores DART</h4><p class="text-xs text-slate-300">Sensores en el fondo oceánico que detectan cambios de presión causados por tsunamis.</p></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">🚦 Niveles de Alerta</h4><div class="space-y-1 text-xs mt-2"><div><b class="text-emerald-400">🟢 Informativo</b>: Sin amenaza</div><div><b class="text-cyan-400">🔵 Observación</b>: Sismo significativo</div><div><b class="text-amber-400">🟡 Alerta</b>: Posible tsunami</div><div><b class="text-rose-400">🔴 Emergencia</b>: Tsunami confirmado</div></div></div>` },
+  sensores: { title: '📡 Sensores', content: `<h3 class="text-xl font-bold mb-3">Sensores en Tiempo Real</h3><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">⏱️ Frecuencia de actualización</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• Sismógrafos: cada 30ms (30 fps)</li><li>• Sensores sísmicos: cada 4 segundos</li><li>• Mareógrafos: cada 4 segundos</li><li>• Datos ambientales: cada 5 segundos</li><li>• Clima (API): cada 15 minutos</li><li>• Frecuencias espaciales: cada 2 segundos</li></ul></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">🎛️ Control</h4><p class="text-xs text-slate-300">Puedes activar/desactivar sensores individualmente o por tipo. El botón "Activar Todos" enciende los 20 sensores.</p></div>` },
+  alarmas: { title: '🚨 Alarmas', content: `<h3 class="text-xl font-bold mb-3">Sistema de Alarmas</h3><div class="glass rounded-xl p-3 mb-3 border border-rose-500/30"><h4 class="font-bold text-sm mb-2 text-rose-400">🔔 ¿Cuándo se activa?</h4><ul class="text-xs text-slate-300 space-y-1.5 ml-4"><li>• <b>Sismo 5-6.9</b>: Alarma amarilla</li><li>• <b>Sismo 7+</b>: Alarma roja + tsunami</li><li>• <b>Sismo + profundidad &lt;50km</b>: Alerta tsunami</li></ul></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">🔊 Tipos de Alerta</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• <b>Visual</b>: Banner rojo parpadeante</li><li>• <b>Sonora</b>: 3 beeps agudos (880Hz)</li><li>• <b>Vibración</b>: Patrón SOS</li><li>• <b>Push</b>: Notificación del navegador</li></ul></div>` },
+  faq: { title: '❓ FAQ', content: `<h3 class="text-xl font-bold mb-3">Preguntas Frecuentes</h3><div class="space-y-2"><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">¿Los datos del clima son reales?</p><p class="text-xs text-slate-300">Sí, vienen de Open-Meteo API. Si falla la conexión, se usan datos simulados.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">¿Con qué frecuencia se actualiza el clima?</p><p class="text-xs text-slate-300">Cada 15 minutos automáticamente.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">¿Los sensores funcionan offline?</p><p class="text-xs text-slate-300">Los sensores simulados sí. El clima requiere internet.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">¿Puedo instalar la app en mi celular?</p><p class="text-xs text-slate-300">Sí, es PWA instalable. En Android usa Chrome, en iPhone usa Safari.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">¿Funciona de noche?</p><p class="text-xs text-slate-300">Sí, todos los sensores operan 24/7. La app cambia automáticamente a modo noche.</p></div></div>` }
+};
+function showManualSection(id) {
+  document.querySelectorAll('.manual-nav-item').forEach(el => el.classList.remove('active'));
+  if (event && event.target) event.target.classList.add('active');
+  document.getElementById('manualContent').innerHTML = manualSections[id].content;
+}
+function openManual() {
+  document.getElementById('manualModal').classList.add('active');
+  showManualSection('inicio');
+  document.querySelectorAll('.manual-nav-item').forEach((el, i) => el.classList.toggle('active', i === 0));
+}
+function closeManual() { document.getElementById('manualModal').classList.remove('active'); }
+// ============================================
+// TIEMPO
+// ============================================
+function updateTime() {
+  const now = new Date();
+  const hour = now.getHours();
+  const isNight = hour >= 19 || hour < 6;
+  document.getElementById('appBody').className = (isNight ? 'night-mode' : 'gradient-bg') + ' text-white min-h-screen';
+  document.getElementById('modeIcon').textContent = isNight ? '🌙' : '☀️';
+  document.getElementById('modeText').textContent = isNight ? 'Noche' : 'Día';
+  document.getElementById('currentTime').textContent = now.toLocaleTimeString('es-PA');
+  document.getElementById('currentDate').textContent = now.toLocaleDateString('es-PA', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const mapTime = document.getElementById('mapTime');
+  if (mapTime) mapTime.textContent = now.toLocaleTimeString('es-PA', { hour: '2-digit', minute: '2-digit' });
+}
+// ============================================
+// INIT
+// ============================================
+let seismo1, seismo2, seismo3, miniSeismo;
+function init() {
+  renderSensors();
+  renderRanking();
+  renderMiniQuakes();
+  renderFreqBars();
+  showEnvDetail('aire');
+  renderNotifList();
+  seismo1 = initSeismo('seismo1', 0.08);
+  seismo2 = initSeismo('seismo2', 0.05);
+  seismo3 = initSeismo('seismo3', 0.05);
+  miniSeismo = initSeismo('miniSeismo', 0.06);
+  updateTime();
+  setInterval(updateTime, 1000);
+  
+  // Cargar clima real
+  fetchWeather();
+  setInterval(fetchWeather, 15 * 60 * 1000); // cada 15 min
+  
+  // Sensores en tiempo real
+  setInterval(updateSensorsRealTime, 4000);
+  
+  // Ambiental en tiempo real
+  setInterval(updateEnvironmentalRealTime, 5000);
+  
+  // Frecuencias
+  setInterval(renderFreqBars, 2000);
+  
+  setTimeout(() => addNotification('success', '✓ EcoMonitor v3.0 activado', 'Todos los sensores y clima funcionando. ' + getNow()), 1500);
+}
+init();
+</script>
+</body>
+</html>
+</user_query>
