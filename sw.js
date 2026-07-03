@@ -48,7 +48,12 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  e.respondWith(fetch(e.request));
+  if (url.includes('opensky-network.org') || url.includes('api.open-meteo.com')) {
+    e.respondWith(networkFirst(e.request, CDN_CACHE));
+    return;
+  }
+
+  e.respondWith(fetch(e.request).catch(() => new Response('Offline', { status: 503 })));
 });
 
 async function cacheFirst(req, cacheName) {

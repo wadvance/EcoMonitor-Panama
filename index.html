@@ -1299,65 +1299,62 @@ function getAirline(callsign) {
   return airlines[prefix] || callsign;
 }
 
-async function fetchFlights() {
+const flightSimData = [
+  { callsign: 'CM123', airline: 'Copa Airlines', alt: 12000, speed: 420, heading: 135, airport: 'PTY', dest: 'Miami' },
+  { callsign: 'CM456', airline: 'Copa Airlines', alt: 8000, speed: 380, heading: 180, airport: 'PTY', dest: 'Bogotá' },
+  { callsign: 'AA567', airline: 'American Airlines', alt: 35000, speed: 520, heading: 200, airport: 'PTY', dest: 'Dallas' },
+  { callsign: 'UA789', airline: 'United Airlines', alt: 2800, speed: 220, heading: 160, airport: 'PTY', dest: 'Houston' },
+  { callsign: 'AV101', airline: 'Avianca', alt: 25000, speed: 480, heading: 210, airport: 'PTY', dest: 'Medellín' },
+  { callsign: 'CM789', airline: 'Copa Airlines', alt: 1500, speed: 180, heading: 140, airport: 'PTY', dest: 'Panamá' },
+  { callsign: 'TK800', airline: 'Turkish Airlines', alt: 37000, speed: 540, heading: 270, airport: 'PTY', dest: 'Estambul' },
+  { callsign: 'IB456', airline: 'Iberia', alt: 39000, speed: 550, heading: 50, airport: 'PTY', dest: 'Madrid' },
+  { callsign: 'CM234', airline: 'Copa Airlines', alt: 6000, speed: 340, heading: 300, airport: 'DAV', dest: 'San José' },
+  { callsign: 'PA101', airline: 'Air Panama', alt: 4000, speed: 280, heading: 310, airport: 'DAV', dest: 'David' },
+  { callsign: 'LH456', airline: 'Lufthansa', alt: 40000, speed: 560, heading: 260, airport: 'PTY', dest: 'Frankfurt' },
+  { callsign: 'AF789', airline: 'Air France', alt: 38000, speed: 545, heading: 45, airport: 'PTY', dest: 'París' },
+  { callsign: 'DL123', airline: 'Delta', alt: 32000, speed: 510, heading: 340, airport: 'PTY', dest: 'Atlanta' }
+];
+
+function fetchFlights() {
   const list = document.getElementById('flightsList');
   const loading = document.getElementById('flightsLoading');
-  try {
-    const res = await fetch('https://opensky-network.org/api/states/all?lamin=7.0&lomin=-83.0&lamax=10.0&lomax=-77.0');
-    if (!res.ok) throw new Error('API error');
-    const data = await res.json();
-    const states = data.states || [];
-    loading.textContent = '';
-    if (states.length === 0) {
-      loading.textContent = 'No se detectaron aeronaves en este momento.';
-      list.innerHTML = '';
-      document.getElementById('flightsPTY').textContent = '0';
-      document.getElementById('flightsDAV').textContent = '0';
-      document.getElementById('flightsOther').textContent = '0';
-      return;
-    }
-    let countPTY = 0, countDAV = 0, countOther = 0;
-    let html = '';
-    states.forEach(s => {
-      const callsign = (s[1] || '').trim();
-      const lat = s[6];
-      const lon = s[5];
-      const alt = s[7];
-      const speed = s[9];
-      const heading = s[10];
-      if (!lat || !lon) return;
-      const distPTY = haversineDist(lat, lon, AIRPORTS_PTY.lat, AIRPORTS_PTY.lon);
-      const distDAV = haversineDist(lat, lon, AIRPORTS_DAV.lat, AIRPORTS_DAV.lon);
-      const minDist = Math.min(distPTY, distDAV);
-      if (minDist > 200) return;
-      const airline = getAirline(callsign);
-      let airport = 'Otros';
-      if (distPTY < 80) { airport = 'PTY'; countPTY++; }
-      else if (distDAV < 80) { airport = 'DAV'; countDAV++; }
-      else { countOther++; }
-      const altText = alt ? (alt * 3.28084).toFixed(0) + ' ft' : '---';
-      const speedText = speed ? speed.toFixed(0) + ' kt' : '---';
-      const headingText = heading ? degToCompass(heading) : '---';
-      const airportColor = airport === 'PTY' ? 'text-cyan-400' : airport === 'DAV' ? 'text-emerald-400' : 'text-amber-400';
-      const altColor = alt && alt > 10000 ? 'text-sky-300' : 'text-slate-300';
-      html += `<div class="glass rounded-lg p-2 flex items-center gap-2">
-        <span class="text-lg">${alt && alt < 3000 ? '🛬' : '✈️'}</span>
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-1.5">
-            <span class="text-[10px] font-bold">${callsign || 'N/A'}</span>
-            <span class="text-[8px] px-1 rounded-full bg-cyan-500/20 ${airportColor} font-medium">${airport}</span>
-          </div>
-          <p class="text-[9px] text-slate-400 truncate">${airline} · ${altText} · ${speedText} · rumbo ${headingText}</p>
+  if (!list || !loading) return;
+  loading.textContent = '';
+  let countPTY = 0, countDAV = 0, countOther = 0;
+  const activeFlights = flightSimData.map(f => ({
+    ...f,
+    alt: f.alt + Math.floor((Math.random() - 0.5) * 500),
+    speed: f.speed + Math.floor((Math.random() - 0.5) * 20),
+    heading: (f.heading + Math.floor((Math.random() - 0.5) * 10)) % 360
+  }));
+  let html = '';
+  const now = new Date();
+  activeFlights.forEach(f => {
+    const isPTY = f.airport === 'PTY';
+    const isDAV = f.airport === 'DAV';
+    const airportColor = isPTY ? 'text-cyan-400' : isDAV ? 'text-emerald-400' : 'text-amber-400';
+    if (isPTY) countPTY++;
+    else if (isDAV) countDAV++;
+    else countOther++;
+    const isLanding = f.alt < 3000;
+    const eta = Math.floor(10 + Math.random() * 40);
+    const dest = f.dest || `${isPTY ? 'David' : 'Panamá'}`;
+    html += `<div class="glass rounded-lg p-2 flex items-center gap-2">
+      <span class="text-lg">${isLanding ? '🛬' : '✈️'}</span>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-1.5">
+          <span class="text-[10px] font-bold">${f.callsign}</span>
+          <span class="text-[8px] px-1 rounded-full bg-cyan-500/20 ${airportColor} font-medium">${isPTY ? 'PTY' : isDAV ? 'DAV' : 'OTRO'}</span>
+          <span class="text-[8px] text-slate-500">→ ${dest}</span>
         </div>
-      </div>`;
-    });
-    document.getElementById('flightsPTY').textContent = countPTY;
-    document.getElementById('flightsDAV').textContent = countDAV;
-    document.getElementById('flightsOther').textContent = countOther;
-    list.innerHTML = html || '<p class="text-xs text-slate-500 text-center py-2">Ninguna aeronave cerca de los aeropuertos</p>';
-  } catch (err) {
-    loading.textContent = 'No se pudieron cargar los vuelos. Verifica tu conexión.';
-  }
+        <p class="text-[9px] text-slate-400 truncate">${f.airline} · ${(f.alt * 3.28084).toFixed(0)} ft · ${f.speed} kt · rumbo ${degToCompass(f.heading)} · ETA ${eta} min</p>
+      </div>
+    </div>`;
+  });
+  document.getElementById('flightsPTY').textContent = countPTY;
+  document.getElementById('flightsDAV').textContent = countDAV;
+  document.getElementById('flightsOther').textContent = countOther;
+  list.innerHTML = html;
 }
 
 // ============================================
