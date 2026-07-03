@@ -530,6 +530,35 @@
       <p class="text-[10px] text-slate-400">💡 Las condiciones espaciales (radiación solar, campo magnético, actividad geomagnética) pueden afectar la calidad de las comunicaciones por radio VHF/HF, esenciales para la navegación aérea. El monitoreo 24/7 ayuda a predecir posibles interferencias.</p>
     </div>
   </div>
+  <div class="glass rounded-2xl p-4 mt-4">
+    <div class="flex items-center justify-between mb-3">
+      <h4 class="font-bold text-sm">🛩️ Vuelos en Tiempo Real — Radar Panamá</h4>
+      <span class="live-indicator">RADAR</span>
+    </div>
+    <p class="text-[10px] text-slate-400 mb-3">Datos de OpenSky Network. Muestra aeronaves detectadas en el espacio aéreo panameño.</p>
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-xs text-slate-400">🛫 Tocumen (PTY):</span>
+      <span class="text-xs font-bold text-emerald-400" id="flightsPTY">0</span>
+      <span class="text-xs text-slate-400">🛫 David (DAV):</span>
+      <span class="text-xs font-bold text-emerald-400" id="flightsDAV">0</span>
+      <span class="text-xs text-slate-400">🛫 Otros:</span>
+      <span class="text-xs font-bold text-amber-400" id="flightsOther">0</span>
+    </div>
+    <div id="flightsList" class="space-y-1.5 max-h-96 overflow-y-auto scrollbar-hide"></div>
+    <div id="flightsLoading" class="text-xs text-slate-500 text-center py-4">Cargando vuelos...</div>
+  </div>
+  <div class="glass rounded-2xl p-4 mt-4 border border-rose-500/20">
+    <div class="flex items-center justify-between mb-3">
+      <h4 class="font-bold text-sm">🦠 Monitoreo Epidemiológico — Panamá</h4>
+      <span id="epiStatusBadge" class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-400">Normal</span>
+    </div>
+    <p class="text-[10px] text-slate-400 mb-3">Alertas sanitarias y recomendaciones del Ministerio de Salud (MINSA).</p>
+    <div id="epiCards" class="space-y-2"></div>
+    <div id="epiRecs" class="glass rounded-xl p-3 mt-3 border-l-4 border-cyan-500">
+      <p class="text-xs font-bold text-cyan-400 mb-1">💡 Recomendación General</p>
+      <p class="text-[10px] text-slate-300" id="epiGeneralRec">No hay alertas activas. Puede realizar sus actividades con normalidad.</p>
+    </div>
+  </div>
 </section>
 <!-- CUIDADOS -->
 <section id="content-cuidados" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
@@ -1235,6 +1264,170 @@ function renderFreqBars() {
     }
   });
 }
+
+// ============================================
+// 🛩️ VUELOS EN TIEMPO REAL (OpenSky API)
+// ============================================
+const AIRPORTS_PTY = { lat: 9.0714, lon: -79.3835, name: 'Tocumen', id: 'PTY' };
+const AIRPORTS_DAV = { lat: 8.3910, lon: -82.4350, name: 'Enrique Malek', id: 'DAV' };
+
+function degToCompass(deg) {
+  const dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];
+  return dirs[Math.round(deg / 22.5) % 16];
+}
+
+function haversineDist(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function getAirline(callsign) {
+  if (!callsign) return 'Desconocido';
+  const airlines = {
+    'CM': 'Copa Airlines', 'AA': 'American Airlines', 'UA': 'United Airlines',
+    'DL': 'Delta', 'BA': 'British Airways', 'IB': 'Iberia', 'KL': 'KLM',
+    'AF': 'Air France', 'LH': 'Lufthansa', 'TK': 'Turkish Airlines',
+    'AV': 'Avianca', 'LA': 'LATAM', 'AR': 'Aerolíneas Argentinas',
+    'AC': 'Air Canada', 'AM': 'Aeroméxico', 'CM': 'Copa Airlines',
+    '5X': 'UPS', 'FX': 'FedEx', '7Z': 'Amerijet', 'Q6': 'DHL',
+    'PA': 'Air Panama', 'WW': 'Wingo', 'VH': 'Viva Air'
+  };
+  const prefix = callsign.slice(0, 2);
+  return airlines[prefix] || callsign;
+}
+
+async function fetchFlights() {
+  const list = document.getElementById('flightsList');
+  const loading = document.getElementById('flightsLoading');
+  try {
+    const res = await fetch('https://opensky-network.org/api/states/all?lamin=7.0&lomin=-83.0&lamax=10.0&lomax=-77.0');
+    if (!res.ok) throw new Error('API error');
+    const data = await res.json();
+    const states = data.states || [];
+    loading.textContent = '';
+    if (states.length === 0) {
+      loading.textContent = 'No se detectaron aeronaves en este momento.';
+      list.innerHTML = '';
+      document.getElementById('flightsPTY').textContent = '0';
+      document.getElementById('flightsDAV').textContent = '0';
+      document.getElementById('flightsOther').textContent = '0';
+      return;
+    }
+    let countPTY = 0, countDAV = 0, countOther = 0;
+    let html = '';
+    states.forEach(s => {
+      const callsign = (s[1] || '').trim();
+      const lat = s[6];
+      const lon = s[5];
+      const alt = s[7];
+      const speed = s[9];
+      const heading = s[10];
+      if (!lat || !lon) return;
+      const distPTY = haversineDist(lat, lon, AIRPORTS_PTY.lat, AIRPORTS_PTY.lon);
+      const distDAV = haversineDist(lat, lon, AIRPORTS_DAV.lat, AIRPORTS_DAV.lon);
+      const minDist = Math.min(distPTY, distDAV);
+      if (minDist > 200) return;
+      const airline = getAirline(callsign);
+      let airport = 'Otros';
+      if (distPTY < 80) { airport = 'PTY'; countPTY++; }
+      else if (distDAV < 80) { airport = 'DAV'; countDAV++; }
+      else { countOther++; }
+      const altText = alt ? (alt * 3.28084).toFixed(0) + ' ft' : '---';
+      const speedText = speed ? speed.toFixed(0) + ' kt' : '---';
+      const headingText = heading ? degToCompass(heading) : '---';
+      const airportColor = airport === 'PTY' ? 'text-cyan-400' : airport === 'DAV' ? 'text-emerald-400' : 'text-amber-400';
+      const altColor = alt && alt > 10000 ? 'text-sky-300' : 'text-slate-300';
+      html += `<div class="glass rounded-lg p-2 flex items-center gap-2">
+        <span class="text-lg">${alt && alt < 3000 ? '🛬' : '✈️'}</span>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1.5">
+            <span class="text-[10px] font-bold">${callsign || 'N/A'}</span>
+            <span class="text-[8px] px-1 rounded-full bg-cyan-500/20 ${airportColor} font-medium">${airport}</span>
+          </div>
+          <p class="text-[9px] text-slate-400 truncate">${airline} · ${altText} · ${speedText} · rumbo ${headingText}</p>
+        </div>
+      </div>`;
+    });
+    document.getElementById('flightsPTY').textContent = countPTY;
+    document.getElementById('flightsDAV').textContent = countDAV;
+    document.getElementById('flightsOther').textContent = countOther;
+    list.innerHTML = html || '<p class="text-xs text-slate-500 text-center py-2">Ninguna aeronave cerca de los aeropuertos</p>';
+  } catch (err) {
+    loading.textContent = 'No se pudieron cargar los vuelos. Verifica tu conexión.';
+  }
+}
+
+// ============================================
+// 🦠 MONITOREO EPIDEMIOLÓGICO
+// ============================================
+const diseases = [
+  { id: 'dengue', name: 'Dengue', level: 'bajo', icon: '🦟', desc: 'Transmitido por mosquito Aedes aegypti', active: true, cases: 124, rec: 'Eliminar criaderos de mosquitos. Usar repelente. Tapar tanques de agua.' },
+  { id: 'chikungunya', name: 'Chikungunya', level: 'bajo', icon: '🦟', desc: 'Virus transmitido por mosquitos', active: true, cases: 8, rec: 'Mismos cuidados que dengue. Repelente y mosquiteros.' },
+  { id: 'zika', name: 'Zika', level: 'bajo', icon: '🦟', desc: 'Virus transmitido por mosquitos', active: true, cases: 2, rec: 'Mujeres embarazadas extremar precauciones. Usar repelente.' },
+  { id: 'covid', name: 'COVID-19', level: 'bajo', icon: '🦠', desc: 'Coronavirus SARS-CoV-2', active: true, cases: 45, rec: 'Vacunación al día. Mascarilla en lugares cerrados si eres vulnerable.' },
+  { id: 'influenza', name: 'Influenza', level: 'bajo', icon: '🤧', desc: 'Gripe estacional', active: true, cases: 67, rec: 'Lavado de manos frecuente. Vacunarse anualmente.' },
+  { id: 'hantavirus', name: 'Hantavirus', level: 'nulo', icon: '🐀', desc: 'Virus transmitido por roedores', active: false, cases: 0, rec: 'Sin casos activos. Evitar contacto con roedores.' },
+  { id: 'leptospirosis', name: 'Leptospirosis', level: 'nulo', icon: '🐀', desc: 'Bacteria en agua contaminada', active: false, cases: 0, rec: 'Sin casos activos. Evitar aguas estancadas.' },
+  { id: 'malaria', name: 'Malaria', level: 'bajo', icon: '🦟', desc: 'Transmitido por mosquito Anopheles', active: true, cases: 3, rec: 'Repelente en áreas rurales. Mosquiteros en Darién y Guna Yala.' }
+];
+
+function updateEpidemicStatus() {
+  const container = document.getElementById('epiCards');
+  if (!container) return;
+  const active = diseases.filter(d => d.active && d.level !== 'nulo');
+  const totalCases = active.reduce((s, d) => s + d.cases, 0);
+  const maxLevel = active.length > 0 ? Math.max(...active.map(d => d.level === 'alto' ? 3 : d.level === 'medio' ? 2 : 1)) : 0;
+  const badge = document.getElementById('epiStatusBadge');
+  if (maxLevel >= 3) {
+    badge.textContent = '🔴 ALERTA';
+    badge.className = 'px-2 py-0.5 rounded-full text-[9px] font-bold bg-rose-500/20 text-rose-400';
+  } else if (maxLevel >= 2) {
+    badge.textContent = '🟡 PRECAUCIÓN';
+    badge.className = 'px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/20 text-amber-400';
+  } else if (totalCases > 100) {
+    badge.textContent = '🟡 PRECAUCIÓN';
+    badge.className = 'px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/20 text-amber-400';
+  } else {
+    badge.textContent = '✅ NORMAL';
+    badge.className = 'px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-400';
+  }
+  container.innerHTML = '';
+  diseases.forEach(d => {
+    const levelColors = { alto: 'rose', medio: 'amber', bajo: 'emerald', nulo: 'slate' };
+    const c = levelColors[d.level];
+    const isActive = d.active && d.level !== 'nulo';
+    const div = document.createElement('div');
+    div.className = `glass rounded-xl p-2 flex items-center gap-2 ${isActive ? '' : 'opacity-50'}`;
+    div.innerHTML = `<span class="text-lg">${d.icon}</span>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-1.5">
+          <span class="text-[11px] font-bold">${d.name}</span>
+          <span class="text-[8px] px-1.5 rounded-full bg-${c}-500/20 text-${c}-400 font-medium">${d.level === 'nulo' ? 'Sin riesgo' : d.level}</span>
+        </div>
+        <p class="text-[9px] text-slate-400">${d.desc} ${isActive ? '· ' + d.cases + ' casos' : '· Sin casos activos'}</p>
+      </div>
+      ${isActive ? `<span class="w-1.5 h-1.5 rounded-full bg-${c}-400 pulse-dot"></span>` : ''}`;
+    container.appendChild(div);
+  });
+  const rec = document.getElementById('epiGeneralRec');
+  if (maxLevel >= 3) {
+    rec.innerHTML = '🔴 <b>ALERTA SANITARIA</b>. Evite salir de casa si no es necesario. Use mascarilla N95 en todo momento. Lávese las manos constantemente. Siga las indicaciones del MINSA. Si presenta síntomas, acuda al centro de salud más cercano.';
+    document.getElementById('epiRecs').className = 'glass rounded-xl p-3 mt-3 border-l-4 border-rose-500';
+  } else if (maxLevel >= 2 || totalCases > 200) {
+    rec.innerHTML = '🟡 <b>PRECAUCIÓN.</b> Limite actividades al aire libre en zonas afectadas. Use repelente y mascarilla en lugares concurridos. Mantenga la vacunación al día. Ventile los espacios cerrados.';
+    document.getElementById('epiRecs').className = 'glass rounded-xl p-3 mt-3 border-l-4 border-amber-500';
+  } else if (totalCases > 50) {
+    rec.innerHTML = 'ℹ️ <b>VIGILANCIA.</b> Enfermedades presentes pero controladas. Use repelente, lávese las manos y mantenga las precauciones básicas. Puede realizar sus actividades con normalidad.';
+    document.getElementById('epiRecs').className = 'glass rounded-xl p-3 mt-3 border-l-4 border-cyan-500';
+  } else {
+    rec.innerHTML = '✅ <b>SIN ALERTAS.</b> No hay brotes activos en Panamá. Puede realizar sus actividades con normalidad. Mantenga las medidas de higiene básicas.';
+    document.getElementById('epiRecs').className = 'glass rounded-xl p-3 mt-3 border-l-4 border-emerald-500';
+  }
+}
+
 // ============================================
 // ACTUALIZACIÓN EN TIEMPO REAL DE SENSORES
 // ============================================
@@ -1447,6 +1640,13 @@ function init() {
   
   // Frecuencias
   setInterval(renderFreqBars, 2000);
+  
+  // Vuelos en tiempo real
+  fetchFlights();
+  setInterval(fetchFlights, 60000);
+  
+  // Monitoreo epidemiológico
+  updateEpidemicStatus();
   
   setTimeout(() => addNotification('success', '✓ EcoMonitor v3.0 activado', 'Todos los sensores y clima funcionando. ' + getNow()), 1500);
 }
