@@ -359,7 +359,7 @@
 <!-- MAPA -->
 <section id="content-mapa" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
   <div class="glass rounded-2xl p-4 mb-4">
-    <div class="flex items-center justify-between mb-3"><h3 class="font-bold">🗺️ Mapa de Contaminación por Provincia</h3><span class="text-xs text-slate-400" id="mapTime">--:--</span></div>
+    <div class="flex items-center justify-between mb-3"><h3 class="font-bold">🗺️ Mapa de Contaminación por Provincia</h3><div class="flex items-center gap-2"><button id="toggleSeismicMap" onclick="toggleSeismicMarkers()" title="Mostrar u ocultar las zonas sísmicas en el mapa de Panamá" class="px-2 py-1 rounded-lg bg-rose-500/20 border border-rose-500/30 text-[10px] font-medium">🔴 Zonas Sísmicas</button><span class="text-xs text-slate-400" id="mapTime">--:--</span></div></div>
     <div class="flex gap-3 mb-4 flex-wrap text-xs">
       <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-rose-500"></span>Alta</div>
       <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-500"></span>Media</div>
@@ -387,6 +387,9 @@
         <text x="178" y="83" fill="#fff" font-size="9">David</text>
         <circle cx="500" cy="135" r="3" fill="#fff"/>
         <text x="508" y="133" fill="#fff" font-size="9">Colón</text>
+        <g id="seismicMarkers" class="hidden">
+          <!-- Seismic markers rendered by JS -->
+        </g>
       </svg>
     </div>
   </div>
@@ -433,6 +436,12 @@
       <div><label class="text-xs text-slate-300 mb-1 block">Profundidad: <span id="depthValue" class="text-cyan-400 font-bold">30 km</span></label><input type="range" id="depthSlider" min="1" max="200" step="1" value="30" class="w-full accent-cyan-500" oninput="document.getElementById('depthValue').textContent=this.value+' km'"></div>
     </div>
     <button onclick="simulateQuake()" title="Simular un terremoto con la magnitud y profundidad seleccionadas. Magnitud >=5 activa alarma" class="w-full py-3 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 font-bold hover:opacity-90">🌋 Simular Sismo</button>
+  </div>
+  <!-- ZONAS SÍSMICAS -->
+  <div class="glass rounded-2xl p-4 mt-4">
+    <div class="flex items-center justify-between mb-3"><h3 class="font-bold">📍 Zonas Sísmicas de Panamá</h3><span class="text-[10px] text-slate-400" id="zoneCount">12 zonas monitoreadas</span></div>
+    <p class="text-xs text-slate-300 mb-3">Panamá se encuentra en el <b class="text-rose-400">Cinturón de Fuego del Pacífico</b>. La placa de Nazca subduce bajo la placa Caribe, generando actividad sísmica en toda la región occidental y central del país.</p>
+    <div id="seismicZonesList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-96 overflow-y-auto scrollbar-hide"></div>
   </div>
 </section>
 <!-- TSUNAMIS -->
@@ -948,6 +957,23 @@ const quakeHistory = [
   { mag: 1.2, depth: 15, location: 'Colón', time: 'Hace 8 h' },
   { mag: 2.7, depth: 52, location: 'Darién', time: 'Hace 14 h' }
 ];
+const seismicZones = [
+  { id: 'Z-01', name: 'Volcán Barú', province: 'Chiriquí', risk: 'Alta', svgX: 140, svgY: 95, events: 230, desc: 'Zona de subducción activa. Volcán dormido, actividad sísmica frecuente.' },
+  { id: 'Z-02', name: 'Golfo de Chiriquí', province: 'Chiriquí', risk: 'Alta', svgX: 120, svgY: 130, events: 185, desc: 'Fosa tectónica frente a la costa chiricana. Sismos de magnitud moderada a fuerte.' },
+  { id: 'Z-03', name: 'Costa Pacífica', province: 'Chiriquí/Veraguas', risk: 'Alta', svgX: 130, svgY: 150, events: 160, desc: 'Placa de Nazca subduce bajo la placa Caribe. Sismos frecuentes en la costa sur.' },
+  { id: 'Z-04', name: 'Bocas del Toro', province: 'Bocas del Toro', risk: 'Media', svgX: 95, svgY: 80, events: 95, desc: 'Zona de falla activa en el Caribe occidental panameño.' },
+  { id: 'Z-05', name: 'Veraguas Central', province: 'Veraguas', risk: 'Media', svgX: 260, svgY: 100, events: 88, desc: 'Falla de Veraguas. Actividad sísmica moderada con epicentros en la cordillera central.' },
+  { id: 'Z-06', name: 'Coclé', province: 'Coclé', risk: 'Media', svgX: 380, svgY: 90, events: 72, desc: 'Falla de Coclé. Sismos superficiales de baja a moderada magnitud.' },
+  { id: 'Z-07', name: 'CD Panamá', province: 'Panamá', risk: 'Media', svgX: 540, svgY: 80, events: 65, desc: 'Capital bajo monitoreo sísmico constante. Falla de Panamá con sismos moderados.' },
+  { id: 'Z-08', name: 'Colón', province: 'Colón', risk: 'Media', svgX: 500, svgY: 135, events: 58, desc: 'Costa caribeña. Actividad sísmica relacionada con fallas submarinas.' },
+  { id: 'Z-09', name: 'Herrera/Los Santos', province: 'Herrera/Los Santos', risk: 'Baja', svgX: 345, svgY: 145, events: 35, desc: 'Península de Azuero. Baja actividad sísmica histórica.' },
+  { id: 'Z-10', name: 'Darién', province: 'Darién', risk: 'Baja', svgX: 650, svgY: 155, events: 30, desc: 'Frontera con Colombia. Baja actividad sísmica pero con potencial de sismos profundos.' },
+  { id: 'Z-11', name: 'Emberá', province: 'Emberá', risk: 'Baja', svgX: 430, svgY: 160, events: 25, desc: 'Región central-este con baja actividad sísmica registrada.' },
+  { id: 'Z-12', name: 'Guna Yala', province: 'Guna Yala', risk: 'Baja', svgX: 575, svgY: 190, events: 22, desc: 'Archipiélago caribeño. Baja sismicidad, monitoreado por tsunamis.' }
+];
+
+const zoneRiskColors = { Alta: 'rose', Media: 'amber', Baja: 'emerald' };
+const zoneRiskLabels = { Alta: '🔴 ALTA', Media: '🟡 MEDIA', Baja: '🟢 BAJA' };
 // ============================================
 // NOTIFICACIONES
 // ============================================
@@ -1237,6 +1263,112 @@ function renderMiniQuakes() {
     const div = document.createElement('div');
     div.className = 'flex items-center gap-2 glass rounded-lg p-1.5';
     div.innerHTML = `<span class="text-xs font-bold text-${c}-400 w-8">${q.mag}</span><div class="flex-1 min-w-0"><p class="text-[10px] truncate">${q.location}</p><p class="text-[8px] text-slate-500">${q.depth}km · ${q.time}</p></div>`;
+    list.appendChild(div);
+  });
+}
+// ============================================
+// 📍 ZONAS SÍSMICAS
+// ============================================
+function renderSeismicZones() {
+  const list = document.getElementById('seismicZonesList');
+  if (!list) return;
+  list.innerHTML = '';
+  seismicZones.forEach(z => {
+    const c = zoneRiskColors[z.risk];
+    const now = new Date();
+    const lastEvent = Math.floor(Math.random() * 24) + 1;
+    const div = document.createElement('div');
+    div.className = `glass rounded-xl p-3 border-l-4 border-${c}-500 hover:bg-white/5 transition`;
+    div.innerHTML = `<div class="flex items-center justify-between mb-1"><span class="text-xs font-bold">${z.name}</span><span class="text-[9px] px-1.5 py-0.5 rounded-full bg-${c}-500/20 text-${c}-400 font-medium">${zoneRiskLabels[z.risk]}</span></div><p class="text-[9px] text-slate-400 mb-1">${z.province}</p><p class="text-[10px] text-slate-300 mb-1">${z.desc}</p><div class="flex gap-3 text-[9px] text-slate-500"><span>📊 ${z.events} eventos/año</span><span>⏱️ Último: hace ${lastEvent}h</span></div>`;
+    div.onclick = () => {
+      openModal(`📍 ${z.name} <span class="text-[10px] font-normal text-slate-400">${z.province}</span>`,
+        `<div class="space-y-3"><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">📋 Información Sísmica</h4><div class="grid grid-cols-2 gap-2 text-xs"><div><span class="text-slate-400">Riesgo:</span> <b class="text-${c}-400">${z.risk}</b></div><div><span class="text-slate-400">Eventos/año:</span> <b>${z.events}</b></div><div><span class="text-slate-400">Último evento:</span> <b>hace ${lastEvent}h</b></div></div></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">🔬 Monitoreo</h4><p class="text-xs text-slate-300">${z.desc}</p></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">⚡ Recomendaciones</h4><ul class="text-xs text-slate-300 space-y-1 ml-4">${z.risk === 'Alta' ? '<li>⬆️ Mantener kits de emergencia listos</li><li>🏃 Identificar rutas de evacuación</li><li>📱 Activar notificaciones push</li>' : z.risk === 'Media' ? '<li>📋 Revisar plan familiar de emergencia</li><li>🔧 Asegurar objetos pesados en casa</li><li>🔔 Mantener notificaciones activadas</li>' : '<li>📚 Conocer protocolos básicos</li><li>✅ Zona de baja sismicidad, sin alarma</li>'}</ul></div></div>`,
+        true);
+    };
+    list.appendChild(div);
+  });
+}
+function toggleSeismicMarkers() {
+  const g = document.getElementById('seismicMarkers');
+  const btn = document.getElementById('toggleSeismicMap');
+  if (!g) return;
+  const wasHidden = g.classList.contains('hidden');
+  g.classList.toggle('hidden');
+  btn.textContent = wasHidden ? '🔴 Ocultar Zonas' : '🔴 Zonas Sísmicas';
+  btn.className = wasHidden ? 'px-2 py-1 rounded-lg bg-rose-500/30 border border-rose-500/50 text-[10px] font-medium' : 'px-2 py-1 rounded-lg bg-rose-500/20 border border-rose-500/30 text-[10px] font-medium';
+  if (wasHidden) renderSeismicMarkers();
+}
+function renderSeismicMarkers() {
+  const g = document.getElementById('seismicMarkers');
+  if (!g) return;
+  g.innerHTML = '';
+  g.classList.remove('hidden');
+  seismicZones.forEach(z => {
+    const colors = { Alta: { fill: '#f43f5e', stroke: '#e11d48' }, Media: { fill: '#f59e0b', stroke: '#d97706' }, Baja: { fill: '#10b981', stroke: '#059669' } };
+    const col = colors[z.risk];
+    // Epicenter circle with pulse
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('cx', z.svgX); c.setAttribute('cy', z.svgY);
+    c.setAttribute('r', '6'); c.setAttribute('fill', col.fill);
+    c.setAttribute('stroke', col.stroke); c.setAttribute('stroke-width', '2');
+    c.setAttribute('opacity', '0.8');
+    c.setAttribute('title', `${z.name} (${z.risk}) · ${z.events} eventos/año`);
+    c.classList.add('blink');
+    g.appendChild(c);
+    // Outer ring
+    const ring = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    ring.setAttribute('cx', z.svgX); ring.setAttribute('cy', z.svgY);
+    ring.setAttribute('r', '10'); ring.setAttribute('fill', 'none');
+    ring.setAttribute('stroke', col.fill); ring.setAttribute('stroke-width', '1');
+    ring.setAttribute('opacity', '0.3');
+    g.appendChild(ring);
+    // Label
+    const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    t.setAttribute('x', z.svgX + 10); t.setAttribute('y', z.svgY + 4);
+    t.setAttribute('fill', '#fff'); t.setAttribute('font-size', '8');
+    t.setAttribute('font-weight', 'bold');
+    t.textContent = z.name;
+    g.appendChild(t);
+  });
+  // Also show recent earthquake markers from quakeHistory
+  const qCoords = {
+    'Costa Pacífico, Chiriquí': [130, 150], 'Volcán Barú, Chiriquí': [140, 95],
+    'Golfo de Chiriquí': [120, 130], 'Colón': [500, 135], 'Darién': [650, 155]
+  };
+  quakeHistory.forEach(q => {
+    const coords = qCoords[q.location];
+    if (!coords) return;
+    const x = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    x.setAttribute('x', coords[0] - 5); x.setAttribute('y', coords[1] - 10);
+    x.setAttribute('text-anchor', 'middle'); x.setAttribute('font-size', '14');
+    x.textContent = '💥';
+    x.setAttribute('title', `Sismo M${q.mag} · ${q.location} · Hace ${q.time}`);
+    g.appendChild(x);
+    // Magnitude label
+    const ml = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    ml.setAttribute('x', coords[0]); ml.setAttribute('y', coords[1] - 18);
+    ml.setAttribute('fill', '#fb923c'); ml.setAttribute('font-size', '7');
+    ml.setAttribute('text-anchor', 'middle'); ml.setAttribute('font-weight', 'bold');
+    ml.textContent = `M${q.mag}`;
+    g.appendChild(ml);
+  });
+  });
+}
+function renderSeismicZones() {
+  const list = document.getElementById('seismicZonesList');
+  if (!list) return;
+  list.innerHTML = '';
+  seismicZones.forEach(z => {
+    const c = zoneRiskColors[z.risk];
+    const lastEvent = Math.floor(Math.random() * 24) + 1;
+    const div = document.createElement('div');
+    div.className = `glass rounded-xl p-3 border-l-4 border-${c}-500 hover:bg-white/5 transition`;
+    div.innerHTML = `<div class="flex items-center justify-between mb-1"><span class="text-xs font-bold">${z.name}</span><span class="text-[9px] px-1.5 py-0.5 rounded-full bg-${c}-500/20 text-${c}-400 font-medium">${zoneRiskLabels[z.risk]}</span></div><p class="text-[9px] text-slate-400 mb-1">${z.province}</p><p class="text-[10px] text-slate-300 mb-1">${z.desc}</p><div class="flex gap-3 text-[9px] text-slate-500"><span>📊 ${z.events} eventos/año</span><span>⏱️ Último: hace ${lastEvent}h</span></div>`;
+    div.onclick = () => {
+      openModal(`📍 ${z.name}`,
+        `<div class="space-y-3"><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">📋 Información Sísmica</h4><p class="text-xs text-slate-300">${z.desc}</p><div class="grid grid-cols-2 gap-2 text-xs mt-2"><div><span class="text-slate-400">Provincia:</span> <b>${z.province}</b></div><div><span class="text-slate-400">Riesgo:</span> <b class="text-${c}-400">${z.risk}</b></div><div><span class="text-slate-400">Eventos/año:</span> <b>${z.events}</b></div><div><span class="text-slate-400">Último:</span> <b>hace ${lastEvent}h</b></div></div></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">⚡ Recomendaciones</h4><ul class="text-xs text-slate-300 space-y-1 ml-4">${z.risk === 'Alta' ? '<li>⬆️ Mantener kits de emergencia listos</li><li>🏃 Identificar rutas de evacuación</li><li>📱 Activar notificaciones push</li>' : z.risk === 'Media' ? '<li>📋 Revisar plan familiar de emergencia</li><li>🔧 Asegurar objetos pesados en casa</li><li>🔔 Mantener notificaciones activadas</li>' : '<li>📚 Conocer protocolos básicos</li><li>✅ Zona de baja sismicidad, sin alarma</li>'}</ul></div></div>`,
+        true);
+    };
     list.appendChild(div);
   });
 }
@@ -1616,6 +1748,7 @@ function init() {
   renderSensors();
   renderRanking();
   renderMiniQuakes();
+  renderSeismicZones();
   renderFreqBars();
   showEnvDetail('aire');
   renderNotifList();
