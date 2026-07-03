@@ -12,8 +12,13 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - uses: peaceiris/actions-gh-pages@v4
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: .
           publish_branch: gh-pages
+          keep_files: false
+          force_orphan: true
+          user_name: 'EcoMonitor Bot'
+          user_email: 'bot@ecomonitor.pa'
