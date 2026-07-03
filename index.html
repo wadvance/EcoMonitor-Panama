@@ -546,9 +546,9 @@
     <p class="text-[10px] text-slate-400 mb-3">Datos de OpenSky Network. Muestra aeronaves detectadas en el espacio aéreo panameño.</p>
     <div class="flex items-center gap-2 mb-3">
       <span class="text-xs text-slate-400">🛫 Tocumen (PTY):</span>
-      <span class="text-xs font-bold text-emerald-400" id="flightsPTY">0</span>
+      <span class="text-xs font-bold text-emerald-400 cursor-pointer hover:text-cyan-300 transition" id="flightsPTY" onclick="showAirportFlights('PTY')" title="Ver vuelos que aterrizarán en Tocumen">0</span>
       <span class="text-xs text-slate-400">🛫 David (DAV):</span>
-      <span class="text-xs font-bold text-emerald-400" id="flightsDAV">0</span>
+      <span class="text-xs font-bold text-emerald-400 cursor-pointer hover:text-cyan-300 transition" id="flightsDAV" onclick="showAirportFlights('DAV')" title="Ver vuelos que aterrizarán en Enrique Malek">0</span>
       <span class="text-xs text-slate-400">🛫 Otros:</span>
       <span class="text-xs font-bold text-amber-400" id="flightsOther">0</span>
     </div>
@@ -1376,21 +1376,23 @@ function renderFreqBars() {
   if (!container) return;
   container.innerHTML = '';
   const bands = [
-    { color: 'bg-cyan-400', label: 'VHF Torre', min: 50, max: 100 },
-    { color: 'bg-emerald-400', label: 'Radar ATC', min: 30, max: 80 },
-    { color: 'bg-indigo-400', label: 'Satélite MET', min: 20, max: 60 },
-    { color: 'bg-purple-400', label: 'ILS/VOR', min: 15, max: 50 },
-    { color: 'bg-cyan-500', label: 'HF Océanico', min: 40, max: 90 },
-    { color: 'bg-emerald-500', label: 'DME/TACAN', min: 20, max: 55 },
-    { color: 'bg-indigo-500', label: 'GPS/GLONASS', min: 10, max: 35 },
-    { color: 'bg-rose-400', label: 'Emergencia 121.5', min: 60, max: 100 }
+    { color: 'bg-cyan-400', label: 'VHF Torre', min: 60, max: 100 },
+    { color: 'bg-emerald-400', label: 'Radar ATC', min: 40, max: 90 },
+    { color: 'bg-indigo-400', label: 'Satélite MET', min: 30, max: 70 },
+    { color: 'bg-purple-400', label: 'ILS/VOR', min: 25, max: 60 },
+    { color: 'bg-cyan-500', label: 'HF Océanico', min: 50, max: 95 },
+    { color: 'bg-emerald-500', label: 'DME/TACAN', min: 30, max: 65 },
+    { color: 'bg-indigo-500', label: 'GPS/GLONASS', min: 20, max: 45 },
+    { color: 'bg-rose-400', label: 'Emergencia 121.5', min: 70, max: 100 }
   ];
   bands.forEach(band => {
     for (let i = 0; i < 5; i++) {
       const bar = document.createElement('div');
-      bar.className = `flex-1 ${band.color} rounded-t opacity-70`;
-      bar.style.height = (band.min + Math.random() * (band.max - band.min)) + '%';
-      bar.title = band.label;
+      const h = band.min + Math.random() * (band.max - band.min);
+      const active = h > 50;
+      bar.className = `flex-1 rounded-t transition-all duration-500 ${active ? band.color + ' opacity-90' : 'bg-slate-800 opacity-40'}`;
+      bar.style.height = h + '%';
+      bar.title = band.label + (active ? ' · Activa' : ' · En espera');
       container.appendChild(bar);
     }
   });
@@ -1405,6 +1407,44 @@ const AIRPORTS_DAV = { lat: 8.3910, lon: -82.4350, name: 'Enrique Malek', id: 'D
 function degToCompass(deg) {
   const dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];
   return dirs[Math.round(deg / 22.5) % 16];
+}
+
+function showAirportFlights(airportId) {
+  const isPty = airportId === 'PTY';
+  const ap = isPty ? AIRPORTS_PTY : AIRPORTS_DAV;
+  const now = new Date();
+  const apFlights = flightSimData.filter(f => f.airport === airportId);
+  if (apFlights.length === 0) {
+    addNotification('info', `✈️ ${ap.name}`, 'No hay vuelos programados en este momento');
+    return;
+  }
+  let html = `<div class="space-y-2">`;
+  apFlights.forEach((f, i) => {
+    const eta = Math.floor(15 + Math.random() * 45);
+    const depTime = new Date(now.getTime() - Math.floor(Math.random() * 120 + 10) * 60000);
+    const arrTime = new Date(now.getTime() + eta * 60000);
+    const formattedDep = depTime.toLocaleTimeString('es-PA', { hour: '2-digit', minute: '2-digit' });
+    const formattedArr = arrTime.toLocaleTimeString('es-PA', { hour: '2-digit', minute: '2-digit' });
+    const status = eta < 5 ? 'Aterrizando' : eta < 15 ? 'Final' : eta < 30 ? 'En aproximación' : 'En ruta';
+    const color = eta < 5 ? 'text-emerald-400' : eta < 15 ? 'text-cyan-400' : 'text-slate-300';
+    html += `<div class="glass rounded-xl p-3 flex items-center gap-3">
+      <span class="text-lg">${i + 1}.</span>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold">${f.callsign}</span>
+          <span class="text-[8px] px-1.5 rounded bg-${isPty ? 'cyan' : 'emerald'}-500/20 text-${isPty ? 'cyan' : 'emerald'}-400 font-medium">${airportId}</span>
+        </div>
+        <p class="text-[9px] text-slate-400">${f.airline}</p>
+        <div class="flex gap-3 mt-1 text-[9px]">
+          <span><span class="text-slate-500">Salida:</span> ${formattedDep}</span>
+          <span><span class="text-slate-500">Llegada:</span> ${formattedArr}</span>
+          <span class="${color} font-medium">${status}</span>
+        </div>
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+  openModal(`✈️ ${ap.name} (${airportId}) — ${apFlights.length} vuelos`, html, true);
 }
 
 function haversineDist(lat1, lon1, lat2, lon2) {
@@ -1499,7 +1539,8 @@ const diseases = [
   { id: 'influenza', name: 'Influenza', level: 'bajo', icon: '🤧', desc: 'Gripe estacional', active: true, cases: 67, rec: 'Lavado de manos frecuente. Vacunarse anualmente.' },
   { id: 'hantavirus', name: 'Hantavirus', level: 'nulo', icon: '🐀', desc: 'Virus transmitido por roedores', active: false, cases: 0, rec: 'Sin casos activos. Evitar contacto con roedores.' },
   { id: 'leptospirosis', name: 'Leptospirosis', level: 'nulo', icon: '🐀', desc: 'Bacteria en agua contaminada', active: false, cases: 0, rec: 'Sin casos activos. Evitar aguas estancadas.' },
-  { id: 'malaria', name: 'Malaria', level: 'bajo', icon: '🦟', desc: 'Transmitido por mosquito Anopheles', active: true, cases: 3, rec: 'Repelente en áreas rurales. Mosquiteros en Darién y Guna Yala.' }
+  { id: 'malaria', name: 'Malaria', level: 'bajo', icon: '🦟', desc: 'Transmitido por mosquito Anopheles', active: true, cases: 3, rec: 'Repelente en áreas rurales. Mosquiteros en Darién y Guna Yala.' },
+  { id: 'norovirus', name: 'Norovirus', level: 'medio', icon: '🤢', desc: 'Gastroenteritis altamente contagiosa', active: true, cases: 189, rec: 'Lavado frecuente de manos. Desinfectar superficies. No compartir alimentos. Hidratación constante.' }
 ];
 
 function updateEpidemicStatus() {
