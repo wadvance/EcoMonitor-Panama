@@ -120,7 +120,7 @@
         <p class="text-xs text-slate-300" id="alarmMessage">Mensaje</p>
         <p class="text-[10px] text-slate-400 mt-0.5" id="alarmTime">--</p>
       </div>
-      <button onclick="stopAlarm()" class="px-3 py-1.5 rounded-lg bg-rose-500 text-white text-xs font-bold">🔕 Silenciar</button>
+      <button onclick="stopAlarm()" title="Silenciar la alarma activa y detener el sonido de emergencia" class="px-3 py-1.5 rounded-lg bg-rose-500 text-white text-xs font-bold">🔕 Silenciar</button>
     </div>
   </div>
 </div>
@@ -137,14 +137,14 @@
 </div>
 <div class="max-w-7xl mx-auto px-4 pt-4">
   <div class="flex gap-2 overflow-x-auto scrollbar-hide pb-2">
-    <button onclick="showTab('dashboard')" id="tab-dashboard" class="tab-btn tab-active px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap">🏠 Dashboard</button>
-    <button onclick="showTab('clima')" id="tab-clima" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap">🌤️ Clima</button>
-    <button onclick="showTab('ambiental')" id="tab-ambiental" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap">🌍 Ambiental</button>
-    <button onclick="showTab('mapa')" id="tab-mapa" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap">🗺️ Mapa</button>
-    <button onclick="showTab('sismico')" id="tab-sismico" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap">🌋 Sísmico</button>
-    <button onclick="showTab('tsunamis')" id="tab-tsunamis" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap">🌊 Tsunamis</button>
-    <button onclick="showTab('espacial')" id="tab-espacial" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap">🛰️ Espacial</button>
-    <button onclick="showTab('cuidados')" id="tab-cuidados" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap">⚕️ Cuidados</button>
+    <button onclick="showTab('dashboard')" id="tab-dashboard" class="tab-btn tab-active px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Panel principal: resumen de clima, sismos, ambiente y sensores">🏠 Dashboard</button>
+    <button onclick="showTab('clima')" id="tab-clima" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Clima en tiempo real: temperatura, humedad, viento, lluvia, UV y pronóstico">🌤️ Clima</button>
+    <button onclick="showTab('ambiental')" id="tab-ambiental" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Monitoreo ambiental: calidad del aire, agua, suelo, ríos, mar y vegetación">🌍 Ambiental</button>
+    <button onclick="showTab('mapa')" id="tab-mapa" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Mapa de contaminación por provincia: ranking y datos detallados">🗺️ Mapa</button>
+    <button onclick="showTab('sismico')" id="tab-sismico" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Monitoreo sísmico: 8 sensores, sismógrafos en vivo y simulador de terremotos">🌋 Sísmico</button>
+    <button onclick="showTab('tsunamis')" id="tab-tsunamis" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Sistema de alerta de tsunamis: sensores DART y mareógrafos en costas panameñas">🌊 Tsunamis</button>
+    <button onclick="showTab('espacial')" id="tab-espacial" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Monitoreo espacial: radiación solar, rayos cósmicos, campo magnético y satélites">🛰️ Espacial</button>
+    <button onclick="showTab('cuidados')" id="tab-cuidados" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Recomendaciones de salud según nivel de contaminación y protocolos ante sismos">⚕️ Cuidados</button>
   </div>
 </div>
 <!-- DASHBOARD -->
@@ -336,14 +336,14 @@
 <!-- AMBIENTAL -->
 <section id="content-ambiental" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
   <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-    <div onclick="showEnvDetail('aire')" class="card-hover glass rounded-2xl p-4"><div class="text-3xl mb-2">💨</div><h4 class="font-bold text-sm">Aire</h4><p class="text-[10px] text-slate-400 mb-2">Calidad del aire</p><div class="flex items-center justify-between"><span class="text-lg font-bold text-amber-400 sensor-value" id="envAire">62</span><span class="text-[10px] text-amber-400">Moderado</span></div></div>
-    <div onclick="showEnvDetail('atmosfera')" class="card-hover glass rounded-2xl p-4"><div class="text-3xl mb-2">🌤️</div><h4 class="font-bold text-sm">Atmósfera</h4><p class="text-[10px] text-slate-400 mb-2">Ozono y gases</p><div class="flex items-center justify-between"><span class="text-lg font-bold text-emerald-400 sensor-value" id="envAtm">42</span><span class="text-[10px] text-emerald-400">Bueno</span></div></div>
-    <div onclick="showEnvDetail('suelo')" class="card-hover glass rounded-2xl p-4"><div class="text-3xl mb-2">🌱</div><h4 class="font-bold text-sm">Suelo</h4><p class="text-[10px] text-slate-400 mb-2">Contaminación</p><div class="flex items-center justify-between"><span class="text-lg font-bold text-emerald-400 sensor-value" id="envSuelo">35</span><span class="text-[10px] text-emerald-400">Bueno</span></div></div>
-    <div onclick="showEnvDetail('agua')" class="card-hover glass rounded-2xl p-4"><div class="text-3xl mb-2">💧</div><h4 class="font-bold text-sm">Agua Potable</h4><p class="text-[10px] text-slate-400 mb-2">Consumo humano</p><div class="flex items-center justify-between"><span class="text-lg font-bold text-emerald-400 sensor-value" id="envAgua">28</span><span class="text-[10px] text-emerald-400">Excelente</span></div></div>
-    <div onclick="showEnvDetail('rios')" class="card-hover glass rounded-2xl p-4"><div class="text-3xl mb-2">🏞️</div><h4 class="font-bold text-sm">Ríos</h4><p class="text-[10px] text-slate-400 mb-2">Cuencas fluviales</p><div class="flex items-center justify-between"><span class="text-lg font-bold text-amber-400 sensor-value" id="envRios">65</span><span class="text-[10px] text-amber-400">Moderado</span></div></div>
-    <div onclick="showEnvDetail('mar')" class="card-hover glass rounded-2xl p-4"><div class="text-3xl mb-2">🌊</div><h4 class="font-bold text-sm">Mar</h4><p class="text-[10px] text-slate-400 mb-2">Océanos</p><div class="flex items-center justify-between"><span class="text-lg font-bold text-rose-400 sensor-value" id="envMar">88</span><span class="text-[10px] text-rose-400">Peligroso</span></div></div>
-    <div onclick="showEnvDetail('plantas')" class="card-hover glass rounded-2xl p-4"><div class="text-3xl mb-2">🌿</div><h4 class="font-bold text-sm">Plantas</h4><p class="text-[10px] text-slate-400 mb-2">Vegetación</p><div class="flex items-center justify-between"><span class="text-lg font-bold text-amber-400 sensor-value" id="envPlantas">55</span><span class="text-[10px] text-amber-400">Moderado</span></div></div>
-    <div onclick="showEnvDetail('quimicos')" class="card-hover glass rounded-2xl p-4 border border-rose-500/30"><div class="text-3xl mb-2">⚗️</div><h4 class="font-bold text-sm">Químicos</h4><p class="text-[10px] text-slate-400 mb-2">Sustancias</p><div class="flex items-center justify-between"><span class="text-lg font-bold text-rose-400 sensor-value" id="envQuim">92</span><span class="text-[10px] text-rose-400 blink">Peligro</span></div></div>
+    <div onclick="showEnvDetail('aire')" class="card-hover glass rounded-2xl p-4" title="Ver detalles de calidad del aire: PM2.5, PM10, NO2, O3, CO"><div class="text-3xl mb-2">💨</div><h4 class="font-bold text-sm">Aire</h4><p class="text-[10px] text-slate-400 mb-2">Calidad del aire</p><div class="flex items-center justify-between"><span class="text-lg font-bold text-amber-400 sensor-value" id="envAire">62</span><span class="text-[10px] text-amber-400">Moderado</span></div></div>
+    <div onclick="showEnvDetail('atmosfera')" class="card-hover glass rounded-2xl p-4" title="Ver estado de la atmósfera: capa de ozono, CO2, metano, índice UV"><div class="text-3xl mb-2">🌤️</div><h4 class="font-bold text-sm">Atmósfera</h4><p class="text-[10px] text-slate-400 mb-2">Ozono y gases</p><div class="flex items-center justify-between"><span class="text-lg font-bold text-emerald-400 sensor-value" id="envAtm">42</span><span class="text-[10px] text-emerald-400">Bueno</span></div></div>
+    <div onclick="showEnvDetail('suelo')" class="card-hover glass rounded-2xl p-4" title="Ver contaminación del suelo: metales pesados, pesticidas, pH"><div class="text-3xl mb-2">🌱</div><h4 class="font-bold text-sm">Suelo</h4><p class="text-[10px] text-slate-400 mb-2">Contaminación</p><div class="flex items-center justify-between"><span class="text-lg font-bold text-emerald-400 sensor-value" id="envSuelo">35</span><span class="text-[10px] text-emerald-400">Bueno</span></div></div>
+    <div onclick="showEnvDetail('agua')" class="card-hover glass rounded-2xl p-4" title="Ver calidad del agua potable: pH, cloro, coliformes, turbidez"><div class="text-3xl mb-2">💧</div><h4 class="font-bold text-sm">Agua Potable</h4><p class="text-[10px] text-slate-400 mb-2">Consumo humano</p><div class="flex items-center justify-between"><span class="text-lg font-bold text-emerald-400 sensor-value" id="envAgua">28</span><span class="text-[10px] text-emerald-400">Excelente</span></div></div>
+    <div onclick="showEnvDetail('rios')" class="card-hover glass rounded-2xl p-4" title="Ver monitoreo de ríos y cuencas: oxígeno disuelto, DBO, E. coli"><div class="text-3xl mb-2">🏞️</div><h4 class="font-bold text-sm">Ríos</h4><p class="text-[10px] text-slate-400 mb-2">Cuencas fluviales</p><div class="flex items-center justify-between"><span class="text-lg font-bold text-amber-400 sensor-value" id="envRios">65</span><span class="text-[10px] text-amber-400">Moderado</span></div></div>
+    <div onclick="showEnvDetail('mar')" class="card-hover glass rounded-2xl p-4" title="Ver estado del mar: microplásticos, temperatura, acidez, hidrocarburos"><div class="text-3xl mb-2">🌊</div><h4 class="font-bold text-sm">Mar</h4><p class="text-[10px] text-slate-400 mb-2">Océanos</p><div class="flex items-center justify-between"><span class="text-lg font-bold text-rose-400 sensor-value" id="envMar">88</span><span class="text-[10px] text-rose-400">Peligroso</span></div></div>
+    <div onclick="showEnvDetail('plantas')" class="card-hover glass rounded-2xl p-4" title="Ver bioindicadores vegetales: NDVI, toxinas, polen, estrés hídrico"><div class="text-3xl mb-2">🌿</div><h4 class="font-bold text-sm">Plantas</h4><p class="text-[10px] text-slate-400 mb-2">Vegetación</p><div class="flex items-center justify-between"><span class="text-lg font-bold text-amber-400 sensor-value" id="envPlantas">55</span><span class="text-[10px] text-amber-400">Moderado</span></div></div>
+    <div onclick="showEnvDetail('quimicos')" class="card-hover glass rounded-2xl p-4 border border-rose-500/30" title="Ver sustancias químicas peligrosas: benceno, formaldehído, VOCs"><div class="text-3xl mb-2">⚗️</div><h4 class="font-bold text-sm">Químicos</h4><p class="text-[10px] text-slate-400 mb-2">Sustancias</p><div class="flex items-center justify-between"><span class="text-lg font-bold text-rose-400 sensor-value" id="envQuim">92</span><span class="text-[10px] text-rose-400 blink">Peligro</span></div></div>
   </div>
   <div id="envDetail" class="glass rounded-2xl p-5 fade-in">
     <div class="flex items-center justify-between mb-4">
@@ -406,12 +406,12 @@
 <!-- SÍSMICO -->
 <section id="content-sismico" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
   <div class="glass rounded-2xl p-4 mb-4">
-    <div class="flex items-center justify-between mb-3"><h3 class="font-bold">🎛️ Panel de Control de Sensores Sísmicos</h3><button onclick="toggleAllSensors()" id="masterToggle" class="px-3 py-1.5 rounded-lg bg-rose-500/20 border border-rose-500/40 text-xs font-medium">Desactivar Todos</button></div>
+    <div class="flex items-center justify-between mb-3"><h3 class="font-bold">🎛️ Panel de Control de Sensores Sísmicos</h3><button onclick="toggleAllSensors()" id="masterToggle" title="Activar o desactivar todos los sensores simultáneamente" class="px-3 py-1.5 rounded-lg bg-rose-500/20 border border-rose-500/40 text-xs font-medium">Desactivar Todos</button></div>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
-      <button onclick="activateByType('sismico')" class="glass rounded-xl p-2 text-center hover:bg-white/5"><p class="text-xl">📳</p><p class="text-[10px] font-bold">Sísmicos</p><p class="text-[9px] text-slate-400" id="count-sismico">8/8</p></button>
-      <button onclick="activateByType('tsunami')" class="glass rounded-xl p-2 text-center hover:bg-white/5"><p class="text-xl">🌊</p><p class="text-[10px] font-bold">Tsunami</p><p class="text-[9px] text-slate-400" id="count-tsunami">3/3</p></button>
-      <button onclick="activateByType('mareografo')" class="glass rounded-xl p-2 text-center hover:bg-white/5"><p class="text-xl">📏</p><p class="text-[10px] font-bold">Mareógrafos</p><p class="text-[9px] text-slate-400" id="count-mareografo">5/5</p></button>
-      <button onclick="activateByType('gps')" class="glass rounded-xl p-2 text-center hover:bg-white/5"><p class="text-xl">📍</p><p class="text-[10px] font-bold">GPS</p><p class="text-[9px] text-slate-400" id="count-gps">4/4</p></button>
+      <button onclick="activateByType('sismico')" title="Activar o desactivar todos los sensores sísmicos" class="glass rounded-xl p-2 text-center hover:bg-white/5"><p class="text-xl">📳</p><p class="text-[10px] font-bold">Sísmicos</p><p class="text-[9px] text-slate-400" id="count-sismico">8/8</p></button>
+      <button onclick="activateByType('tsunami')" title="Activar o desactivar todos los sensores DART de tsunami" class="glass rounded-xl p-2 text-center hover:bg-white/5"><p class="text-xl">🌊</p><p class="text-[10px] font-bold">Tsunami</p><p class="text-[9px] text-slate-400" id="count-tsunami">3/3</p></button>
+      <button onclick="activateByType('mareografo')" title="Activar o desactivar todos los mareógrafos costeros" class="glass rounded-xl p-2 text-center hover:bg-white/5"><p class="text-xl">📏</p><p class="text-[10px] font-bold">Mareógrafos</p><p class="text-[9px] text-slate-400" id="count-mareografo">5/5</p></button>
+      <button onclick="activateByType('gps')" title="Activar o desactivar todos los GPS geodésicos" class="glass rounded-xl p-2 text-center hover:bg-white/5"><p class="text-xl">📍</p><p class="text-[10px] font-bold">GPS</p><p class="text-[9px] text-slate-400" id="count-gps">4/4</p></button>
     </div>
     <div id="sensorsList" class="space-y-1.5 max-h-96 overflow-y-auto scrollbar-hide"></div>
   </div>
@@ -433,7 +433,7 @@
       <div><label class="text-xs text-slate-300 mb-1 block">Magnitud: <span id="magValue" class="text-emerald-400 font-bold">3.0</span></label><input type="range" id="magnitudeSlider" min="1" max="9" step="0.1" value="3" class="w-full accent-emerald-500" oninput="document.getElementById('magValue').textContent=parseFloat(this.value).toFixed(1)"></div>
       <div><label class="text-xs text-slate-300 mb-1 block">Profundidad: <span id="depthValue" class="text-cyan-400 font-bold">30 km</span></label><input type="range" id="depthSlider" min="1" max="200" step="1" value="30" class="w-full accent-cyan-500" oninput="document.getElementById('depthValue').textContent=this.value+' km'"></div>
     </div>
-    <button onclick="simulateQuake()" class="w-full py-3 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 font-bold hover:opacity-90">🌋 Simular Sismo</button>
+    <button onclick="simulateQuake()" title="Simular un terremoto con la magnitud y profundidad seleccionadas. Magnitud >=5 activa alarma" class="w-full py-3 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 font-bold hover:opacity-90">🌋 Simular Sismo</button>
   </div>
 </section>
 <!-- TSUNAMIS -->
@@ -493,7 +493,16 @@
       <div class="glass rounded-xl p-3"><p class="text-[9px] text-slate-400">Campo Magnético</p><p class="text-lg font-bold text-indigo-400 sensor-value" id="liveMag2">48.2 μT</p><p class="text-[9px] text-emerald-400">Estable</p></div>
       <div class="glass rounded-xl p-3"><p class="text-[9px] text-slate-400">Actividad Solar</p><p class="text-lg font-bold text-orange-400 sensor-value" id="liveKp2">Kp 2</p><p class="text-[9px] text-emerald-400">Baja</p></div>
     </div>
-    <div class="bg-black/40 rounded-xl p-3"><p class="text-xs text-slate-400 mb-2">Espectro de frecuencias detectadas</p><div class="flex items-end gap-0.5 h-20" id="freqBars"></div></div>
+    <div class="bg-black/40 rounded-xl p-3">
+      <p class="text-xs text-slate-400 mb-2">Espectro de frecuencias — Bandas de navegación aérea y comunicaciones</p>
+      <div class="flex items-end gap-0.5 h-20" id="freqBars"></div>
+      <div class="flex justify-between text-[8px] text-slate-500 mt-1">
+        <span>Torres VHF 118-137 MHz</span>
+        <span>Radar ATC</span>
+        <span>Satélites MET</span>
+        <span>ILS/VOR</span>
+      </div>
+    </div>
   </div>
   <div class="glass rounded-2xl p-4">
     <h4 class="font-bold mb-3 text-sm">📡 Satélites Monitoreando Panamá</h4>
@@ -502,6 +511,23 @@
       <div class="glass rounded-xl p-3 flex items-center justify-between"><div class="flex items-center gap-2"><span class="text-lg">🛰️</span><div><p class="text-xs font-bold">Landsat 9 (NASA)</p><p class="text-[9px] text-slate-400">Contaminación del suelo</p></div></div><span class="text-[10px] text-emerald-400">● Activo</span></div>
       <div class="glass rounded-xl p-3 flex items-center justify-between"><div class="flex items-center gap-2"><span class="text-lg">🛰️</span><div><p class="text-xs font-bold">Sentinel-5P (ESA)</p><p class="text-[9px] text-slate-400">Calidad del aire</p></div></div><span class="text-[10px] text-emerald-400">● Activo</span></div>
       <div class="glass rounded-xl p-3 flex items-center justify-between"><div class="flex items-center gap-2"><span class="text-lg">🛰️</span><div><p class="text-xs font-bold">Jason-3 (NASA)</p><p class="text-[9px] text-slate-400">Nivel del mar y tsunamis</p></div></div><span class="text-[10px] text-emerald-400">● Activo</span></div>
+    </div>
+  </div>
+  <div class="glass rounded-2xl p-4 mt-4">
+    <h4 class="font-bold mb-3 text-sm">✈️ Navegación Aérea — Frecuencias VHF</h4>
+    <p class="text-xs text-slate-300 mb-3">El monitor de frecuencias detecta señales utilizadas por la aviación en Panamá. Cada barra representa una banda de frecuencia usada para comunicaciones entre torres de control y aeronaves.</p>
+    <div class="grid md:grid-cols-2 gap-3">
+      <div class="glass rounded-xl p-3 border-l-4 border-cyan-500">
+        <div class="flex items-center gap-2 mb-2"><span class="text-lg">🛫</span><div><p class="text-xs font-bold text-cyan-400">Aeropuerto Tocumen (PTY)</p><p class="text-[9px] text-slate-400">Ciudad de Panamá · Internacional</p></div></div>
+        <div class="grid grid-cols-2 gap-1 text-[10px]"><div><p class="text-slate-400">Torre de control</p><p class="font-bold">118.1 MHz</p></div><div><p class="text-slate-400">Approach</p><p class="font-bold">119.7 MHz</p></div><div><p class="text-slate-400">Ground</p><p class="font-bold">121.9 MHz</p></div><div><p class="text-slate-400">ATIS</p><p class="font-bold">127.6 MHz</p></div></div>
+      </div>
+      <div class="glass rounded-xl p-3 border-l-4 border-emerald-500">
+        <div class="flex items-center gap-2 mb-2"><span class="text-lg">🛫</span><div><p class="text-xs font-bold text-emerald-400">Aeropuerto Enrique Malek (DAV)</p><p class="text-[9px] text-slate-400">David, Chiriquí · Nacional/Internacional</p></div></div>
+        <div class="grid grid-cols-2 gap-1 text-[10px]"><div><p class="text-slate-400">Torre de control</p><p class="font-bold">118.5 MHz</p></div><div><p class="text-slate-400">Approach</p><p class="font-bold">119.7 MHz</p></div><div><p class="text-slate-400">Vuelos nacionales</p><p class="font-bold">128.3 MHz</p></div><div><p class="text-slate-400">ATIS</p><p class="font-bold">127.6 MHz</p></div></div>
+      </div>
+    </div>
+    <div class="glass rounded-xl p-3 mt-3">
+      <p class="text-[10px] text-slate-400">💡 Las condiciones espaciales (radiación solar, campo magnético, actividad geomagnética) pueden afectar la calidad de las comunicaciones por radio VHF/HF, esenciales para la navegación aérea. El monitoreo 24/7 ayuda a predecir posibles interferencias.</p>
     </div>
   </div>
 </section>
@@ -540,36 +566,37 @@
 </section>
 <div id="notifModal" class="modal-overlay" onclick="if(event.target===this)closeNotifModal()">
   <div class="modal-content p-5">
-    <div class="flex items-center justify-between mb-4"><div class="flex items-center gap-2"><span class="text-2xl">🔔</span><h3 class="text-lg font-bold">Centro de Notificaciones</h3></div><button onclick="closeNotifModal()" class="w-8 h-8 rounded-full glass hover:bg-white/10">✕</button></div>
+    <div class="flex items-center justify-between mb-4"><div class="flex items-center gap-2"><span class="text-2xl">🔔</span><h3 class="text-lg font-bold">Centro de Notificaciones</h3></div><button onclick="closeNotifModal()" title="Cerrar centro de notificaciones" class="w-8 h-8 rounded-full glass hover:bg-white/10">✕</button></div>
     <div class="glass rounded-xl p-3 mb-4">
       <div class="flex items-center justify-between">
         <div><p class="text-sm font-bold">Notificaciones del navegador</p><p class="text-[10px] text-slate-400" id="notifPermissionText">Verificando permiso...</p></div>
-        <button onclick="requestNotifPermission()" id="notifPermBtn" class="px-3 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-xs font-medium">Activar</button>
+        <button onclick="requestNotifPermission()" id="notifPermBtn" title="Solicitar permiso para recibir notificaciones del navegador" class="px-3 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-xs font-medium">Activar</button>
       </div>
     </div>
-    <div class="flex items-center justify-between mb-3"><h4 class="font-bold text-sm">🔊 Alarma sonora</h4><label class="flex items-center gap-2 cursor-pointer"><span class="text-xs text-slate-400">Activada</span><div id="soundToggle" class="toggle-switch active" onclick="toggleSound()"></div></label></div>
-    <div class="flex items-center justify-between mb-4"><h4 class="font-bold text-sm">📳 Vibración (móvil)</h4><label class="flex items-center gap-2 cursor-pointer"><span class="text-xs text-slate-400">Activada</span><div id="vibrationToggle" class="toggle-switch active" onclick="toggleVibration()"></div></label></div>
+    <div class="flex items-center justify-between mb-3"><h4 class="font-bold text-sm">🔊 Alarma sonora</h4><label class="flex items-center gap-2 cursor-pointer"><span class="text-xs text-slate-400">Activada</span><div id="soundToggle" class="toggle-switch active" onclick="toggleSound()" title="Activar o desactivar el sonido de las alarmas"></div></label></div>
+    <div class="flex items-center justify-between mb-4"><h4 class="font-bold text-sm">📳 Vibración (móvil)</h4><label class="flex items-center gap-2 cursor-pointer"><span class="text-xs text-slate-400">Activada</span><div id="vibrationToggle" class="toggle-switch active" onclick="toggleVibration()" title="Activar o desactivar la vibración en dispositivos móviles"></div></label></div>
     <h4 class="font-bold text-sm mb-2">📜 Historial de Notificaciones</h4>
     <div id="notifList" class="space-y-2 max-h-80 overflow-y-auto scrollbar-hide"></div>
-    <button onclick="clearNotifications()" class="w-full mt-3 py-2 rounded-lg glass text-xs hover:bg-white/10">🗑️ Limpiar historial</button>
+    <button onclick="clearNotifications()" title="Eliminar todo el historial de notificaciones" class="w-full mt-3 py-2 rounded-lg glass text-xs hover:bg-white/10">🗑️ Limpiar historial</button>
   </div>
 </div>
 <div id="manualModal" class="modal-overlay" onclick="if(event.target===this)closeManual()">
   <div class="modal-content">
     <div class="sticky top-0 glass p-4 flex items-center justify-between z-10 border-b border-white/10">
       <div class="flex items-center gap-2"><span class="text-2xl">📘</span><div><h3 class="text-lg font-bold">Manual de Usuario</h3><p class="text-[10px] text-slate-400">EcoMonitor Panamá · v3.0</p></div></div>
-      <button onclick="closeManual()" class="w-8 h-8 rounded-full glass hover:bg-white/10">✕</button>
+      <button onclick="closeManual()" title="Cerrar manual de usuario" class="w-8 h-8 rounded-full glass hover:bg-white/10">✕</button>
     </div>
     <div class="grid md:grid-cols-[220px_1fr] gap-0">
       <div class="border-r border-white/10 p-2 space-y-1">
-        <button onclick="showManualSection('inicio')" class="manual-nav-item active w-full text-left px-3 py-2 rounded-lg text-xs">📖 Introducción</button>
-        <button onclick="showManualSection('clima')" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">🌤️ Clima</button>
-        <button onclick="showManualSection('ambiental')" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">🌍 Ambiental</button>
-        <button onclick="showManualSection('sismico')" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">🌋 Sísmico</button>
-        <button onclick="showManualSection('tsunamis')" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">🌊 Tsunamis</button>
-        <button onclick="showManualSection('sensores')" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">📡 Sensores</button>
-        <button onclick="showManualSection('alarmas')" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">🚨 Alarmas</button>
-        <button onclick="showManualSection('faq')" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">❓ FAQ</button>
+        <button onclick="showManualSection('inicio')" title="Introducción y visión general de EcoMonitor" class="manual-nav-item active w-full text-left px-3 py-2 rounded-lg text-xs">📖 Introducción</button>
+        <button onclick="showManualSection('clima')" title="Cómo usar el módulo de clima en tiempo real" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">🌤️ Clima</button>
+        <button onclick="showManualSection('ambiental')" title="Cómo usar el monitoreo ambiental" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">🌍 Ambiental</button>
+        <button onclick="showManualSection('sismico')" title="Cómo usar el monitoreo sísmico y simulador" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">🌋 Sísmico</button>
+        <button onclick="showManualSection('tsunamis')" title="Cómo funciona el sistema de alerta de tsunamis" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">🌊 Tsunamis</button>
+        <button onclick="showManualSection('sensores')" title="Información sobre los sensores en tiempo real" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">📡 Sensores</button>
+        <button onclick="showManualSection('navegacion')" title="Monitoreo de frecuencias para navegación aérea" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">✈️ Navegación</button>
+        <button onclick="showManualSection('alarmas')" title="Cómo funcionan las alarmas y notificaciones" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">🚨 Alarmas</button>
+        <button onclick="showManualSection('faq')" title="Preguntas frecuentes sobre EcoMonitor" class="manual-nav-item w-full text-left px-3 py-2 rounded-lg text-xs">❓ FAQ</button>
       </div>
       <div class="p-5 overflow-y-auto max-h-[70vh]" id="manualContent"></div>
     </div>
@@ -581,7 +608,7 @@
     <div class="flex-1">
       <p class="text-sm font-bold">Instala EcoMonitor</p>
       <p class="text-xs text-slate-300 mt-1">Tocá <b>Compartir</b> <span class="text-lg">⎙</span> luego <b>Agregar a pantalla de inicio</b></p>
-      <button onclick="dismissIOSBanner()" class="mt-2 text-[10px] text-slate-400 underline">Cerrar</button>
+      <button onclick="dismissIOSBanner()" title="Cerrar este aviso de instalación" class="mt-2 text-[10px] text-slate-400 underline">Cerrar</button>
     </div>
   </div>
 </div>
@@ -1029,6 +1056,8 @@ function showEnvDetail(id) {
 // MAPA
 // ============================================
 document.querySelectorAll('.province').forEach(prov => {
+  const provData = provinces.find(p => p.id === prov.dataset.id);
+  if (provData) prov.setAttribute('title', `Ver datos de ${provData.name}: AQI ${provData.aqi}, nivel ${provData.level}`);
   prov.addEventListener('click', function() {
     document.querySelectorAll('.province').forEach(p => p.classList.remove('selected'));
     this.classList.add('selected');
@@ -1186,13 +1215,25 @@ function renderFreqBars() {
   const container = document.getElementById('freqBars');
   if (!container) return;
   container.innerHTML = '';
-  const colors = ['bg-cyan-400', 'bg-emerald-400', 'bg-indigo-400', 'bg-purple-400'];
-  for (let i = 0; i < 40; i++) {
-    const bar = document.createElement('div');
-    bar.className = `flex-1 ${colors[i % 4]} rounded-t opacity-70`;
-    bar.style.height = (20 + Math.random() * 80) + '%';
-    container.appendChild(bar);
-  }
+  const bands = [
+    { color: 'bg-cyan-400', label: 'VHF Torre', min: 50, max: 100 },
+    { color: 'bg-emerald-400', label: 'Radar ATC', min: 30, max: 80 },
+    { color: 'bg-indigo-400', label: 'Satélite MET', min: 20, max: 60 },
+    { color: 'bg-purple-400', label: 'ILS/VOR', min: 15, max: 50 },
+    { color: 'bg-cyan-500', label: 'HF Océanico', min: 40, max: 90 },
+    { color: 'bg-emerald-500', label: 'DME/TACAN', min: 20, max: 55 },
+    { color: 'bg-indigo-500', label: 'GPS/GLONASS', min: 10, max: 35 },
+    { color: 'bg-rose-400', label: 'Emergencia 121.5', min: 60, max: 100 }
+  ];
+  bands.forEach(band => {
+    for (let i = 0; i < 5; i++) {
+      const bar = document.createElement('div');
+      bar.className = `flex-1 ${band.color} rounded-t opacity-70`;
+      bar.style.height = (band.min + Math.random() * (band.max - band.min)) + '%';
+      bar.title = band.label;
+      container.appendChild(bar);
+    }
+  });
 }
 // ============================================
 // ACTUALIZACIÓN EN TIEMPO REAL DE SENSORES
@@ -1277,14 +1318,78 @@ function updateEnvironmentalRealTime() {
 // MANUAL
 // ============================================
 const manualSections = {
-  inicio: { title: '📖 Introducción', content: `<h3 class="text-xl font-bold mb-3">Bienvenido a EcoMonitor Panamá v3.0</h3><p class="text-sm text-slate-300 mb-3">Sistema integral de monitoreo <b class="text-emerald-400">ambiental, sísmico, climático y espacial</b> con datos en tiempo real.</p><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🎯 Módulos disponibles</h4><ul class="text-xs text-slate-300 space-y-1.5 ml-4"><li>🌤️ <b>Clima</b>: Datos reales de Open-Meteo API (temperatura, humedad, viento, lluvia, UV, presión)</li><li>🌍 <b>Ambiental</b>: 7 módulos (Aire, Atmósfera, Suelo, Agua, Ríos, Mar, Plantas)</li><li>🌋 <b>Sísmico</b>: 8 sensores + sismógrafos en vivo</li><li>🌊 <b>Tsunamis</b>: 3 DART + 5 mareógrafos</li><li>🛰️ <b>Espacial</b>: 4 satélites + frecuencias</li></ul></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">📡 Sensores en tiempo real</h4><p class="text-xs text-slate-300">Todos los sensores se actualizan automáticamente cada pocos segundos. El clima se actualiza cada 15 minutos desde la API oficial.</p></div>` },
-  clima: { title: '🌤️ Clima', content: `<h3 class="text-xl font-bold mb-3">Módulo Climático</h3><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">📡 Fuente de datos</h4><p class="text-xs text-slate-300">Datos reales de <b class="text-cyan-400">Open-Meteo API</b> (gratuita, sin API key). Coordenadas: Ciudad de Panamá (8.98°N, 79.52°O).</p></div><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">📊 Parámetros medidos</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>🌡️ Temperatura actual y sensación térmica</li><li>💧 Humedad relativa</li><li>💨 Velocidad y dirección del viento</li><li>🌧️ Precipitación y probabilidad</li><li>🌡️ Presión atmosférica</li><li>☀️ Índice UV</li><li>👁️ Visibilidad</li></ul></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">📈 Gráficos</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• Tendencia de temperatura 24h</li><li>• Precipitación 24h</li><li>• Pronóstico próximas 12 horas</li><li>• Amanecer, atardecer y fase lunar</li></ul></div>` },
-  ambiental: { title: '🌍 Ambiental', content: `<h3 class="text-xl font-bold mb-3">Monitoreo Ambiental</h3><p class="text-sm text-slate-300 mb-3">7 tipos de monitoreo ambiental en tiempo real:</p><div class="space-y-2"><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm text-sky-400 mb-1">💨 Aire</h4><p class="text-xs text-slate-300">PM2.5, PM10, NO₂, O₃, CO. Índice AQI.</p></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm text-indigo-400 mb-1">🌤️ Atmósfera</h4><p class="text-xs text-slate-300">Capa de ozono, CO₂, metano, CFCs, UV.</p></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm text-amber-400 mb-1">🌱 Suelo</h4><p class="text-xs text-slate-300">Metales pesados, pesticidas, pH.</p></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm text-cyan-400 mb-1">💧 Agua Potable</h4><p class="text-xs text-slate-300">pH, cloro, coliformes, turbidez.</p></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm text-teal-400 mb-1">🏞️ Ríos</h4><p class="text-xs text-slate-300">Oxígeno disuelto, DBO₅, E. coli.</p></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm text-blue-400 mb-1">🌊 Mar</h4><p class="text-xs text-slate-300">Microplásticos, temperatura, hidrocarburos.</p></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm text-green-400 mb-1">🌿 Plantas</h4><p class="text-xs text-slate-300">NDVI, toxinas, polen, estrés hídrico.</p></div></div>` },
-  sismico: { title: '🌋 Sísmico', content: `<h3 class="text-xl font-bold mb-3">Monitoreo Sísmico</h3><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🎛️ 20 Sensores Activos</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• 8 sensores sísmicos</li><li>• 3 sensores DART (tsunamis)</li><li>• 5 mareógrafos</li><li>• 4 GPS geodésicos</li></ul></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">📈 Sismógrafos en Vivo</h4><p class="text-xs text-slate-300">3 estaciones: Volcán Barú, CD Panamá, Colón. Muestran actividad sísmica en tiempo real.</p></div>` },
-  tsunamis: { title: '🌊 Tsunamis', content: `<h3 class="text-xl font-bold mb-3">Alerta de Tsunamis</h3><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">📡 Sensores DART</h4><p class="text-xs text-slate-300">Sensores en el fondo oceánico que detectan cambios de presión causados por tsunamis.</p></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">🚦 Niveles de Alerta</h4><div class="space-y-1 text-xs mt-2"><div><b class="text-emerald-400">🟢 Informativo</b>: Sin amenaza</div><div><b class="text-cyan-400">🔵 Observación</b>: Sismo significativo</div><div><b class="text-amber-400">🟡 Alerta</b>: Posible tsunami</div><div><b class="text-rose-400">🔴 Emergencia</b>: Tsunami confirmado</div></div></div>` },
-  sensores: { title: '📡 Sensores', content: `<h3 class="text-xl font-bold mb-3">Sensores en Tiempo Real</h3><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">⏱️ Frecuencia de actualización</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• Sismógrafos: cada 30ms (30 fps)</li><li>• Sensores sísmicos: cada 4 segundos</li><li>• Mareógrafos: cada 4 segundos</li><li>• Datos ambientales: cada 5 segundos</li><li>• Clima (API): cada 15 minutos</li><li>• Frecuencias espaciales: cada 2 segundos</li></ul></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">🎛️ Control</h4><p class="text-xs text-slate-300">Puedes activar/desactivar sensores individualmente o por tipo. El botón "Activar Todos" enciende los 20 sensores.</p></div>` },
-  alarmas: { title: '🚨 Alarmas', content: `<h3 class="text-xl font-bold mb-3">Sistema de Alarmas</h3><div class="glass rounded-xl p-3 mb-3 border border-rose-500/30"><h4 class="font-bold text-sm mb-2 text-rose-400">🔔 ¿Cuándo se activa?</h4><ul class="text-xs text-slate-300 space-y-1.5 ml-4"><li>• <b>Sismo 5-6.9</b>: Alarma amarilla</li><li>• <b>Sismo 7+</b>: Alarma roja + tsunami</li><li>• <b>Sismo + profundidad &lt;50km</b>: Alerta tsunami</li></ul></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">🔊 Tipos de Alerta</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• <b>Visual</b>: Banner rojo parpadeante</li><li>• <b>Sonora</b>: 3 beeps agudos (880Hz)</li><li>• <b>Vibración</b>: Patrón SOS</li><li>• <b>Push</b>: Notificación del navegador</li></ul></div>` },
-  faq: { title: '❓ FAQ', content: `<h3 class="text-xl font-bold mb-3">Preguntas Frecuentes</h3><div class="space-y-2"><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">¿Los datos del clima son reales?</p><p class="text-xs text-slate-300">Sí, vienen de Open-Meteo API. Si falla la conexión, se usan datos simulados.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">¿Con qué frecuencia se actualiza el clima?</p><p class="text-xs text-slate-300">Cada 15 minutos automáticamente.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">¿Los sensores funcionan offline?</p><p class="text-xs text-slate-300">Los sensores simulados sí. El clima requiere internet.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">¿Puedo instalar la app en mi celular?</p><p class="text-xs text-slate-300">Sí, es PWA instalable. En Android usa Chrome, en iPhone usa Safari.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">¿Funciona de noche?</p><p class="text-xs text-slate-300">Sí, todos los sensores operan 24/7. La app cambia automáticamente a modo noche.</p></div></div>` }
+  inicio: { title: '📖 Introducción', content: `<h3 class="text-xl font-bold mb-3">Bienvenido a EcoMonitor Panamá v3.0</h3><p class="text-sm text-slate-300 mb-3">Sistema integral de monitoreo <b class="text-emerald-400">ambiental, sísmico, climático y espacial</b> de Panamá con datos en tiempo real 24/7.</p><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🎯 Cómo usar la app</h4><ul class="text-xs text-slate-300 space-y-1.5 ml-4"><li><b>1.</b> Usá las pestañas superiores para navegar entre módulos</li><li><b>2.</b> Pasá el mouse sobre los botones para ver qué hacen</li><li><b>3.</b> En el Dashboard ves un resumen de todo</li><li><b>4.</b> Tocá 📲 Instalar para agregar la app a tu pantalla de inicio</li><li><b>5.</b> Activá las notificaciones para recibir alertas</li></ul></div><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🗂️ Módulos disponibles</h4><ul class="text-xs text-slate-300 space-y-1.5 ml-4"><li>🏠 <b>Dashboard</b>: Resumen general de todos los indicadores</li><li>🌤️ <b>Clima</b>: Datos reales de Open-Meteo API (temperatura, humedad, viento, lluvia, UV, presión)</li><li>🌍 <b>Ambiental</b>: 8 tipos de monitoreo (Aire, Atmósfera, Suelo, Agua, Ríos, Mar, Plantas, Químicos)</li><li>🗺️ <b>Mapa</b>: Mapa de contaminación por provincia con ranking</li><li>🌋 <b>Sísmico</b>: 20 sensores activos + sismógrafos en vivo + simulador</li><li>🌊 <b>Tsunamis</b>: 3 sensores DART + 5 mareógrafos en costas panameñas</li><li>🛰️ <b>Espacial</b>: 4 satélites + frecuencias + radiación</li><li>⚕️ <b>Cuidados</b>: Recomendaciones de salud según contaminación</li></ul></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">📡 Sensores en tiempo real</h4><p class="text-xs text-slate-300">Todos los sensores se actualizan automáticamente cada 4 segundos. El clima se actualiza cada 15 minutos desde la API oficial de Open-Meteo.</p></div>` },
+  clima: { title: '🌤️ Clima', content: `<h3 class="text-xl font-bold mb-3">Módulo Climático</h3><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">📡 Fuente de datos</h4><p class="text-xs text-slate-300">Datos reales de <b class="text-cyan-400">Open-Meteo API</b> (gratuita, sin API key). Coordenadas: Ciudad de Panamá (8.98°N, 79.52°O).</p></div><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">📊 Parámetros medidos</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>🌡️ <b>Temperatura</b>: Actual y sensación térmica</li><li>💧 <b>Humedad</b>: Relativa con barra de progreso</li><li>💨 <b>Viento</b>: Velocidad (km/h) y dirección cardinal</li><li>🌧️ <b>Precipitación</b>: Lluvia actual (mm) y probabilidad</li><li>🌡️ <b>Presión</b>: Atmosférica con estado (alta/baja)</li><li>☀️ <b>Índice UV</b>: Nivel de radiación ultravioleta</li><li>👁️ <b>Visibilidad</b>: Distancia de visibilidad horizontal</li></ul></div><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">📈 Gráficos y pronóstico</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• <b>Temperatura 24h</b>: Gráfico de línea con tendencia</li><li>• <b>Precipitación 24h</b>: Gráfico de barras</li><li>• <b>Pronóstico 12h</b>: Tarjetas cada hora con icono, temp y prob. lluvia</li><li>• <b>Sol y Luna</b>: Amanecer, atardecer, fase lunar y horas de luz</li></ul></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">🔄 Actualización</h4><p class="text-xs text-slate-300">Los datos se actualizan automáticamente cada 15 minutos. La última actualización se muestra en la esquina superior derecha del panel.</p></div>` },
+  ambiental: { title: '🌍 Ambiental', content: `<h3 class="text-xl font-bold mb-3">Monitoreo Ambiental</h3><p class="text-sm text-slate-300 mb-3">8 tipos de monitoreo ambiental. Hac\u00e9 clic en cada tarjeta para ver detalles, par\u00e1metros, tendencias y recomendaciones de salud. Cada par\u00e1metro tiene un significado y precauciones espec\u00edficas.</p>
+
+<div class="space-y-3">
+  <div class="glass rounded-xl p-3 border-l-4 border-sky-400">
+    <h4 class="font-bold text-sm text-sky-400 mb-1">\ud83d\udca8 Aire \u2014 Calidad del Aire (AQI)</h4>
+    <p class="text-xs text-slate-300"><b>Par\u00e1metros:</b> PM2.5 (part\u00edculas finas 2.5\u00b5m), PM10 (part\u00edculas gruesas 10\u00b5m), NO\u2082 (di\u00f3xido de nitr\u00f3geno), O\u2083 (ozono troposf\u00e9rico), CO (mon\u00f3xido de carbono).</p>
+    <p class="text-xs text-slate-300 mt-1"><b>\u00bfQu\u00e9 significan?</b> El \u00edndice AQI va de 0 a 500. &lt;50=\u2705 Bueno, 51-100=\u26a0\ufe0f Moderado, 101-150=Da\u00f1ino para sensibles, 151-200=Da\u00f1ino, 201-300=Muy da\u00f1ino, &gt;300=Peligroso.</p>
+    <p class="text-xs text-slate-300 mt-1"><b>Precauciones:</b> PM2.5 alto \u2192 usar mascarilla N95, evitar ejercicio al aire libre. NO\u2082 alto \u2192 reducir actividades cerca de v\u00edas con tr\u00e1fico. O\u2083 alto \u2192 evitar salir al mediod\u00eda.</p>
+  </div>
+
+  <div class="glass rounded-xl p-3 border-l-4 border-indigo-400">
+    <h4 class="font-bold text-sm text-indigo-400 mb-1">\ud83c\udf24\ufe0f Atm\u00f3sfera \u2014 Capa de Ozono y Gases</h4>
+    <p class="text-xs text-slate-300"><b>Par\u00e1metros:</b> Capa de ozono (Unidades Dobson), CO\u2082 (di\u00f3xido de carbono, ppm), Metano CH\u2084 (ppm), CFC-11 (clorofluorocarbonos, ppt), \u00cdndice UV.</p>
+    <p class="text-xs text-slate-300 mt-1"><b>\u00bfQu\u00e9 significan?</b> Ozono estratosf\u00e9rico &lt;220 DU = agujero (peligro UV extremo). CO\u2082 &gt;400 ppm = elevado. UV 1-2=Bajo, 3-5=Moderado, 6-7=Alto, 8-10=Muy Alto, 11+=Extremo.</p>
+    <p class="text-xs text-slate-300 mt-1"><b>Precauciones:</b> UV Alto (6+) \u2192 bloqueador solar FPS 30+, sombrero, gafas, evitar sol 10am-4pm. Metano alto indica contaminaci\u00f3n cercana.</p>
+  </div>
+
+  <div class="glass rounded-xl p-3 border-l-4 border-amber-400">
+    <h4 class="font-bold text-sm text-amber-400 mb-1">\ud83c\udf31 Suelo \u2014 Contaminaci\u00f3n del Suelo</h4>
+    <p class="text-xs text-slate-300"><b>Par\u00e1metros:</b> Plomo Pb (mg/kg), Mercurio Hg (mg/kg), Pesticidas (mg/kg), Hidrocarburos (mg/kg), pH del suelo.</p>
+    <p class="text-xs text-slate-300 mt-1"><b>\u00bfQu\u00e9 significan?</b> Pb seguro &lt;50 mg/kg. Hg &gt;1 mg/kg es peligroso. pH 6.5-7.5 = \u00f3ptimo. Pesticidas &gt;0.5 mg/kg = contaminaci\u00f3n por agroqu\u00edmicos.</p>
+    <p class="text-xs text-slate-300 mt-1"><b>Precauciones:</b> Hg alto \u2192 no consumir vegetales de la zona. Pb alto \u2192 evitar que ni\u00f1os jueguen en tierra. Pesticidas \u2192 lavar bien los alimentos.</p>
+  </div>
+
+  <div class="glass rounded-xl p-3 border-l-4 border-cyan-400">
+    <h4 class="font-bold text-sm text-cyan-400 mb-1">\ud83d\udca7 Agua Potable \u2014 Consumo Humano</h4>
+    <p class="text-xs text-slate-300"><b>Par\u00e1metros:</b> pH (6.5-8.5 ideal), Cloro residual (mg/L), Coliformes totales (UFC/100mL), Turbidez (NTU), Metales pesados.</p>
+    <p class="text-xs text-slate-300 mt-1"><b>\u00bfQu\u00e9 significan?</b> Cloro 0.3-0.5 mg/L = desinfecci\u00f3n \u00f3ptima. Coliformes &gt;0 UFC = contaminaci\u00f3n fecal. Turbidez &gt;5 NTU = agua turbia, posible contaminaci\u00f3n.</p>
+    <p class="text-xs text-slate-300 mt-1"><b>Precauciones:</b> Coliformes presentes \u2192 hervir agua m\u00ednimo 5 minutos. Turbidez alta \u2192 usar filtro. pH \u00e1cido (&lt;6.5) puede corroer tuber\u00edas.</p>
+  </div>
+
+  <div class="glass rounded-xl p-3 border-l-4 border-teal-400">
+    <h4 class="font-bold text-sm text-teal-400 mb-1">\ud83c\udfde\ufe0f R\u00edos \u2014 Cuencas Fluviales</h4>
+    <p class="text-xs text-slate-300"><b>Par\u00e1metros:</b> Ox\u00edgeno disuelto OD (mg/L), DBO\u2085 (demanda biol\u00f3gica de ox\u00edgeno, mg/L), Amon\u00edaco (mg/L), S\u00f3lidos suspendidos (mg/L), Escherichia coli (UFC).</p>
+    <p class="text-xs text-slate-300 mt-1"><b>\u00bfQu\u00e9 significan?</b> OD &gt;5 mg/L = saludable para peces. DBO\u2085 &gt;10 mg/L = alta contaminaci\u00f3n org\u00e1nica. E. coli &gt;100 UFC = riesgo de enfermedades.</p>
+    <p class="text-xs text-slate-300 mt-1"><b>Precauciones:</b> DBO\u2085 alto \u2192 no nadar ni pescar. E. coli elevado \u2192 no consumir agua ni alimentos del r\u00edo. Evitar contacto con el agua si hay s\u00f3lidos suspendidos visibles.</p>
+  </div>
+
+  <div class="glass rounded-xl p-3 border-l-4 border-blue-400">
+    <h4 class="font-bold text-sm text-blue-400 mb-1">\ud83c\udf0a Mar \u2014 Oc\u00e9anos y Costas</h4>
+    <p class="text-xs text-slate-300"><b>Par\u00e1metros:</b> Micropl\u00e1sticos (items/m\u00b3), Temperatura superficial (\u00b0C), Acidez pH, Hidrocarburos (ppm), Salinidad (ppt).</p>
+    <p class="text-xs text-slate-300 mt-1"><b>\u00bfQu\u00e9 significan?</b> Micropl\u00e1sticos &gt;5 items/m\u00b3 = contaminaci\u00f3n significativa. pH &lt;7.8 = acidificaci\u00f3n oce\u00e1nica. Hidrocarburos &gt;0.01 ppm = posible derrame.</p>
+    <p class="text-xs text-slate-300 mt-1"><b>Precauciones:</b> Micropl\u00e1sticos altos \u2192 evitar mariscos de la zona. Hidrocarburos detectados \u2192 no ba\u00f1arse en playas cercanas, reportar a las autoridades.</p>
+  </div>
+
+  <div class="glass rounded-xl p-3 border-l-4 border-green-400">
+    <h4 class="font-bold text-sm text-green-400 mb-1">\ud83c\udf3f Plantas \u2014 Bioindicadores Vegetales</h4>
+    <p class="text-xs text-slate-300"><b>Par\u00e1metros:</b> NDVI (\u00edndice de vegetaci\u00f3n, 0-1), Toxinas en tejidos (mg/kg), Polen (nivel), Estr\u00e9s h\u00eddrico, Da\u00f1o por ozono.</p>
+    <p class="text-xs text-slate-300 mt-1"><b>\u00bfQu\u00e9 significan?</b> NDVI &gt;0.6 = vegetaci\u00f3n saludable. Polen Alto = alergias. Estr\u00e9s h\u00eddrico indica sequ\u00eda. Da\u00f1o por ozono = contaminaci\u00f3n fotoqu\u00edmica.</p>
+    <p class="text-xs text-slate-300 mt-1"><b>Precauciones:</b> Polen alto \u2192 al\u00e9rgicos usar mascarilla y antihistam\u00ednicos. Estr\u00e9s h\u00eddrico severo \u2192 restricci\u00f3n de agua para riego.</p>
+  </div>
+
+  <div class="glass rounded-xl p-3 border-l-4 border-rose-400">
+    <h4 class="font-bold text-sm text-rose-400 mb-1">\u2697\ufe0f Qu\u00edmicos \u2014 Sustancias Peligrosas</h4>
+    <p class="text-xs text-slate-300"><b>Par\u00e1metros:</b> Benceno (ppm), Formaldeh\u00eddo (ppm), Amon\u00edaco (ppm), CO (ppm), VOCs (Compuestos Org\u00e1nicos Vol\u00e1tiles, mg/m\u00b3).</p>
+    <p class="text-xs text-slate-300 mt-1"><b>\u00bfQu\u00e9 significan?</b> Benceno &gt;0.005 ppm = cancer\u00edgeno, peligroso. Formaldeh\u00eddo &gt;0.1 ppm = irritante. VOCs &gt;0.5 mg/m\u00b3 = mala calidad del aire interior.</p>
+    <p class="text-xs text-slate-300 mt-1"><b>\u26a0\ufe0f Precauciones URGENTES:</b> Benceno alto \u2192 evacuar el \u00e1rea, ventilar, usar m\u00e1scara con filtro de carb\u00f3n activado. Formaldeh\u00eddo alto \u2192 abandonar el espacio y ventilar por 30 min. Reportar a las autoridades ambientales.</p>
+  </div>
+</div>
+
+<div class="mt-3 glass rounded-xl p-3">
+  <h4 class="font-bold text-sm mb-2">\ud83d\udca1 C\u00f3mo usar esta secci\u00f3n</h4>
+  <p class="text-xs text-slate-300">Hac\u00e9 clic en cualquier tarjeta (\ud83d\udca8 Aire, \ud83c\udf31 Suelo, etc.) en la pesta\u00f1a Ambiental para abrir el panel de detalle con par\u00e1metros en tiempo real, gr\u00e1fico de tendencia 24h y recomendaciones de salud espec\u00edficas para cada tipo de monitoreo.</p>
+</div>` },
+  sismico: { title: '🌋 Sísmico', content: `<h3 class="text-xl font-bold mb-3">Monitoreo Sísmico</h3><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🎛️ Panel de Control de Sensores</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• <b>Activar/Desactivar</b>: Us\u00e1 los switches individuales o los botones por tipo</li><li>• <b>Master Toggle</b>: Bot\u00f3n superior para activar/desactivar todos</li><li>• <b>Botones por tipo</b>: 📳 S\u00edsmicos, 🌊 Tsunami, 📏 Mare\u00f3grafos, 📍 GPS</li><li>• Total: <b>20 sensores</b> (8 s\u00edsmicos, 3 DART, 5 mare\u00f3grafos, 4 GPS)</li></ul></div><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">📈 Sism\u00f3grafos en Vivo</h4><p class="text-xs text-slate-300">3 estaciones mostrando actividad en tiempo real (30 fps):</p><ul class="text-xs text-slate-300 space-y-1 ml-4 mt-1"><li>🌋 <b>Volc\u00e1n Bar\u00fa (CH-01)</b> \u2014 Chiriqu\u00ed</li><li>🏙️ <b>CD Panam\u00e1 (PA-01)</b></li><li>⚓ <b>Col\u00f3n (CO-01)</b></li></ul><p class="text-xs text-slate-300 mt-1">Cuando simul\u00e1s un sismo, todos los sism\u00f3grafos reaccionan con amplitudes proporcionales a la magnitud.</p></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">🎮 Simulador de Sismos</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• Ajust\u00e1 <b>magnitud</b> (1.0 - 9.0) y <b>profundidad</b> (1 - 200 km)</li><li>• Toc\u00e1 <b>🌋 Simular Sismo</b> para ejecutar la simulaci\u00f3n</li><li>• <b>Magnitud \u2265 5</b>: Activa alerta amarilla con <b>notificaci\u00f3n push</b> al celular, sonido y vibraci\u00f3n</li><li>• <b>Magnitud \u2265 7 + profundidad &lt;50km</b>: Alarma roja + alerta de tsunami + notificaci\u00f3n de EMERGENCIA</li><li>• <b>📱 Notificaciones en celular</b>: Si activaste las notificaciones (campana 🔔 en el header), recibir\u00e1s alerta aunque la app est\u00e9 cerrada o en segundo plano</li></ul></div>` },
+  tsunamis: { title: '🌊 Tsunamis', content: `<h3 class="text-xl font-bold mb-3">Alerta de Tsunamis</h3><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">📡 Sensores DART</h4><p class="text-xs text-slate-300">Sensores en el fondo oceánico que detectan cambios de presión causados por tsunamis. Hay 3 desplegados:</p><ul class="text-xs text-slate-300 space-y-1 ml-4 mt-1"><li>🔵 <b>DART #43210</b> — Océano Pacífico (4,500 m profundidad)</li><li>🔵 <b>DART #43211</b> — Mar Caribe (3,200 m profundidad)</li><li>🔵 <b>DART Golfo Chiriquí</b></li></ul></div><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">📏 Mareógrafos Costeros</h4><p class="text-xs text-slate-300">5 estaciones midiendo el nivel del mar en tiempo real:</p><ul class="text-xs text-slate-300 space-y-1 ml-4 mt-1"><li>📍 <b>Balboa</b> — Pacífico, CD Panamá</li><li>📍 <b>Cristóbal</b> — Caribe, Colón</li><li>📍 <b>Chiriquí</b> — David</li><li>📍 <b>Bocas del Toro</b> — Caribe</li><li>📍 <b>Darién</b> — Pacífico</li></ul></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">🚦 Niveles de Alerta</h4><div class="space-y-1 text-xs mt-2"><div><b class="text-emerald-400">🟢 Informativo</b>: Sin amenaza. Actividad normal.</div><div><b class="text-cyan-400">🔵 Observación</b>: Sismo significativo. Monitoreo intensificado.</div><div><b class="text-amber-400">🟡 Alerta</b>: Posible tsunami. Preparar evacuación costera.</div><div><b class="text-rose-400">🔴 Emergencia</b>: Tsunami confirmado. EVACUAR a zonas altas.</div></div></div>` },
+  sensores: { title: '📡 Sensores', content: `<h3 class="text-xl font-bold mb-3">Sensores en Tiempo Real</h3><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">⏱️ Frecuencia de actualización</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>🎨 <b>Sismógrafos</b>: Cada 30ms (30 fps), dibujados con Canvas</li><li>📳 <b>Sensores sísmicos</b>: Cada 4 segundos</li><li>🌊 <b>Mareógrafos</b>: Cada 4 segundos</li><li>🌍 <b>Datos ambientales</b>: Cada 5 segundos</li><li>🌤️ <b>Clima (API)</b>: Cada 15 minutos</li><li>🛰️ <b>Frecuencias espaciales</b>: Cada 2 segundos</li></ul></div><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🎛️ Cómo controlar los sensores</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• <b>Switch individual</b>: Activá/desactivá cada sensor con su toggle</li><li>• <b>Botones por tipo</b>: 📳 Sísmicos, 🌊 Tsunami, 📏 Mareógrafos, 📍 GPS</li><li>• <b>Toggle Master</b>: Activa o desactiva los 20 sensores de una vez</li><li>• Los sensores activos tienen un resplandor verde (<b>sensor-online</b>)</li><li>• Los desactivados se atenúan (<b>sensor-offline</b>)</li></ul></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">📊 Datos en vivo</h4><p class="text-xs text-slate-300">Cada sensor muestra: nombre, ubicación, tipo, señal (%) y lectura actual. Los valores fluctúan en tiempo real para simular condiciones reales.</p></div>` },
+  navegacion: { title: '✈️ Navegación Aérea', content: `<h3 class="text-xl font-bold mb-3">Monitoreo de Navegación Aérea</h3><p class="text-sm text-slate-300 mb-3">El monitor de frecuencias espaciales permite visualizar el espectro de radiofrecuencias utilizado para la navegación aérea en Panamá.</p><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🛩️ ¿Qué muestra el monitor de frecuencias?</h4><p class="text-xs text-slate-300">Las barras verticales representan distintas bandas de frecuencia detectadas en tiempo real. Cada color agrupa un tipo de señal:</p><ul class="text-xs text-slate-300 space-y-1 ml-4 mt-2"><li>🟢 <b>Verde (cian)</b>: Comunicaciones VHF aeronáuticas (118-137 MHz) — torres de control y pilotos</li><li>🟢 <b>Verde (esmeralda)</b>: Radioayudas a la navegación (VOR, ILS, DME)</li><li>🟣 <b>Índigo-púrpura</b>: Radar primario y secundario (ATC)</li><li>🔵 <b>Azul</b>: Comunicaciones satelitales y datos meteorológicos aeronáuticos</li></ul></div><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🛫 Aeropuertos Monitoreados</h4><div class="space-y-2 mt-2"><div class="glass rounded-lg p-2 border-l-4 border-cyan-500"><p class="text-xs font-bold text-cyan-400">Aeropuerto Internacional de Tocumen (PTY/MPTO)</p><p class="text-[10px] text-slate-400">Ciudad de Panamá · Vuelos nacionales e internacionales · 14 millones de pasajeros/año</p><p class="text-[10px] text-slate-400">Frecuencias: Torre 118.1 MHz · Approach 119.7 MHz · Ground 121.9 MHz</p></div><div class="glass rounded-lg p-2 border-l-4 border-emerald-500"><p class="text-xs font-bold text-emerald-400">Aeropuerto Internacional Enrique Malek (DAV/MPDA)</p><p class="text-[10px] text-slate-400">David, Chiriquí · Vuelos nacionales e internacionales · Conexión con Centroamérica</p><p class="text-[10px] text-slate-400">Frecuencias: Torre 118.5 MHz · Approach 119.7 MHz</p></div><div class="glass rounded-lg p-2 border-l-4 border-amber-500"><p class="text-xs font-bold text-amber-400">Aeropuerto Marcos A. Gelabert (PAC/MPMG)</p><p class="text-[10px] text-slate-400">Albrook, Ciudad de Panamá · Vuelos nacionales e internacionales</p></div></div></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">📡 Importancia del Monitoreo Espacial para la Aviación</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• La <b>radiación solar</b> y las <b>tormentas geomagnéticas</b> pueden afectar las comunicaciones por radio VHF/HF</li><li>• El <b>campo magnético terrestre</b> es esencial para la navegación por brújula y los sistemas de aterrizaje instrumental (ILS)</li><li>• Los <b>rayos cósmicos</b> en altitudes de crucero (10-12 km) son monitoreados para proteger a pasajeros y tripulación</li><li>• La actividad solar (índice Kp) determina la calidad de las comunicaciones HF en rutas transoceánicas</li></ul></div>` },
+  alarmas: { title: '🚨 Alarmas', content: `<h3 class="text-xl font-bold mb-3">Sistema de Alarmas y Notificaciones</h3><div class="glass rounded-xl p-3 mb-3 border border-rose-500/30"><h4 class="font-bold text-sm mb-2 text-rose-400">🔔 ¿Cuándo se activa una alarma?</h4><ul class="text-xs text-slate-300 space-y-1.5 ml-4"><li>• <b>Sismo 5.0 - 6.9</b>: Alerta amarilla con notificación</li><li>• <b>Sismo 7+</b>: Alarma roja con sonido, vibración y alerta de tsunami</li><li>• <b>Sismo + profundidad &lt;50km</b>: Alerta de tsunami automática</li></ul></div><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🔊 Tipos de Alerta</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>🔴 <b>Visual</b>: Banner rojo parpadeante con título, mensaje y hora</li><li>🔔 <b>Sonora</b>: 3 beeps agudos (880Hz) que se repiten cada 2.5 segundos</li><li>📳 <b>Vibración</b>: Patrón SOS en dispositivos móviles</li><li>💬 <b>Push</b>: Notificación del navegador (si hay permiso)</li></ul></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">⚙️ Cómo configurar</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• <b>🔔 Notificaciones</b>: Tocá el ícono de campana en el header → "Activar"</li><li>• <b>🔊 Sonido</b>: En el centro de notificaciones, toggle de "Alarma sonora"</li><li>• <b>📳 Vibración</b>: En el centro de notificaciones, toggle de "Vibración"</li><li>• <b>🔕 Silenciar</b>: Cuando suene una alarma, tocá "Silenciar" en el banner rojo</li></ul></div>` },
+  faq: { title: '❓ FAQ', content: `<h3 class="text-xl font-bold mb-3">Preguntas Frecuentes</h3><div class="space-y-2"><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">✈️ ¿Qué son las barras de frecuencias en la pestaña Espacial?</p><p class="text-xs text-slate-300">Representan las bandas de frecuencia utilizadas por la aviación en Panamá. Cada color corresponde a un tipo de señal: VHF de torres de control (118-137 MHz), radar ATC, ayudas a la navegación como ILS/VOR, y comunicaciones satelitales. Los aeropuertos de Tocumen (PTY) y David (DAV) son monitoreados. Las condiciones espaciales (radiación solar, campo magnético) pueden afectar estas frecuencias.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">🌤️ ¿Los datos del clima son reales?</p><p class="text-xs text-slate-300">Sí, vienen de la API gratuita <b>Open-Meteo</b> (sin necesidad de API key). Si falla la conexión a internet, se usan datos simulados realistas para Panamá.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">🔄 ¿Con qué frecuencia se actualizan los datos?</p><p class="text-xs text-slate-300">El clima se actualiza cada 15 minutos. Los sensores sísmicos y mareógrafos cada 4 segundos. Los datos ambientales cada 5 segundos. Los sismógrafos en vivo van a 30 fps.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">📶 ¿Los sensores funcionan sin internet?</p><p class="text-xs text-slate-300">Los sensores simulados (sísmicos, mareógrafos, ambientales, espaciales) funcionan offline. El clima requiere internet para obtener datos reales. El service worker cachea la app para que puedas abrirla sin conexión.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">📲 ¿Cómo instalo la app en mi celular?</p><p class="text-xs text-slate-300"><b>Android:</b> Abrí en Chrome → tocá el botón 📲 Instalar en el header o el banner inferior.<br><b>iPhone/iPad:</b> Abrí en Safari → tocá Compartir ⎙ → "Agregar a pantalla de inicio".</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">🌙 ¿Funciona de noche?</p><p class="text-xs text-slate-300">Sí, todos los sensores operan 24/7. La app cambia automáticamente al modo noche (fondo más oscuro) entre las 19:00 y las 06:00.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">🚨 ¿Cómo pruebo las alarmas?</p><p class="text-xs text-slate-300">Andá a la pestaña 🌋 Sísmico, ajustá la magnitud a 5 o más y tocá "Simular Sismo". Se activará la alarma sonora, visual y de vibración.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">💾 ¿La app guarda datos?</p><p class="text-xs text-slate-300">Solo guarda localmente tus preferencias (sonido, vibración) y las notificaciones durante la sesión. No se envía ningún dato a servidores externos.</p></div></div>` }
 };
 function showManualSection(id) {
   document.querySelectorAll('.manual-nav-item').forEach(el => el.classList.remove('active'));
