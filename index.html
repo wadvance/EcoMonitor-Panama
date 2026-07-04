@@ -2493,7 +2493,12 @@ function getUserName() {
 }
 
 function login(username, password) {
-  const user = ADMIN_CREDENTIALS[username.toLowerCase()];
+  console.log('login() - username:', JSON.stringify(username), 'password:', JSON.stringify(password));
+  const key = username ? username.toLowerCase() : '';
+  console.log('login() - key:', JSON.stringify(key));
+  const user = ADMIN_CREDENTIALS[key];
+  console.log('login() - user found:', user);
+  console.log('login() - password match:', user ? user.password === password : 'N/A');
   if (user && user.password === password) {
     localStorage.setItem(AUTH_KEY, JSON.stringify({
       username: username.toLowerCase(),
