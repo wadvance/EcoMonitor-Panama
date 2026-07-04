@@ -2493,7 +2493,7 @@ function showInstallPrompts() {
 
 window.addEventListener('load', () => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').then(() => {
+    navigator.serviceWorker.register('sw.js?v=3').then(() => {
       console.log('SW registrado');
     }).catch(() => {});
   }

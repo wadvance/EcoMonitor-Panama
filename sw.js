@@ -1,4 +1,4 @@
-const CACHE = 'ecomonitor-v2';
+const CACHE = 'ecomonitor-v3';
 const ASSETS = [
   '.',
   'manifest.json',
