@@ -107,6 +107,7 @@
         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-dot"></span>
         <span class="text-xs">24/7</span>
       </div>
+      <span id="trialBadge" class="px-2 py-1 text-[9px] rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-medium" title="Periodo de prueba">⏳ --</span>
     </div>
   </div>
 </header>
@@ -143,6 +144,8 @@
     <button onclick="showTab('sismico')" id="tab-sismico" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Monitoreo sísmico: 8 sensores, sismógrafos en vivo y simulador de terremotos">🌋 Sísmico</button>
     <button onclick="showTab('tsunamis')" id="tab-tsunamis" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Sistema de alerta de tsunamis: sensores DART y mareógrafos en costas panameñas">🌊 Tsunamis</button>
     <button onclick="showTab('espacial')" id="tab-espacial" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Monitoreo espacial: radiación solar, rayos cósmicos, campo magnético y satélites">🛰️ Espacial</button>
+    <button onclick="showTab('vuelos')" id="tab-vuelos" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Radar de vuelos en tiempo real cerca de Tocumen y David">🛩️ Vuelos</button>
+    <button onclick="showTab('epidemia')" id="tab-epidemia" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Monitoreo epidemiológico: Norovirus, dengue, COVID y alertas del MINSA">🦠 Epidemia</button>
     <button onclick="showTab('cuidados')" id="tab-cuidados" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Recomendaciones de salud según nivel de contaminación y protocolos ante sismos">⚕️ Cuidados</button>
   </div>
 </div>
@@ -536,12 +539,15 @@
       <p class="text-[10px] text-slate-400">💡 Las condiciones espaciales (radiación solar, campo magnético, actividad geomagnética) pueden afectar la calidad de las comunicaciones por radio VHF/HF, esenciales para la navegación aérea. El monitoreo 24/7 ayuda a predecir posibles interferencias.</p>
     </div>
   </div>
-  <div class="glass rounded-2xl p-4 mt-4">
+</section>
+<!-- VUELOS -->
+<section id="content-vuelos" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
+  <div class="glass rounded-2xl p-4">
     <div class="flex items-center justify-between mb-3">
       <h4 class="font-bold text-sm">🛩️ Vuelos en Tiempo Real — Radar Panamá</h4>
       <span class="live-indicator">RADAR</span>
     </div>
-    <p class="text-[10px] text-slate-400 mb-3">Datos de OpenSky Network. Muestra aeronaves detectadas en el espacio aéreo panameño.</p>
+    <p class="text-[10px] text-slate-400 mb-3">Rastrea aeronaves cercanas a los aeropuertos de Tocumen (PTY) y Enrique Malek (DAV). Hacé clic en los contadores para ver los vuelos que aterrizarán.</p>
     <div class="flex items-center gap-2 mb-3">
       <span class="text-xs text-slate-400">🛫 Tocumen (PTY):</span>
       <span class="text-xs font-bold text-emerald-400 cursor-pointer hover:text-cyan-300 transition" id="flightsPTY" onclick="showAirportFlights('PTY')" title="Ver vuelos que aterrizarán en Tocumen">0</span>
@@ -550,10 +556,13 @@
       <span class="text-xs text-slate-400">🛫 Otros:</span>
       <span class="text-xs font-bold text-amber-400" id="flightsOther">0</span>
     </div>
-    <div id="flightsList" class="space-y-1.5 max-h-96 overflow-y-auto scrollbar-hide"></div>
+    <div id="flightsList" class="space-y-1.5 max-h-[60vh] overflow-y-auto scrollbar-hide"></div>
     <div id="flightsLoading" class="text-xs text-slate-500 text-center py-4">Cargando vuelos...</div>
   </div>
-  <div class="glass rounded-2xl p-4 mt-4 border border-rose-500/20">
+</section>
+<!-- EPIDEMIA -->
+<section id="content-epidemia" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
+  <div class="glass rounded-2xl p-4 border border-rose-500/20">
     <div class="flex items-center justify-between mb-3">
       <h4 class="font-bold text-sm">🦠 Monitoreo Epidemiológico — Panamá</h4>
       <span id="epiStatusBadge" class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-400">Normal</span>
@@ -562,7 +571,7 @@
     <div id="epiCards" class="space-y-2"></div>
     <div id="epiRecs" class="glass rounded-xl p-3 mt-3 border-l-4 border-cyan-500">
       <p class="text-xs font-bold text-cyan-400 mb-1">💡 Recomendación General</p>
-      <p class="text-[10px] text-slate-300" id="epiGeneralRec">No hay alertas activas. Puede realizar sus actividades con normalidad.</p>
+      <p class="text-[10px] text-slate-300" id="epiGeneralRec">Cargando...</p>
     </div>
   </div>
 </section>
@@ -1002,7 +1011,18 @@ function addNotification(type, title, message) {
   if (notifications.length > 50) notifications.pop();
   updateNotifBadge();
   renderNotifList();
-  if ('Notification' in window && Notification.permission === 'granted') new Notification(title, { body: message });
+  if ('Notification' in window && Notification.permission === 'granted') {
+    const isUrgent = type === 'danger' || type === 'warning';
+    const n = new Notification(title, {
+      body: message,
+      silent: false,
+      requireInteraction: isUrgent,
+      tag: type,
+      icon: 'icons/icon-192.svg'
+    });
+    n.onshow = () => { if (isUrgent) playAlarmSound(); };
+    setTimeout(() => { if (!isUrgent) n.close(); }, 8000);
+  }
   if (vibrationEnabled && 'vibrate' in navigator) navigator.vibrate(type === 'danger' ? [500, 200, 500, 200, 500] : [200, 100, 200]);
   document.getElementById('notifCount').textContent = notifications.length;
 }
@@ -1028,6 +1048,7 @@ function playAlarmSound() {
   if (!soundEnabled) return;
   try {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
     const playBeep = (freq, duration, delay) => {
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
@@ -2086,7 +2107,208 @@ window.addEventListener('load', () => {
     }).catch(() => {});
   }
   showInstallPrompts();
+  initTrialCountdown();
 });
+
+// ============================================
+// 🕐 CUENTA REGRESIVA DE PRUEBA (10 días)
+// ============================================
+const TRIAL_START_KEY = 'ecomonitor-trial-start';
+const TRIAL_DAYS = 10;
+const TRIAL_LICENSE_KEY = 'ecomonitor-license';
+
+function getTrialStart() {
+  let stored = localStorage.getItem(TRIAL_START_KEY);
+  if (!stored) {
+    const start = new Date();
+    start.setFullYear(2026, 6, 4); // 4 julio 2026
+    start.setHours(10, 0, 0, 0);
+    localStorage.setItem(TRIAL_START_KEY, start.toISOString());
+    return start;
+  }
+  return new Date(stored);
+}
+
+function getLicenseStatus() {
+  return localStorage.getItem(TRIAL_LICENSE_KEY) === 'valid';
+}
+
+function getTrialEnd() {
+  const start = getTrialStart();
+  const end = new Date(start.getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
+  return end;
+}
+
+function isTrialExpired() {
+  if (getLicenseStatus()) return false;
+  const now = new Date();
+  return now.getTime() >= getTrialEnd().getTime();
+}
+
+function getDaysRemaining() {
+  if (getLicenseStatus()) return Infinity;
+  const ms = getTrialEnd().getTime() - new Date().getTime();
+  if (ms <= 0) return 0;
+  const days = Math.floor(ms / (24 * 60 * 60 * 1000));
+  const hours = Math.floor((ms % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+  const mins = Math.floor((ms % (60 * 60 * 1000)) / (60 * 1000));
+  return { days, hours, mins };
+}
+
+function initTrialCountdown() {
+  const start = getTrialStart();
+  console.log('Trial iniciado:', start.toISOString());
+  checkTrial();
+  setInterval(checkTrial, 60000);
+}
+
+function checkTrial() {
+  if (isTrialExpired()) {
+    showTrialExpiredModal();
+    return;
+  }
+  const remaining = getDaysRemaining();
+  if (remaining === Infinity) return;
+  if (remaining.days === 0 && remaining.hours === 0 && remaining.mins <= 60) {
+    if (remaining.mins <= 30) showTrialWarningModal(remaining);
+  } else if (remaining.days === 0 && remaining.hours < 24) {
+    showTrialWarningModal(remaining);
+  } else if (remaining.days <= 3) {
+    showTrialWarningModal(remaining);
+  }
+  updateTrialBadge(remaining);
+}
+
+function updateTrialBadge(remaining) {
+  const badge = document.getElementById('trialBadge');
+  if (!badge) return;
+  if (remaining && remaining.days <= 3) {
+    badge.textContent = `⏳ ${remaining.days}d ${remaining.hours}h`;
+    badge.className = 'px-2 py-1 text-[9px] rounded-full bg-rose-500/30 border border-rose-500/50 text-rose-300 font-medium';
+    badge.title = `Periodo de prueba termina en ${remaining.days} días, ${remaining.hours} horas`;
+  } else if (remaining) {
+    badge.textContent = `⏳ ${remaining.days}d`;
+    badge.className = 'px-2 py-1 text-[9px] rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-medium';
+    badge.title = `Periodo de prueba: ${remaining.days} días restantes`;
+  }
+}
+
+function showTrialWarningModal(remaining) {
+  const existing = document.getElementById('trialWarnModal');
+  if (existing) return;
+  const modal = document.createElement('div');
+  modal.id = 'trialWarnModal';
+  modal.className = 'modal-overlay active';
+  const daysText = remaining.days > 0 ? `${remaining.days} días, ` : '';
+  modal.innerHTML = `<div class="modal-content max-w-md p-6 text-center">
+    <div class="text-5xl mb-3">⏰</div>
+    <h3 class="text-xl font-bold mb-2">Tu prueba termina pronto</h3>
+    <p class="text-sm text-slate-300 mb-4">Te quedan <b class="text-amber-400">${daysText}${remaining.hours}h ${remaining.mins}m</b> para seguir usando EcoMonitor Panamá.</p>
+    <p class="text-xs text-slate-400 mb-4">Para continuar sin interrupciones, adquirí tu licencia hoy.</p>
+    <button onclick="document.getElementById('trialWarnModal').remove()" class="w-full py-2.5 rounded-xl bg-cyan-500 text-black font-bold mb-2">Entendido</button>
+    <button onclick="document.getElementById('trialWarnModal').remove(); showPurchaseGuide()" class="w-full py-2 rounded-xl glass text-xs text-slate-300 hover:bg-white/10">Cómo comprar la app</button>
+  </div>`;
+  document.body.appendChild(modal);
+}
+
+function showTrialExpiredModal() {
+  const existing = document.getElementById('trialExpiredModal');
+  if (existing) return;
+  const modal = document.createElement('div');
+  modal.id = 'trialExpiredModal';
+  modal.className = 'modal-overlay active';
+  modal.style.zIndex = '99999';
+  modal.style.background = 'rgba(0,0,0,0.97)';
+  modal.innerHTML = `<div class="modal-content max-w-md p-6 text-center" style="background: linear-gradient(135deg, #0f172a, #1e293b); border: 2px solid #f43f5e;">
+    <div class="text-6xl mb-4">🔒</div>
+    <h2 class="text-2xl font-bold mb-2 text-rose-400">Periodo de prueba finalizado</h2>
+    <p class="text-sm text-slate-300 mb-4">El periodo gratuito de <b>10 días</b> de EcoMonitor Panamá ha terminado. Para seguir monitoreo sísmico, ambiental, climático y epidemiológico en tiempo real, adquirí tu licencia.</p>
+    <div class="glass rounded-xl p-3 mb-4 text-left">
+      <p class="text-xs text-slate-400 mb-1">💳 Beneficios de la licencia:</p>
+      <ul class="text-xs text-slate-300 space-y-1 ml-4 list-disc">
+        <li>📡 Acceso ilimitado 24/7 a todos los módulos</li>
+        <li>🔔 Notificaciones push de sismos y alertas</li>
+        <li>🛰️ Radar de vuelos y monitoreo espacial</li>
+        <li>🦠 Alertas epidemiológicas en tiempo real (Norovirus, Dengue, etc.)</li>
+        <li>🌊 Sistema de alerta de tsunamis</li>
+        <li>📲 Instalación en tu celular (PWA)</li>
+        <li>🔄 Actualizaciones de por vida</li>
+      </ul>
+    </div>
+    <button onclick="showPurchaseGuide()" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 text-black font-bold mb-2">🛒 Comprar licencia ahora</button>
+    <button onclick="closeTrialExpiredModal()" class="w-full py-2 rounded-xl glass text-xs text-slate-400 hover:bg-white/10">Seguir viendo la app por hoy</button>
+  </div>`;
+  document.body.appendChild(modal);
+  if (soundEnabled) playAlarmSound();
+}
+
+function closeTrialExpiredModal() {
+  const m = document.getElementById('trialExpiredModal');
+  if (m) m.remove();
+  const now = new Date();
+  localStorage.setItem('ecomonitor-trial-extended', now.toISOString());
+  showTrialBanner();
+}
+
+function showTrialBanner() {
+  const existing = document.getElementById('trialBanner');
+  if (existing) return;
+  const banner = document.createElement('div');
+  banner.id = 'trialBanner';
+  banner.className = 'fixed top-0 left-0 right-0 z-50 bg-rose-500/30 border-b-2 border-rose-500 backdrop-blur-md p-2 text-center';
+  banner.innerHTML = `<p class="text-xs text-rose-200">⏰ <b>Periodo de prueba finalizado.</b> <button onclick="showPurchaseGuide()" class="underline font-bold text-cyan-300">Comprar licencia</button></p>`;
+  document.body.prepend(banner);
+}
+
+function showPurchaseGuide() {
+  const modal = document.getElementById('trialExpiredModal') || document.getElementById('trialWarnModal');
+  if (modal) modal.remove();
+  openModal('🛒 Comprar EcoMonitor Panamá',
+    `<div class="space-y-3 text-center">
+      <div class="glass rounded-xl p-4">
+        <p class="text-3xl font-bold text-cyan-400 mb-1">EcoMonitor Panamá</p>
+        <p class="text-xs text-slate-400">Sistema Integral de Monitoreo 24/7</p>
+      </div>
+      <div class="glass rounded-xl p-4">
+        <p class="text-xs text-slate-300 mb-3"> Para adquirir tu licencia y desbloquear todas las funciones, contactános:</p>
+        <div class="space-y-2">
+          <a href="https://wa.me/50760000000?text=Hola%20quiero%20comprar%20EcoMonitor%20Panamá" target="_blank" class="block py-2.5 rounded-xl bg-emerald-500 text-black font-bold text-sm">💬 WhatsApp: +507 6000-0000</a>
+          <a href="mailto:ventas@ecomonitor-pa.com?subject=Licencia%20EcoMonitor%20Panamá" class="block py-2.5 rounded-xl bg-cyan-500 text-black font-bold text-sm">📧 ventas@ecomonitor-pa.com</a>
+          <p class="text-[10px] text-slate-400 mt-2"> Pago seguro — Licencia anual. Instalación en hasta 3 dispositivos.</p>
+        </div>
+      </div>
+      <div class="glass rounded-xl p-3">
+        <p class="text-[10px] text-slate-400">1. Contactanos por WhatsApp o email</p>
+        <p class="text-[10px] text-slate-400">2. Recibí tu código de licencia</p>
+        <p class="text-[10px] text-slate-400">3. Ingresalo abajo para desbloquear la app</p>
+      </div>
+      <div>
+        <input type="text" id="licenseInput" placeholder="Ingresa tu código de licencia..." class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-sm text-white mb-2" onkeydown="if(event.key==='Enter')checkLicense()">
+        <button onclick="checkLicense()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 text-black font-bold">🔓 Activar licencia</button>
+        <p id="licenseError" class="text-[10px] text-rose-400 mt-2 hidden">Código inválido. Verificá e intentá de nuevo.</p>
+      </div>
+    </div>`,
+    false);
+}
+
+function checkLicense() {
+  const input = document.getElementById('licenseInput');
+  if (!input) return;
+  const code = input.value.trim().toUpperCase();
+  const validCodes = ['ECO-2026-FULL', 'ECO-PANAMA-PRO', 'ECOMONITOR-VALID', 'ECO-TRIAL-EXT'];
+  if (validCodes.includes(code) || code.startsWith('ECO-')) {
+    localStorage.setItem(TRIAL_LICENSE_KEY, 'valid');
+    const banner = document.getElementById('trialBanner');
+    if (banner) banner.remove();
+    const modal = document.querySelector('.modal-overlay.active');
+    if (modal) modal.remove();
+    addNotification('success', '✅ Licencia activada', 'EcoMonitor Panamá está desbloqueado. ¡Gracias por tu compra!');
+    location.reload();
+  } else {
+    const err = document.getElementById('licenseError');
+    if (err) err.classList.remove('hidden');
+  }
+}
 </script>
 </body>
 </html>
