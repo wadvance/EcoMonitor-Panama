@@ -2469,9 +2469,8 @@ window.addEventListener('load', () => {
 const AUTH_KEY = 'ecomonitor-auth';
 
 const ADMIN_CREDENTIALS = {
-  'superadmin': { password: 'SuperAdmin2026', role: 'superadmin', name: 'Super Admin Arauz' },
-  'admin1': { password: 'Admin12026', role: 'admin', name: 'Admin 1 Arauz' },
-  'admin2': { password: 'Admin22026', role: 'admin', name: 'Admin 2 Arauz' }
+  'barj23535@gmail.com': { password: 'SuperAdmin2026', role: 'superadmin', name: 'Super Admin' },
+  'jmarauz7@gmail.com': { password: 'Admin12026', role: 'admin', name: 'Admin 1' }
 };
 
 function getAuth() {
@@ -2535,6 +2534,8 @@ function showLoginModal() {
 function doLogin() {
   const user = document.getElementById('loginUser')?.value.trim();
   const pass = document.getElementById('loginPass')?.value.trim();
+  console.log('Login attempt:', { user, pass });
+  console.log('ADMIN_CREDENTIALS keys:', Object.keys(ADMIN_CREDENTIALS));
   const result = login(user, pass);
   if (result.success) {
     const modal = document.getElementById('loginModal');
