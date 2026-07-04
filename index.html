@@ -632,6 +632,10 @@
     </div>
     <div class="flex items-center justify-between mb-3"><h4 class="font-bold text-sm">🔊 Alarma sonora</h4><label class="flex items-center gap-2 cursor-pointer"><span class="text-xs text-slate-400">Activada</span><div id="soundToggle" class="toggle-switch active" onclick="toggleSound()" title="Activar o desactivar el sonido de las alarmas"></div></label></div>
     <div class="flex items-center justify-between mb-4"><h4 class="font-bold text-sm">📳 Vibración (móvil)</h4><label class="flex items-center gap-2 cursor-pointer"><span class="text-xs text-slate-400">Activada</span><div id="vibrationToggle" class="toggle-switch active" onclick="toggleVibration()" title="Activar o desactivar la vibración en dispositivos móviles"></div></label></div>
+    <div id="quakeNotifSection" class="glass rounded-xl p-3 mb-4 hidden">
+      <div class="flex items-center gap-2 mb-2"><span class="text-lg">🌋</span><h4 class="font-bold text-sm">Sismos Cercanos</h4></div>
+      <div id="quakeNotifList" class="space-y-1.5 text-xs"></div>
+    </div>
     <h4 class="font-bold text-sm mb-2">📜 Historial de Notificaciones</h4>
     <div id="notifList" class="space-y-2 max-h-80 overflow-y-auto scrollbar-hide"></div>
     <button onclick="clearNotifications()" title="Eliminar todo el historial de notificaciones" class="w-full mt-3 py-2 rounded-lg glass text-xs hover:bg-white/10">🗑️ Limpiar historial</button>
@@ -904,10 +908,15 @@ async function fetchRealQuakes() {
         const place = props.place || 'Panamá';
         const time = props.time ? timeAgo(props.time) : 'Desconocido';
         quakeHistory.push({ mag, depth: Math.round(depth), location: place, time });
+        if (mag >= 2.5) {
+          const icon = mag >= 4 ? '🚨' : mag >= 3 ? '⚠️' : '🌋';
+          const type = mag >= 4 ? 'danger' : mag >= 3 ? 'warning' : 'info';
+          addNotification(type, icon + ' Sismo M' + mag.toFixed(1), place + ' · Prof. ' + Math.round(depth) + ' km');
+        }
       });
       lastUsgsFetch = now;
       renderMiniQuakes();
-      addNotification('info', '🌋 Sismos actualizados', data.features.length + ' eventos registrados por USGS');
+      addNotification('info', '📡 Sismos actualizados', data.features.length + ' eventos en tu región');
     }
   } catch (err) {
     console.error('USGS fetch error:', err);
@@ -1231,8 +1240,26 @@ function renderNotifList() {
   list.innerHTML = notifications.map(n => `<div class="glass rounded-lg p-2 border-l-2 ${colors[n.type]}"><div class="flex items-start gap-2"><span class="text-lg">${icons[n.type]}</span><div class="flex-1 min-w-0"><p class="text-xs font-bold">${n.title}</p><p class="text-[10px] text-slate-300">${n.message}</p><p class="text-[9px] text-slate-500 mt-0.5">📅 ${n.time}</p></div></div></div>`).join('');
 }
 function clearNotifications() { notifications = []; updateNotifBadge(); renderNotifList(); document.getElementById('notifCount').textContent = '0'; }
-function toggleNotifications() { document.getElementById('notifModal').classList.add('active'); updateNotifPermissionUI(); renderNotifList(); }
+function toggleNotifications() {
+  document.getElementById('notifModal').classList.add('active');
+  updateNotifPermissionUI();
+  renderNotifList();
+  renderQuakeNotifs();
+}
 function closeNotifModal() { document.getElementById('notifModal').classList.remove('active'); }
+function renderQuakeNotifs() {
+  const section = document.getElementById('quakeNotifSection');
+  const list = document.getElementById('quakeNotifList');
+  if (!section || !list) return;
+  if (quakeHistory.length === 0) { section.classList.add('hidden'); return; }
+  section.classList.remove('hidden');
+  list.innerHTML = quakeHistory.slice(0, 5).map(q =>
+    '<div class="flex items-center justify-between py-1 border-b border-white/5 last:border-0">' +
+    '<span class="text-slate-300">' + q.location + '</span>' +
+    '<span class="font-bold ' + (q.mag >= 4 ? 'text-rose-400' : q.mag >= 3 ? 'text-amber-400' : 'text-cyan-400') + '">M' + q.mag.toFixed(1) + '</span>' +
+    '</div>'
+  ).join('');
+}
 function toggleSound() { soundEnabled = !soundEnabled; document.getElementById('soundToggle').classList.toggle('active'); }
 function toggleVibration() { vibrationEnabled = !vibrationEnabled; document.getElementById('vibrationToggle').classList.toggle('active'); }
 function playAlarmSound() {
