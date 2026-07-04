@@ -127,7 +127,7 @@
   </div>
 </div>
 <div class="max-w-7xl mx-auto px-4 pt-2 flex items-center gap-2">
-  <span class="text-[10px] text-slate-400">📍 <span id="locationBadge">CD de Panamá</span> <button onclick="openInWaze()" class="text-cyan-400 hover:text-cyan-300" title="Abrir en Waze">🗺️</button></span>
+  <span class="text-[10px] text-slate-400">📍 <span id="locationBadge">CD de Panamá</span></span>
   <span class="text-[10px] text-slate-500">·</span>
   <span class="text-[10px] text-slate-400">💨 AQI: <span id="liveAqi">62</span> <span id="aqiSource" class="text-emerald-400">Open-Meteo</span></span>
 </div>
@@ -148,6 +148,7 @@
     <button onclick="showTab('clima')" id="tab-clima" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Clima en tiempo real: temperatura, humedad, viento, lluvia, UV y pronóstico">🌤️ Clima</button>
     <button onclick="showTab('ambiental')" id="tab-ambiental" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Monitoreo ambiental: calidad del aire, agua, suelo, ríos, mar y vegetación">🌍 Ambiental</button>
     <button onclick="showTab('mapa')" id="tab-mapa" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Mapa de contaminación por provincia: ranking y datos detallados">🗺️ Mapa</button>
+    <button onclick="openInWaze()" class="glass px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap hover:bg-white/10 transition" title="Abrir ubicación actual en Waze">🧭 Waze</button>
     <button onclick="showTab('sismico')" id="tab-sismico" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Monitoreo sísmico: 8 sensores, sismógrafos en vivo y simulador de terremotos">🌋 Sísmico</button>
     <button onclick="showTab('tsunamis')" id="tab-tsunamis" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Sistema de alerta de tsunamis: sensores DART y mareógrafos en costas panameñas">🌊 Tsunamis</button>
     <button onclick="showTab('espacial')" id="tab-espacial" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Monitoreo espacial: radiación solar, rayos cósmicos, campo magnético y satélites">🛰️ Espacial</button>
