@@ -2540,13 +2540,15 @@ function doLogin() {
   console.log('Login attempt:', { user, pass });
   console.log('ADMIN_CREDENTIALS keys:', Object.keys(ADMIN_CREDENTIALS));
   const result = login(user, pass);
+  console.log('Login result:', result);
   if (result.success) {
     const modal = document.getElementById('loginModal');
     if (modal) modal.remove();
     addNotification('success', '✅ Sesión iniciada', 'Bienvenido, ' + getUserName());
     updateRoleUI();
-    location.reload();
+    initTrialCountdown();
   } else {
+    console.log('Login failed - showing error');
     const err = document.getElementById('loginError');
     if (err) {
       err.classList.remove('hidden');
