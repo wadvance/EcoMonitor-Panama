@@ -121,13 +121,17 @@
         <p class="text-[10px] text-slate-400 mt-0.5" id="alarmTime">--</p>
       </div>
       <button onclick="stopAlarm()" title="Silenciar la alarma activa y detener el sonido de emergencia" class="px-3 py-1.5 rounded-lg bg-rose-500 text-white text-xs font-bold">🔕 Silenciar</button>
-    </div>
   </div>
+</div>
+<div class="max-w-7xl mx-auto px-4 pt-2 flex items-center gap-2">
+  <span class="text-[10px] text-slate-400">📍 <span id="locationBadge">CD de Panamá</span></span>
+  <span class="text-[10px] text-slate-500">·</span>
+  <span class="text-[10px] text-slate-400">💨 AQI: <span id="liveAqi">62</span> <span id="aqiSource" class="text-emerald-400">Open-Meteo</span></span>
 </div>
 <div class="max-w-7xl mx-auto px-4 pt-4">
   <div class="grid grid-cols-2 md:grid-cols-7 gap-2">
     <div class="glass rounded-xl p-3 text-center"><p class="text-[10px] text-slate-400">Aire AQI</p><p class="text-xl font-bold text-amber-400 sensor-value" id="statAqi">62</p><p class="text-[9px] text-amber-400">Moderado</p></div>
-    <div class="glass rounded-xl p-3 text-center"><p class="text-[10px] text-slate-400">Sensores</p><p class="text-xl font-bold text-emerald-400" id="activeSensors">20</p><p class="text-[9px] text-emerald-400">Activos</p></div>
+    <div class="glass rounded-xl p-3 text-center"><p class="text-[10px] text-slate-400">Sensores</p><p class="text-xl font-bold text-emerald-400" id="activeSensors">21</p><p class="text-[9px] text-emerald-400">Activos</p></div>
     <div class="glass rounded-xl p-3 text-center"><p class="text-[10px] text-slate-400">Sismos Hoy</p><p class="text-xl font-bold text-cyan-400" id="quakesToday">3</p><p class="text-[9px] text-slate-400">detectados</p></div>
     <div class="glass rounded-xl p-3 text-center"><p class="text-[10px] text-slate-400">Tsunami</p><p class="text-xl font-bold text-emerald-400" id="tsunamiRisk">Nulo</p><p class="text-[9px] text-slate-400">Sin riesgo</p></div>
     <div class="glass rounded-xl p-3 text-center"><p class="text-[10px] text-slate-400">Clima</p><p class="text-xl font-bold text-sky-400 sensor-value" id="statTemp">--°C</p><p class="text-[9px] text-sky-400" id="statWeather">Cargando...</p></div>
@@ -213,7 +217,7 @@
         <div class="flex items-center gap-3"><div class="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-2xl">🌊</div><div><p class="font-bold text-emerald-400 text-sm">SIN ALERTA TSUNAMI</p><p class="text-[10px] text-slate-300">Costas panameñas seguras</p></div></div>
       </div>
       <div class="glass rounded-2xl p-4">
-        <h3 class="font-bold text-sm mb-2">📋 Últimos Sismos</h3>
+        <h3 class="font-bold text-sm mb-2">📋 Últimos Sismos <span class="text-[8px] text-slate-500 bg-white/5 px-1.5 py-0.5 rounded font-normal">USGS</span></h3>
         <div class="space-y-1.5" id="miniQuakeList"></div>
       </div>
     </div>
@@ -669,10 +673,40 @@
 </footer>
 <script>
 // ============================================
+// 🌍 UBICACIÓN - Geolocation API
+// ============================================
+let USER_LAT = 8.9824;
+let USER_LON = -79.5199;
+let userLocationName = 'CD de Panamá';
+function getUserLocation() {
+  if ('geolocation' in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        USER_LAT = pos.coords.latitude;
+        USER_LON = pos.coords.longitude;
+        localStorage.setItem('eco-lat', USER_LAT);
+        localStorage.setItem('eco-lon', USER_LON);
+        updateLocationBadge();
+        fetchWeather();
+        fetchAirQuality();
+        fetchRealQuakes();
+      },
+      err => {
+        console.warn('Geolocation error:', err.message);
+        const storedLat = localStorage.getItem('eco-lat');
+        if (storedLat) {
+          USER_LAT = parseFloat(storedLat);
+          USER_LON = parseFloat(localStorage.getItem('eco-lon'));
+        }
+        updateLocationBadge();
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+    );
+  }
+}
+// ============================================
 // 🌤️ CLIMA - API Open-Meteo (gratis, sin API key)
 // ============================================
-const PANAMA_LAT = 8.9824;
-const PANAMA_LON = -79.5199;
 let weatherData = null;
 let tempChart = null;
 let rainChart = null;
@@ -715,7 +749,7 @@ function getUvStatus(uv) {
 }
 async function fetchWeather() {
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${PANAMA_LAT}&longitude=${PANAMA_LON}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,uv_index&hourly=temperature_2m,precipitation_probability,precipitation,weather_code&daily=sunrise,sunset,uv_index_max&timezone=America%2FPanama&forecast_days=2`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${USER_LAT}&longitude=${USER_LON}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,uv_index&hourly=temperature_2m,precipitation_probability,precipitation,weather_code&daily=sunrise,sunset,uv_index_max&timezone=America%2FPanama&forecast_days=2`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('API error');
     weatherData = await res.json();
@@ -763,6 +797,109 @@ function generateFallbackWeather() {
       uv_index_max: [9]
     }
   };
+}
+// ============================================
+// 💨 CALIDAD DEL AIRE - Open-Meteo Air Quality API
+// ============================================
+let realAirQuality = null;
+async function fetchAirQuality() {
+  try {
+    const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${USER_LAT}&longitude=${USER_LON}&current=us_aqi,pm2_5,pm10,nitrogen_dioxide,ozone,carbon_monoxide&timezone=America/Panama`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Air Quality API error');
+    const data = await res.json();
+    realAirQuality = data.current;
+    const aqi = Math.round(realAirQuality.us_aqi || 50);
+    const pm25 = (realAirQuality.pm2_5 || 25).toFixed(1);
+    const pm10 = (realAirQuality.pm10 || 40).toFixed(1);
+    const no2 = (realAirQuality.nitrogen_dioxide || 30).toFixed(1);
+    const o3 = (realAirQuality.ozone || 0.05).toFixed(3);
+    const co = (realAirQuality.carbon_monoxide || 0.5).toFixed(1);
+    envData.aire.params[0].value = pm25 + ' µg/m³';
+    envData.aire.params[1].value = pm10 + ' µg/m³';
+    envData.aire.params[2].value = no2 + ' ppb';
+    envData.aire.params[3].value = o3 + ' ppm';
+    envData.aire.params[4].value = co + ' ppm';
+    envData.aire.params[0].pct = Math.min(100, Math.round((pm25 / 50) * 100));
+    envData.aire.params[1].pct = Math.min(100, Math.round((pm10 / 100) * 100));
+    envData.aire.params[2].pct = Math.min(100, Math.round((no2 / 60) * 100));
+    envData.aire.params[3].pct = Math.min(100, Math.round((o3 / 0.08) * 100));
+    envData.aire.params[4].pct = Math.min(100, Math.round((co / 10) * 100));
+    envData.aire.status = aqi > 100 ? 'Dañino' : aqi > 50 ? 'Moderado' : 'Bueno';
+    envData.aire.statusColor = aqi > 100 ? 'rose' : aqi > 50 ? 'amber' : 'emerald';
+    updateEnvironmentalRealTime();
+    if (document.getElementById('envTitle').textContent.includes('Aire')) showEnvDetail('aire');
+    document.getElementById('statAqi').textContent = aqi;
+    document.getElementById('liveAqi').textContent = aqi;
+    document.getElementById('envAire').textContent = aqi;
+    document.getElementById('aqiSource').textContent = 'Open-Meteo';
+    addNotification('success', '💨 Aire actualizado', 'AQI ' + aqi + ' desde Open-Meteo');
+  } catch (err) {
+    console.error('Air Quality fetch error:', err);
+  }
+}
+// ============================================
+// 🌋 SISMOS REALES - USGS Earthquake API
+// ============================================
+let lastUsgsFetch = 0;
+async function fetchRealQuakes() {
+  try {
+    const url = 'https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minlatitude=7&maxlatitude=10&minlongitude=-83&maxlongitude=-77&minmagnitude=1&orderby=time&limit=15';
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('USGS API error');
+    const data = await res.json();
+    if (data.features && data.features.length > 0) {
+      const now = Date.now();
+      quakeHistory.length = 0;
+      data.features.forEach((f, i) => {
+        const props = f.properties;
+        const mag = props.mag || 1;
+        const depth = f.geometry.coordinates[2] || 10;
+        const place = props.place || 'Panamá';
+        const time = props.time ? timeAgo(props.time) : 'Desconocido';
+        quakeHistory.push({ mag, depth: Math.round(depth), location: place, time });
+      });
+      lastUsgsFetch = now;
+      renderMiniQuakes();
+      addNotification('info', '🌋 Sismos actualizados', data.features.length + ' eventos registrados por USGS');
+    }
+  } catch (err) {
+    console.error('USGS fetch error:', err);
+  }
+}
+function timeAgo(ts) {
+  const sec = Math.floor((Date.now() - ts) / 1000);
+  if (sec < 60) return 'Hace ' + sec + ' s';
+  const min = Math.floor(sec / 60);
+  if (min < 60) return 'Hace ' + min + ' min';
+  const h = Math.floor(min / 60);
+  if (h < 24) return 'Hace ' + h + ' h';
+  return 'Hace ' + Math.floor(h / 24) + ' d';
+}
+function updateLocationBadge() {
+  const badge = document.getElementById('locationBadge');
+  if (!badge) return;
+  const knownCoords = [
+    { lat: 8.98, lon: -79.52, name: 'CD de Panamá' },
+    { lat: 9.15, lon: -79.85, name: 'Colón' },
+    { lat: 8.40, lon: -82.32, name: 'David' },
+    { lat: 8.44, lon: -82.43, name: 'Chiriquí' },
+    { lat: 8.30, lon: -82.86, name: 'Bocas del Toro' },
+    { lat: 9.33, lon: -79.90, name: 'Portobelo' },
+    { lat: 7.97, lon: -80.42, name: 'Chitré' },
+    { lat: 7.77, lon: -80.28, name: 'Las Tablas' },
+    { lat: 8.86, lon: -79.87, name: 'La Chorrera' },
+    { lat: 8.10, lon: -80.97, name: 'Santiago' },
+    { lat: 8.52, lon: -80.36, name: 'Penonomé' },
+    { lat: 8.08, lon: -77.55, name: 'La Palma' }
+  ];
+  let closest = knownCoords[0].name, minDist = Infinity;
+  knownCoords.forEach(c => {
+    const d = Math.hypot(USER_LAT - c.lat, USER_LON - c.lon);
+    if (d < minDist) { minDist = d; closest = c.name; }
+  });
+  userLocationName = minDist < 0.5 ? closest : 'Tu ubicación';
+  badge.textContent = userLocationName;
 }
 function updateWeatherUI() {
   if (!weatherData) return;
@@ -1927,8 +2064,8 @@ function updateSensorsRealTime() {
   }
 }
 function updateEnvironmentalRealTime() {
-  // Fluctuación de AQI
-  const aqi = 62 + Math.floor((Math.random() - 0.5) * 6);
+  // Fluctuación de AQI (usa real si está disponible)
+  const aqi = realAirQuality ? Math.round(realAirQuality.us_aqi || 50) : 62 + Math.floor((Math.random() - 0.5) * 6);
   document.getElementById('statAqi').textContent = aqi;
   document.getElementById('liveAqi').textContent = aqi;
   document.getElementById('envAire').textContent = aqi;
@@ -2078,6 +2215,7 @@ function updateTime() {
 // ============================================
 let seismo1, seismo2, seismo3, seismo4, seismo5, miniSeismo;
 function init() {
+  updateLocationBadge();
   renderSensors();
   renderRanking();
   renderMiniQuakes();
@@ -2093,6 +2231,13 @@ function init() {
   miniSeismo = initSeismo('miniSeismo', 0.06);
   updateTime();
   setInterval(updateTime, 1000);
+  
+  // Geolocalización y datos reales
+  getUserLocation();
+  fetchAirQuality();
+  setInterval(fetchAirQuality, 15 * 60 * 1000);
+  fetchRealQuakes();
+  setInterval(fetchRealQuakes, 5 * 60 * 1000); // cada 5 min
   
   // Cargar clima real
   fetchWeather();
