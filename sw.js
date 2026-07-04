@@ -1,7 +1,6 @@
-const CACHE = 'ecomonitor-v1';
+const CACHE = 'ecomonitor-v2';
 const ASSETS = [
   '.',
-  'index.html',
   'manifest.json',
   'icons/icon-192.svg',
   'icons/icon-512.svg'
