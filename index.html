@@ -230,7 +230,7 @@
       <div class="glass rounded-2xl p-4">
         <h3 class="font-bold text-sm mb-2">📡 Sensores Activos</h3>
         <div class="space-y-1.5">
-          <div class="flex items-center justify-between"><span class="text-[10px]">📳 Sísmicos</span><span class="text-[10px] font-bold text-emerald-400">8/8</span></div>
+          <div class="flex items-center justify-between"><span class="text-[10px]">📳 Sísmicos</span><span class="text-[10px] font-bold text-emerald-400">10/10</span></div>
           <div class="flex items-center justify-between"><span class="text-[10px]">🌊 DART Tsunami</span><span class="text-[10px] font-bold text-emerald-400">3/3</span></div>
           <div class="flex items-center justify-between"><span class="text-[10px]">📏 Mareógrafos</span><span class="text-[10px] font-bold text-emerald-400">5/5</span></div>
           <div class="flex items-center justify-between"><span class="text-[10px]">📍 GPS Geodésico</span><span class="text-[10px] font-bold text-emerald-400">4/4</span></div>
@@ -414,7 +414,7 @@
   <div class="glass rounded-2xl p-4 mb-4">
     <div class="flex items-center justify-between mb-3"><h3 class="font-bold">🎛️ Panel de Control de Sensores Sísmicos</h3><button onclick="toggleAllSensors()" id="masterToggle" title="Activar o desactivar todos los sensores simultáneamente" class="px-3 py-1.5 rounded-lg bg-rose-500/20 border border-rose-500/40 text-xs font-medium">Desactivar Todos</button></div>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
-      <button onclick="activateByType('sismico')" title="Activar o desactivar todos los sensores sísmicos" class="glass rounded-xl p-2 text-center hover:bg-white/5"><p class="text-xl">📳</p><p class="text-[10px] font-bold">Sísmicos</p><p class="text-[9px] text-slate-400" id="count-sismico">8/8</p></button>
+      <button onclick="activateByType('sismico')" title="Activar o desactivar todos los sensores sísmicos" class="glass rounded-xl p-2 text-center hover:bg-white/5"><p class="text-xl">📳</p><p class="text-[10px] font-bold">Sísmicos</p><p class="text-[9px] text-slate-400" id="count-sismico">10/10</p></button>
       <button onclick="activateByType('tsunami')" title="Activar o desactivar todos los sensores DART de tsunami" class="glass rounded-xl p-2 text-center hover:bg-white/5"><p class="text-xl">🌊</p><p class="text-[10px] font-bold">Tsunami</p><p class="text-[9px] text-slate-400" id="count-tsunami">3/3</p></button>
       <button onclick="activateByType('mareografo')" title="Activar o desactivar todos los mareógrafos costeros" class="glass rounded-xl p-2 text-center hover:bg-white/5"><p class="text-xl">📏</p><p class="text-[10px] font-bold">Mareógrafos</p><p class="text-[9px] text-slate-400" id="count-mareografo">5/5</p></button>
       <button onclick="activateByType('gps')" title="Activar o desactivar todos los GPS geodésicos" class="glass rounded-xl p-2 text-center hover:bg-white/5"><p class="text-xl">📍</p><p class="text-[10px] font-bold">GPS</p><p class="text-[9px] text-slate-400" id="count-gps">4/4</p></button>
@@ -431,6 +431,10 @@
       <div class="bg-black/50 rounded-xl p-3"><span class="text-xs text-slate-400">CD Panamá (PA-01)</span><canvas id="seismo2" class="w-full h-16 bg-black/30 rounded-lg mt-2"></canvas></div>
       <div class="bg-black/50 rounded-xl p-3"><span class="text-xs text-slate-400">Colón (CO-01)</span><canvas id="seismo3" class="w-full h-16 bg-black/30 rounded-lg mt-2"></canvas></div>
     </div>
+    <div class="grid md:grid-cols-2 gap-3 mt-3">
+      <div class="bg-black/50 rounded-xl p-3"><span class="text-xs text-slate-400">Veraguas (VG-01)</span><canvas id="seismo4" class="w-full h-16 bg-black/30 rounded-lg mt-2"></canvas></div>
+      <div class="bg-black/50 rounded-xl p-3"><span class="text-xs text-slate-400">Punta Burica (PB-01)</span><canvas id="seismo5" class="w-full h-16 bg-black/30 rounded-lg mt-2"></canvas></div>
+    </div>
   </div>
   <div class="glass rounded-2xl p-4">
     <h4 class="font-bold mb-3">🎮 Simulador de Evento Sísmico</h4>
@@ -443,7 +447,7 @@
   </div>
   <!-- ZONAS SÍSMICAS -->
   <div class="glass rounded-2xl p-4 mt-4">
-    <div class="flex items-center justify-between mb-3"><h3 class="font-bold">📍 Zonas Sísmicas de Panamá</h3><span class="text-[10px] text-slate-400" id="zoneCount">12 zonas monitoreadas</span></div>
+    <div class="flex items-center justify-between mb-3"><h3 class="font-bold">📍 Zonas Sísmicas de Panamá</h3><span class="text-[10px] text-slate-400" id="zoneCount">13 zonas monitoreadas</span></div>
     <p class="text-xs text-slate-300 mb-3">Panamá se encuentra en el <b class="text-rose-400">Cinturón de Fuego del Pacífico</b>. La placa de Nazca subduce bajo la placa Caribe, generando actividad sísmica en toda la región occidental y central del país.</p>
     <div id="seismicZonesList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-96 overflow-y-auto scrollbar-hide"></div>
   </div>
@@ -945,6 +949,7 @@ const sensors = [
   { id: 'S-006', name: 'Sismógrafo Veraguas', type: 'sismico', location: 'Veraguas', active: true, signal: 90, reading: '0.001 g' },
   { id: 'S-007', name: 'Sensor Darién', type: 'sismico', location: 'Darién', active: true, signal: 85, reading: '0.001 g' },
   { id: 'S-008', name: 'Sensor Coclé', type: 'sismico', location: 'Coclé', active: true, signal: 93, reading: '0.002 g' },
+  { id: 'S-009', name: 'Sismógrafo Punta Burica', type: 'sismico', location: 'Chiriquí', active: true, signal: 97, reading: '0.003 g' },
   { id: 'D-001', name: 'DART Pacífico #43210', type: 'tsunami', location: 'Pacífico', active: true, signal: 99, reading: 'Normal' },
   { id: 'D-002', name: 'DART Caribe #43211', type: 'tsunami', location: 'Caribe', active: true, signal: 97, reading: 'Normal' },
   { id: 'D-003', name: 'DART Golfo Chiriquí', type: 'tsunami', location: 'Golfo Chiriquí', active: true, signal: 94, reading: 'Normal' },
@@ -977,7 +982,8 @@ const seismicZones = [
   { id: 'Z-09', name: 'Herrera/Los Santos', province: 'Herrera/Los Santos', risk: 'Baja', svgX: 345, svgY: 145, events: 35, desc: 'Península de Azuero. Baja actividad sísmica histórica.' },
   { id: 'Z-10', name: 'Darién', province: 'Darién', risk: 'Baja', svgX: 650, svgY: 155, events: 30, desc: 'Frontera con Colombia. Baja actividad sísmica pero con potencial de sismos profundos.' },
   { id: 'Z-11', name: 'Emberá', province: 'Emberá', risk: 'Baja', svgX: 430, svgY: 160, events: 25, desc: 'Región central-este con baja actividad sísmica registrada.' },
-  { id: 'Z-12', name: 'Guna Yala', province: 'Guna Yala', risk: 'Baja', svgX: 575, svgY: 190, events: 22, desc: 'Archipiélago caribeño. Baja sismicidad, monitoreado por tsunamis.' }
+  { id: 'Z-12', name: 'Guna Yala', province: 'Guna Yala', risk: 'Baja', svgX: 575, svgY: 190, events: 22, desc: 'Archipiélago caribeño. Baja sismicidad, monitoreado por tsunamis.' },
+  { id: 'Z-13', name: 'Punta Burica', province: 'Chiriquí', risk: 'Media', svgX: 90, svgY: 115, events: 55, desc: 'Península fronteriza con Costa Rica. Actividad sísmica por falla de Burica.' }
 ];
 
 const zoneRiskColors = { Alta: 'rose', Media: 'amber', Baja: 'emerald' };
@@ -1132,46 +1138,58 @@ function renderEnvZones(catId) {
   const container = document.getElementById('envZones');
   if (!container) return;
   container.innerHTML = '';
+  const envLocations = {
+    aire: { label: 'Estación', names: { bocas: 'Isla Colón', chiriqui: 'David Centro', veraguas: 'Santiago', cocle: 'Penonomé', herrera: 'Chitré', lossantos: 'Las Tablas', panamaoeste: 'La Chorrera', panama: 'Vía España', colon: 'Zona Libre', darien: 'La Palma', embera: 'Unión Chocó', gunayala: 'Isla Tigre' } },
+    atmosfera: { label: 'Estación', names: { bocas: 'Almirante', chiriqui: 'Volcán Barú', veraguas: 'Santa Fe', cocle: 'El Valle', herrera: 'Ocú', lossantos: 'Tonosí', panamaoeste: 'Capira', panama: 'Cerro Ancón', colon: 'Portobelo', darien: 'Garachiné', embera: 'Río Chico', gunayala: 'Isla Pinos' } },
+    suelo: { label: 'Sitio', names: { bocas: 'Changuinola', chiriqui: 'Divalá', veraguas: 'Cañazas', cocle: 'Antón', herrera: 'Parita', lossantos: 'Pedasí', panamaoeste: 'Arraiján', panama: 'Juan Díaz', colon: 'Sabanitas', darien: 'Yaviza', embera: 'Cerro Bautista', gunayala: 'Río Azúcar' } },
+    agua: { label: 'Planta', names: { bocas: 'Planta Almirante', chiriqui: 'Pt. David', veraguas: 'Pt. Santiago', cocle: 'Pt. Penonomé', herrera: 'Pt. Chitré', lossantos: 'Pt. Las Tablas', panamaoeste: 'Pt. La Chorrera', panama: 'Pt. Chilibre', colon: 'Pt. Sabanitas', darien: 'Pt. La Palma', embera: 'Pt. Unión', gunayala: 'Pt. Tigre' } },
+    rios: { label: 'Río', names: { bocas: 'Río Changuinola', chiriqui: 'Río Chiriquí', veraguas: 'Río San Pablo', cocle: 'Río Grande', herrera: 'Río La Villa', lossantos: 'Río Purio', panamaoeste: 'Río Caimito', panama: 'Río Matasnillo', colon: 'Río Chagres', darien: 'Río Tuira', embera: 'Río Balsas', gunayala: 'Río Diablo' } },
+    mar: { label: 'Playa', names: { bocas: 'Playa Estrella', chiriqui: 'Playa Barqueta', colon: 'Playa Langosta', panama: 'Playa Venao', darien: 'Playa Jaqué', gunayala: 'Playa Iletas' } },
+    plantas: { label: 'Especie', names: { bocas: 'Mangle rojo', chiriqui: 'Roble', veraguas: 'Caoba', cocle: 'Cedro', herrera: 'Guayacán', lossantos: 'Caracucho', panamaoeste: 'Pino caribe', panama: 'Ceiba', colon: 'Almendro', darien: 'Níspero', embera: 'Coco', gunayala: 'Palma real' } },
+    quimicos: { label: 'Sustancia', names: { bocas: 'Pesticidas', chiriqui: 'Fertilizantes', veraguas: 'Cadmio', cocle: 'Arsénico', herrera: 'Cobre', lossantos: 'Zinc', panamaoeste: 'Benceno', panama: 'Formaldehído', colon: 'Mercurio', darien: 'Cianuro', embera: 'Plomo', gunayala: 'Hidrocarburos' } }
+  };
   const coastalProvs = ['bocas','chiriqui','colon','panama','darien','gunayala'];
   let filtered = [];
   provinces.forEach(p => {
     let score = 0, label = '', value = '';
+    const loc = envLocations[catId];
+    const locName = loc ? loc.names[p.id] || '' : '';
     const aqiNum = parseInt(p.aqi);
     const co2Num = parseInt(p.co2.replace(/[^\d]/g,''));
     const o3Num = parseFloat(p.o3.replace(/[^\d.]/g,''));
     if (catId === 'aire') {
-      score = aqiNum; value = 'AQI ' + p.aqi;
+      score = aqiNum; value = (locName ? locName + ' · ' : '') + 'AQI ' + p.aqi;
       label = score > 70 ? 'Alto' : score > 50 ? 'Medio' : 'Bajo';
     } else if (catId === 'atmosfera') {
-      score = co2Num; value = 'CO₂ ' + p.co2;
+      score = co2Num; value = (locName ? locName + ' · ' : '') + 'CO₂ ' + p.co2;
       label = o3Num > 0.055 ? 'Ozono ↑' : 'Normal';
     } else if (catId === 'suelo') {
       score = p.chem === 'Alto' ? 90 : p.chem === 'Elevado' ? 75 : p.level === 'alta' ? 60 : 30;
-      value = 'Químicos: ' + p.chem;
+      value = (locName ? locName + ' · ' : '') + 'Químicos: ' + p.chem;
       label = score > 70 ? 'Contaminado' : score > 50 ? 'Regular' : 'Limpio';
     } else if (catId === 'agua') {
       score = p.level === 'optima' ? 15 : p.level === 'baja' ? 30 : p.level === 'media' ? 50 : 75;
-      value = 'Nivel: ' + p.level;
+      value = (locName ? locName + ' · ' : '') + 'Nivel: ' + p.level.toUpperCase();
       label = score > 60 ? 'Vigilar' : score > 35 ? 'Aceptable' : 'Buena';
     } else if (catId === 'rios') {
       score = o3Num * 1000 + aqiNum / 2;
-      value = 'Calidad: ' + p.level;
+      value = (locName ? locName + ' · ' : '') + 'Cuenca ' + p.name;
       label = p.level === 'alta' ? 'Presión' : p.level === 'media' ? 'Moderado' : 'Sano';
     } else if (catId === 'mar') {
       if (!coastalProvs.includes(p.id)) return;
       score = p.level === 'alta' ? 80 : p.level === 'media' ? 50 : 25;
-      value = 'Costa ' + (['bocas','colon','gunayala'].includes(p.id) ? 'Caribe' : 'Pacífico');
+      value = (locName ? locName + ' · ' : '') + (['bocas','colon','gunayala'].includes(p.id) ? 'Caribe' : 'Pacífico');
       label = score > 60 ? 'Afectado' : score > 30 ? 'Estable' : 'Sano';
     } else if (catId === 'plantas') {
       score = p.level === 'optima' ? 10 : p.level === 'baja' ? 25 : p.level === 'media' ? 45 : 65;
-      value = 'Estrés: ' + p.level;
+      value = (locName ? locName + ' · ' : '') + 'Estrés: ' + p.level;
       label = score > 50 ? 'Riesgo' : score > 25 ? 'Vigilancia' : 'Sano';
     } else if (catId === 'quimicos') {
       score = p.chem === 'Alto' ? 95 : p.chem === 'Elevado' ? 75 : 20;
-      value = 'Químicos: ' + p.chem;
+      value = (locName ? locName + ' · ' : '') + p.chem;
       label = score > 70 ? 'Peligro ⚠️' : score > 40 ? 'Alerta' : 'Normal';
     }
-    filtered.push({ ...p, score, label, value });
+    filtered.push({ ...p, score, label, value, locName });
   });
   const sorted = filtered.sort((a,b) => b.score - a.score).slice(0, 6);
   if (sorted.length === 0) { container.innerHTML = '<p class="text-xs text-slate-500">Sin datos disponibles</p>'; return; }
@@ -1181,8 +1199,10 @@ function renderEnvZones(catId) {
     const pct = maxS > minS ? ((p.score - minS) / (maxS - minS)) * 100 : 50;
     const c = pct > 70 ? 'rose' : pct > 40 ? 'amber' : 'emerald';
     const div = document.createElement('div');
-    div.className = `glass rounded-lg p-2 border-l-2 border-${c}-500`;
-    div.innerHTML = `<div class="flex items-center justify-between mb-0.5"><span class="text-[10px] font-bold truncate">${p.name}</span><span class="text-[8px] px-1 rounded bg-${c}-500/20 text-${c}-400 font-medium">${p.label}</span></div><p class="text-[8px] text-slate-400 truncate">${p.value}</p><div class="h-1 mt-1 bg-slate-700 rounded-full overflow-hidden"><div class="h-full rounded-full bg-${c}-400 transition-all" style="width:${Math.max(5,pct)}%"></div></div>`;
+    div.className = `glass rounded-lg p-2 border-l-2 border-${c}-500 hover:bg-white/5 transition cursor-pointer`;
+    div.title = p.value + ' — ' + p.name;
+    const locLabel = envLocations[catId] ? envLocations[catId].label : '';
+    div.innerHTML = `<div class="flex items-center justify-between mb-0.5"><span class="text-[10px] font-bold truncate">${p.name}</span><span class="text-[8px] px-1 rounded bg-${c}-500/20 text-${c}-400 font-medium">${p.label}</span></div><p class="text-[8px] text-slate-400 truncate">${p.locName ? p.locName : ''}${p.value ? ' · ' + p.value : ''}</p><div class="h-1 mt-1 bg-slate-700 rounded-full overflow-hidden"><div class="h-full rounded-full bg-${c}-400 transition-all" style="width:${Math.max(5,pct)}%"></div></div>`;
     container.appendChild(div);
   });
 }
@@ -1311,7 +1331,7 @@ function simulateQuake() {
   const mag = parseFloat(document.getElementById('magnitudeSlider').value);
   const depth = parseInt(document.getElementById('depthSlider').value);
   const now = getNow();
-  if (seismo1) seismo1.trigger(mag); if (seismo2) seismo2.trigger(mag * 0.7); if (seismo3) seismo3.trigger(mag * 0.6);
+  if (seismo1) seismo1.trigger(mag); if (seismo2) seismo2.trigger(mag * 0.7); if (seismo3) seismo3.trigger(mag * 0.6); if (seismo4) seismo4.trigger(mag * 0.5); if (seismo5) seismo5.trigger(mag * 0.55);
   document.getElementById('lastQuakeMag').textContent = mag.toFixed(1);
   document.getElementById('lastQuakeDepth').textContent = depth + 'km';
   quakeHistory.unshift({ mag, depth, location: 'Simulación - Panamá', time: 'Ahora' });
@@ -1939,7 +1959,7 @@ function updateTime() {
 // ============================================
 // INIT
 // ============================================
-let seismo1, seismo2, seismo3, miniSeismo;
+let seismo1, seismo2, seismo3, seismo4, seismo5, miniSeismo;
 function init() {
   renderSensors();
   renderRanking();
@@ -1951,6 +1971,8 @@ function init() {
   seismo1 = initSeismo('seismo1', 0.08);
   seismo2 = initSeismo('seismo2', 0.05);
   seismo3 = initSeismo('seismo3', 0.05);
+  seismo4 = initSeismo('seismo4', 0.04);
+  seismo5 = initSeismo('seismo5', 0.06);
   miniSeismo = initSeismo('miniSeismo', 0.06);
   updateTime();
   setInterval(updateTime, 1000);
