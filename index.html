@@ -1148,6 +1148,91 @@ function renderEnvZones(catId) {
     plantas: { label: 'Especie', names: { bocas: 'Mangle rojo', chiriqui: 'Roble', veraguas: 'Caoba', cocle: 'Cedro', herrera: 'Guayacán', lossantos: 'Caracucho', panamaoeste: 'Pino caribe', panama: 'Ceiba', colon: 'Almendro', darien: 'Níspero', embera: 'Coco', gunayala: 'Palma real' } },
     quimicos: { label: 'Sustancia', names: { bocas: 'Pesticidas', chiriqui: 'Fertilizantes', veraguas: 'Cadmio', cocle: 'Arsénico', herrera: 'Cobre', lossantos: 'Zinc', panamaoeste: 'Benceno', panama: 'Formaldehído', colon: 'Mercurio', darien: 'Cianuro', embera: 'Plomo', gunayala: 'Hidrocarburos' } }
   };
+  const envRiskInfo = {
+    aire: {
+      title: 'Calidad del Aire',
+      unit: 'AQI',
+      detail: (p, locName) => {
+        const aqi = parseInt(p.aqi);
+        let risk = aqi > 80 ? '🔴 Alto' : aqi > 55 ? '🟡 Moderado' : '🟢 Bajo';
+        let exp = aqi > 80 ? 'Irritación ocular y respiratoria inmediata. Personas con asma o EPOC pueden presentar crisis.' : aqi > 55 ? 'Molestias leves en personas sensibles. Tos seca ocasional.' : 'Sin efectos adversos previsibles.';
+        let rec = aqi > 80 ? 'Usá mascarilla N95 al salir. Evitá ejercicio al aire libre. Mantené ventanas cerradas.' : aqi > 55 ? 'Reducí actividad física intensa en exteriores. Población sensible: usá mascarilla.' : 'Podés realizar actividades al aire libre con normalidad.';
+        return { risk, exp, rec, metrics: `PM2.5: ${p.pm25} · O₃: ${p.o3}` };
+      }
+    },
+    atmosfera: {
+      title: 'Contaminación Atmosférica',
+      unit: 'CO₂ ppm',
+      detail: (p, locName) => {
+        const co2 = parseInt(p.co2.replace(/[^\d]/g,''));
+        const o3 = parseFloat(p.o3.replace(/[^\d.]/g,''));
+        let risk = co2 > 480 ? '🔴 Alto' : co2 > 420 ? '🟡 Moderado' : '🟢 Bajo';
+        let exp = co2 > 480 ? `Dolor de cabeza, fatiga, concentración reducida. El ozono alto (${o3} ppm) daña tejido pulmonar.` : co2 > 420 ? 'Leve somnolencia. Ozono puede irritar vías respiratorias.' : 'Niveles atmosféricos normales. Sin riesgo para la salud.';
+        let rec = co2 > 480 ? 'Ventilá espacios cerrados. Evitá zonas de alto tráfico. Usá purificadores de aire.' : co2 > 420 ? 'Tomá descansos en áreas ventiladas. Hidratación constante.' : 'Sin precauciones especiales. Buen ambiente para actividades.';
+        return { risk, exp, rec, metrics: `O₃: ${p.o3} · CO₂: ${p.co2}` };
+      }
+    },
+    suelo: {
+      title: 'Contaminación del Suelo',
+      unit: 'Químicos',
+      detail: (p, locName) => {
+        let risk = p.chem === 'Alto' ? '🔴 Alto' : p.chem === 'Elevado' ? '🟡 Moderado' : '🟢 Bajo';
+        let exp = p.chem === 'Alto' ? 'Presencia de metales pesados y compuestos tóxicos que se acumulan en cultivos y aguas subterráneas. Riesgo de bioacumulación.' : p.chem === 'Elevado' ? 'Niveles por encima de lo recomendado. Posible infiltración a napas freáticas.' : 'Concentraciones dentro de rangos seguros. Suelo apto para agricultura.';
+        let rec = p.chem === 'Alto' ? 'No consumir cultivos de la zona sin análisis. Evitar contacto directo con tierra. Usar guantes y mascarilla.' : p.chem === 'Elevado' ? 'Monitorear cultivos. Analizar agua de pozos cercanos cada 3 meses.' : 'Sin restricciones. Buen estado del suelo.';
+        return { risk, exp, rec, metrics: `Nivel: ${p.chem} · Estrés: ${p.level}` };
+      }
+    },
+    agua: {
+      title: 'Calidad del Agua',
+      unit: 'Nivel',
+      detail: (p, locName) => {
+        let risk = p.level === 'alta' ? '🔴 Alto' : p.level === 'media' ? '🟡 Moderado' : p.level === 'baja' ? '🟢 Bajo' : '🔵 Óptimo';
+        let exp = p.level === 'alta' ? 'Niveles de contaminantes por encima de la norma. Agua no apta para consumo sin tratamiento. Riesgo gastrointestinal.' : p.level === 'media' ? 'Agua tratable con procesos convencionales. Posibles trazas de contaminantes.' : 'Agua con calidad aceptable. Bajo riesgo para consumo humano.';
+        let rec = p.level === 'alta' ? 'Hervir agua 5 min antes de consumir. Usar filtros certificados. Evitar agua de grifo.' : p.level === 'media' ? 'Usar filtro de carbón activado. Hervir para bebés y adultos mayores.' : 'Agua potable sin restricciones. Mantener monitoreo rutinario.';
+        return { risk, exp, rec, metrics: `Cloro residual: 0.3-0.5 mg/L · pH: ~7.2` };
+      }
+    },
+    rios: {
+      title: 'Salud de los Ríos',
+      unit: 'Cuenca',
+      detail: (p, locName) => {
+        let risk = p.level === 'alta' ? '🔴 Alto' : p.level === 'media' ? '🟡 Moderado' : p.level === 'baja' ? '🟢 Bajo' : '🔵 Óptimo';
+        let exp = p.level === 'alta' ? 'Contaminación por descargas industriales/domésticas. La fauna acuática está en declive. Posible presencia de coliformes fecales.' : p.level === 'media' ? 'Eutrofización incipiente. Crecimiento de algas por nutrientes. Peces con trazas de metales.' : 'Ecosistema fluvial saludable. Biodiversidad acuática estable.';
+        let rec = p.level === 'alta' ? 'No bañarse ni pescar en el río. Reportar descargas ilegales a las autoridades ambientales.' : p.level === 'media' ? 'Consumo de pescado limitado a 1 vez por semana. Evitar aguas estancadas.' : 'Podés disfrutar del río. Mantené la cuenca limpia.';
+        return { risk, exp, rec, metrics: `Oxígeno disuelto: ${p.level === 'alta' ? '4.2' : p.level === 'media' ? '5.8' : '7.5'} mg/L · DBO: ${p.level === 'alta' ? '28' : p.level === 'media' ? '15' : '5'} mg/L` };
+      }
+    },
+    mar: {
+      title: 'Estado del Mar',
+      unit: 'Costa',
+      detail: (p, locName) => {
+        let risk = p.level === 'alta' ? '🔴 Alto' : p.level === 'media' ? '🟡 Moderado' : '🟢 Bajo';
+        let exp = p.level === 'alta' ? 'Contaminación costera por escorrentía y desechos. Arrecifes de coral en riesgo. Presencia de microplásticos en la arena.' : p.level === 'media' ? 'Calidad de agua regular. Eventos de marea roja esporádicos. Erosión costera moderada.' : 'Playas limpias. Aguas aptas para bañistas. Ecosistema marino saludable.';
+        let rec = p.level === 'alta' ? 'Evitar bañarse tras lluvias intensas. No dejar desechos en la playa. Usar protector solar biodegradable.' : p.level === 'media' ? 'Bañarse en zonas autorizadas. Revisar bandera de advertencia antes de ingresar.' : 'Disfrutá del mar con responsabilidad. Respetá la vida marina.';
+        return { risk, exp, rec, metrics: `Turbidez: ${p.level === 'alta' ? '15' : p.level === 'media' ? '8' : '3'} NTU · Coliformes: ${p.level === 'alta' ? '>200' : p.level === 'media' ? '100' : '<30'} NMP/100mL` };
+      }
+    },
+    plantas: {
+      title: 'Estrés de la Vegetación',
+      unit: 'Especie',
+      detail: (p, locName) => {
+        let risk = p.level === 'alta' ? '🔴 Alto' : p.level === 'media' ? '🟡 Moderado' : p.level === 'baja' ? '🟢 Bajo' : '🔵 Óptimo';
+        let exp = p.level === 'alta' ? 'Estrés hídrico severo. Defoliación anticipada. Riesgo de incendios forestales. Pérdida de biodiversidad vegetal.' : p.level === 'media' ? 'Clorosis en hojas jóvenes. Crecimiento reducido. Vulnerabilidad a plagas.' : 'Vegetación en estado óptimo. Crecimiento normal. Buena cobertura foliar.';
+        let rec = p.level === 'alta' ? 'Riego suplementario urgente. Evitar quemas agrícolas. Reportar incendios al SINAPROC.' : p.level === 'media' ? 'Monitorear humedad del suelo. Poda sanitaria. Control biológico de plagas.' : 'Mantené las áreas verdes. Seguí con buenas prácticas ambientales.';
+        return { risk, exp, rec, metrics: `NDVI: ${p.level === 'alta' ? '0.25' : p.level === 'media' ? '0.50' : '0.78'} · Estrés hídrico: ${p.level === 'alta' ? '80%' : p.level === 'media' ? '45%' : '15%'}` };
+      }
+    },
+    quimicos: {
+      title: 'Contaminación Química',
+      unit: 'Riesgo',
+      detail: (p, locName) => {
+        let risk = p.chem === 'Alto' ? '🔴 Alto' : p.chem === 'Elevado' ? '🟡 Moderado' : '🟢 Bajo';
+        let exp = p.chem === 'Alto' ? 'Exposición crónica a compuestos cancerígenos (formaldehído, benceno, arsénico). Daño hepático y neurológico a largo plazo.' : p.chem === 'Elevado' ? 'Posible irritación dérmica y respiratoria. Acumulación de metales en el organismo.' : 'Sin presencia significativa de contaminantes químicos. Ambiente seguro.';
+        let rec = p.chem === 'Alto' ? 'NO consumir agua de pozo. Usar protección respiratoria en zonas industriales. Análisis médicos anuales.' : p.chem === 'Elevado' ? 'Lavar frutas y verduras con abundante agua. Evitar quema de desechos.' : 'Sin precauciones especiales. Calidad química ambiental dentro de normas.';
+        return { risk, exp, rec, metrics: `Compuestos: VOC ${p.chem === 'Alto' ? '>500' : p.chem === 'Elevado' ? '250' : '<50'} ppb · Metales pesados en suelo` };
+      }
+    }
+  };
   const coastalProvs = ['bocas','chiriqui','colon','panama','darien','gunayala'];
   let filtered = [];
   provinces.forEach(p => {
@@ -1200,9 +1285,40 @@ function renderEnvZones(catId) {
     const c = pct > 70 ? 'rose' : pct > 40 ? 'amber' : 'emerald';
     const div = document.createElement('div');
     div.className = `glass rounded-lg p-2 border-l-2 border-${c}-500 hover:bg-white/5 transition cursor-pointer`;
-    div.title = p.value + ' — ' + p.name;
+    div.title = 'Hacé clic para ver detalles y riesgos de exposición';
     const locLabel = envLocations[catId] ? envLocations[catId].label : '';
     div.innerHTML = `<div class="flex items-center justify-between mb-0.5"><span class="text-[10px] font-bold truncate">${p.name}</span><span class="text-[8px] px-1 rounded bg-${c}-500/20 text-${c}-400 font-medium">${p.label}</span></div><p class="text-[8px] text-slate-400 truncate">${p.locName ? p.locName : ''}${p.value ? ' · ' + p.value : ''}</p><div class="h-1 mt-1 bg-slate-700 rounded-full overflow-hidden"><div class="h-full rounded-full bg-${c}-400 transition-all" style="width:${Math.max(5,pct)}%"></div></div>`;
+    div.onclick = function() {
+      const info = envRiskInfo[catId];
+      if (!info) return;
+      const det = info.detail(p, p.locName);
+      const iconMap = { aire: '🌬️', atmosfera: '🌫️', suelo: '🌍', agua: '💧', rios: '🏞️', mar: '🌊', plantas: '🌿', quimicos: '🧪' };
+      const icon = iconMap[catId] || '📊';
+      const borderColor = c;
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay active';
+      modal.onclick = function(e) { if (e.target === this) this.remove(); };
+      const borderHex = { rose: '#f43f5e', amber: '#f59e0b', emerald: '#10b981' }[c] || '#6366f1';
+      modal.innerHTML = `<div class="modal-content max-w-lg p-5" style="border-left: 4px solid ${borderHex}">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2"><span class="text-2xl">${icon}</span><div><h3 class="text-lg font-bold">${info.title} — ${p.name}</h3><p class="text-[11px] text-slate-400">${p.locName} · ${p.id === 'panama' ? 'Panamá Centro' : p.id === 'panamaoeste' ? 'Arraiján' : p.locName}</p></div></div>
+          <button onclick="this.closest('.modal-overlay').remove()" class="text-slate-400 hover:text-white text-xl">&times;</button>
+        </div>
+        <div class="glass rounded-xl p-3 mb-3">
+          <div class="flex items-center justify-between mb-2"><span class="text-xs font-bold">Nivel de Riesgo</span><span class="text-xs px-2 py-0.5 rounded-full bg-${borderColor}-500/20 text-${borderColor}-400 font-bold">${det.risk}</span></div>
+          <p class="text-xs text-slate-300">${det.metrics}</p>
+        </div>
+        <div class="glass rounded-xl p-3 mb-3">
+          <p class="text-[10px] font-bold text-slate-400 mb-1">⚕️ Riesgo al exponerse</p>
+          <p class="text-xs text-slate-200">${det.exp}</p>
+        </div>
+        <div class="glass rounded-xl p-3">
+          <p class="text-[10px] font-bold text-slate-400 mb-1">🛡️ Recomendación</p>
+          <p class="text-xs text-slate-200">${det.rec}</p>
+        </div>
+      </div>`;
+      document.body.appendChild(modal);
+    };
     container.appendChild(div);
   });
 }
