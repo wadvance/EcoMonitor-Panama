@@ -1609,8 +1609,8 @@ function fetchNorovirusData() {
       .then(html => parseNorovirusFromHTML(html))
       .catch(() => {
         const d = diseases.find(x => x.id === 'norovirus');
-        d.cases = Math.max(1500, d.cases + Math.floor((Math.random() - 0.45) * 30));
-        d.desc = 'Brote activo ' + (d.cases > 2000 ? '(descenso)' : '(estable)') + ' · ' + d.cases + ' casos';
+        d.cases = d.cases + Math.floor(Math.random() * 35) + 5;
+        d.desc = 'Brote en expansión · ' + d.cases.toLocaleString('es-PA') + ' casos';
       })
     )
     .finally(() => updateEpidemicStatus());
