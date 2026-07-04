@@ -108,6 +108,8 @@
         <span class="text-xs">24/7</span>
       </div>
       <span id="trialBadge" class="px-2 py-1 text-[9px] rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-medium" title="Periodo de prueba">⏳ --</span>
+      <span id="roleBadge" class="hidden"></span>
+      <button id="logoutBtn" onclick="logout()" class="hidden glass rounded-lg px-2 py-1 hover:bg-white/10 transition text-[9px]" title="Cerrar sesión">🚪 Salir</button>
     </div>
   </div>
 </header>
@@ -2451,9 +2453,155 @@ window.addEventListener('load', () => {
       console.log('SW registrado');
     }).catch(() => {});
   }
+  const auth = getAuth();
+  if (!auth) {
+    showLoginModal();
+  } else {
+    updateRoleUI();
+    initTrialCountdown();
+  }
   showInstallPrompts();
-  initTrialCountdown();
 });
+
+// ============================================
+// 🔐 SISTEMA DE LOGIN Y ROLES
+// ============================================
+const AUTH_KEY = 'ecomonitor-auth';
+
+const ADMIN_CREDENTIALS = {
+  'superadmin': { password: 'SuperAdmin2026', role: 'superadmin', name: 'Super Admin Arauz' },
+  'admin1': { password: 'Admin12026', role: 'admin', name: 'Admin 1 Arauz' },
+  'admin2': { password: 'Admin22026', role: 'admin', name: 'Admin 2 Arauz' }
+};
+
+function getAuth() {
+  try { return JSON.parse(localStorage.getItem(AUTH_KEY)); } catch { return null; }
+}
+
+function isAuthenticated() {
+  const auth = getAuth();
+  return auth && (auth.role === 'superadmin' || auth.role === 'admin');
+}
+
+function getUserRole() {
+  const auth = getAuth();
+  return auth ? auth.role : 'demo';
+}
+
+function getUserName() {
+  const auth = getAuth();
+  return auth ? auth.name : 'Demo';
+}
+
+function login(username, password) {
+  const user = ADMIN_CREDENTIALS[username.toLowerCase()];
+  if (user && user.password === password) {
+    localStorage.setItem(AUTH_KEY, JSON.stringify({
+      username: username.toLowerCase(),
+      role: user.role,
+      name: user.name
+    }));
+    return { success: true, role: user.role };
+  }
+  return { success: false };
+}
+
+function logout() {
+  localStorage.removeItem(AUTH_KEY);
+  location.reload();
+}
+
+function showLoginModal() {
+  const existing = document.getElementById('loginModal');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'loginModal';
+  modal.className = 'modal-overlay active';
+  modal.style.zIndex = '99999';
+  modal.innerHTML = `<div class="modal-content max-w-sm p-6 text-center" style="background:linear-gradient(135deg,#0f172a,#1e293b);border:2px solid #10b981;">
+    <div class="text-5xl mb-3">🔐</div>
+    <h2 class="text-xl font-bold mb-1">EcoMonitor Panamá</h2>
+    <p class="text-xs text-slate-400 mb-4">Iniciá sesión o continuá como demo</p>
+    <div id="loginError" class="text-[10px] text-rose-400 mb-2 hidden">Credenciales incorrectas</div>
+    <input type="text" id="loginUser" placeholder="Usuario" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-sm text-white mb-2">
+    <input type="password" id="loginPass" placeholder="Contraseña" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-sm text-white mb-3" onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 text-black font-bold mb-2">🔓 Iniciar sesión</button>
+    <button onclick="continueAsDemo()" class="w-full py-2 rounded-xl glass text-xs text-slate-300 hover:bg-white/10">Continuar como Demo (10 días gratis)</button>
+  </div>`;
+  document.body.appendChild(modal);
+  setTimeout(() => document.getElementById('loginUser')?.focus(), 300);
+}
+
+function doLogin() {
+  const user = document.getElementById('loginUser')?.value.trim();
+  const pass = document.getElementById('loginPass')?.value.trim();
+  const result = login(user, pass);
+  if (result.success) {
+    const modal = document.getElementById('loginModal');
+    if (modal) modal.remove();
+    addNotification('success', '✅ Sesión iniciada', 'Bienvenido, ' + getUserName());
+    updateRoleUI();
+    location.reload();
+  } else {
+    const err = document.getElementById('loginError');
+    if (err) {
+      err.classList.remove('hidden');
+      err.textContent = user && pass ? 'Credenciales incorrectas' : 'Ingresá usuario y contraseña';
+    }
+  }
+}
+
+function continueAsDemo() {
+  const modal = document.getElementById('loginModal');
+  if (modal) modal.remove();
+  localStorage.setItem(AUTH_KEY, JSON.stringify({ role: 'demo', name: 'Demo' }));
+  updateRoleUI();
+  initTrialCountdown();
+}
+
+function updateRoleUI() {
+  const badge = document.getElementById('roleBadge');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const trialBadge = document.getElementById('trialBadge');
+  if (!badge) return;
+  const role = getUserRole();
+  if (role === 'superadmin') {
+    badge.textContent = '⭐ Super Admin';
+    badge.className = 'px-2 py-1 text-[9px] rounded-full bg-purple-500/20 border border-purple-500/50 text-purple-300 font-medium';
+    if (logoutBtn) logoutBtn.classList.remove('hidden');
+    if (trialBadge) { trialBadge.textContent = '🔓 Ilimitado'; trialBadge.className = 'px-2 py-1 text-[9px] rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-medium'; trialBadge.title = 'Acceso completo ilimitado'; }
+  } else if (role === 'admin') {
+    badge.textContent = '🔷 Admin';
+    badge.className = 'px-2 py-1 text-[9px] rounded-full bg-blue-500/20 border border-blue-500/50 text-blue-300 font-medium';
+    if (logoutBtn) logoutBtn.classList.remove('hidden');
+    if (trialBadge) { trialBadge.textContent = '🔓 Ilimitado'; trialBadge.className = 'px-2 py-1 text-[9px] rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-medium'; trialBadge.title = 'Acceso completo ilimitado'; }
+  } else {
+    badge.textContent = '';
+    badge.className = 'hidden';
+    if (logoutBtn) logoutBtn.classList.add('hidden');
+  }
+}
+
+// ============================================
+// 📋 MODAL GENERIC (reusable)
+// ============================================
+function openModal(title, content, noFooter) {
+  const existing = document.querySelector('.modal-overlay.active');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay active';
+  modal.onclick = function(e) { if (e.target === this) this.remove(); };
+  const closeBtn = '<button onclick="this.closest(\'.modal-overlay\').remove()" class="w-full mt-4 py-2 rounded-lg glass text-xs hover:bg-white/10">Cerrar</button>';
+  modal.innerHTML = `<div class="modal-content p-5">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-bold">${title}</h3>
+      <button onclick="this.closest('.modal-overlay').remove()" class="w-8 h-8 rounded-full glass hover:bg-white/10" title="Cerrar">✕</button>
+    </div>
+    ${content}
+    ${noFooter ? '' : closeBtn}
+  </div>`;
+  document.body.appendChild(modal);
+}
 
 // ============================================
 // 🕐 CUENTA REGRESIVA DE PRUEBA (10 días)
@@ -2485,12 +2633,14 @@ function getTrialEnd() {
 }
 
 function isTrialExpired() {
+  if (isAuthenticated()) return false;
   if (getLicenseStatus()) return false;
   const now = new Date();
   return now.getTime() >= getTrialEnd().getTime();
 }
 
 function getDaysRemaining() {
+  if (isAuthenticated()) return Infinity;
   if (getLicenseStatus()) return Infinity;
   const ms = getTrialEnd().getTime() - new Date().getTime();
   if (ms <= 0) return 0;
@@ -2508,6 +2658,7 @@ function initTrialCountdown() {
 }
 
 function checkTrial() {
+  if (isAuthenticated()) return;
   if (isTrialExpired()) {
     showTrialExpiredModal();
     return;
@@ -2527,6 +2678,7 @@ function checkTrial() {
 function updateTrialBadge(remaining) {
   const badge = document.getElementById('trialBadge');
   if (!badge) return;
+  if (isAuthenticated()) return;
   if (remaining && remaining.days <= 3) {
     badge.textContent = `⏳ ${remaining.days}d ${remaining.hours}h`;
     badge.className = 'px-2 py-1 text-[9px] rounded-full bg-rose-500/30 border border-rose-500/50 text-rose-300 font-medium';
