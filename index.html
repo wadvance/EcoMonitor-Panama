@@ -127,7 +127,7 @@
   </div>
 </div>
 <div class="max-w-7xl mx-auto px-4 pt-2 flex items-center gap-2">
-  <span class="text-[10px] text-slate-400">📍 <span id="locationBadge">CD de Panamá</span></span>
+  <span class="text-[10px] text-slate-400">📍 <span id="locationBadge">CD de Panamá</span> <button onclick="openInWaze()" class="text-cyan-400 hover:text-cyan-300" title="Abrir en Waze">🗺️</button></span>
   <span class="text-[10px] text-slate-500">·</span>
   <span class="text-[10px] text-slate-400">💨 AQI: <span id="liveAqi">62</span> <span id="aqiSource" class="text-emerald-400">Open-Meteo</span></span>
 </div>
@@ -364,11 +364,11 @@
       <div><h4 class="text-xs font-semibold mb-2 text-slate-300">Tendencia 24h</h4><div class="glass rounded-xl p-3 h-48"><canvas id="envChart"></canvas></div></div>
     </div>
     <div class="mt-4"><h4 class="text-xs font-semibold mb-2 text-slate-300">Recomendaciones de Salud</h4><div id="envRecs" class="grid md:grid-cols-2 gap-2"></div></div>
-    <div class="mt-4"><h4 class="text-xs font-semibold mb-2 text-slate-300">📍 Zonas con Alto Índice en Panamá</h4><div id="envZones" class="grid md:grid-cols-3 gap-2"></div></div>
+    <div class="mt-4 panama-only"><h4 class="text-xs font-semibold mb-2 text-slate-300">📍 Zonas con Alto Índice en Panamá</h4><div id="envZones" class="grid md:grid-cols-3 gap-2"></div></div>
   </div>
 </section>
 <!-- MAPA -->
-<section id="content-mapa" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
+<section id="content-mapa" class="tab-content panama-only max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
   <div class="glass rounded-2xl p-4 mb-4">
     <div class="flex items-center justify-between mb-3"><h3 class="font-bold">🗺️ Mapa de Contaminación por Provincia</h3><div class="flex items-center gap-2"><button id="toggleSeismicMap" onclick="toggleSeismicMarkers()" title="Mostrar u ocultar las zonas sísmicas en el mapa de Panamá" class="px-2 py-1 rounded-lg bg-rose-500/20 border border-rose-500/30 text-[10px] font-medium">🔴 Zonas Sísmicas</button><span class="text-xs text-slate-400" id="mapTime">--:--</span></div></div>
     <div class="flex gap-3 mb-4 flex-wrap text-xs">
@@ -417,7 +417,7 @@
   <div class="glass rounded-2xl p-4 mt-4"><h4 class="font-bold mb-3 text-sm">📊 Ranking de Zonas</h4><div id="rankingList" class="space-y-1.5"></div></div>
 </section>
 <!-- SÍSMICO -->
-<section id="content-sismico" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
+<section id="content-sismico" class="tab-content panama-only max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
   <div class="glass rounded-2xl p-4 mb-4">
     <div class="flex items-center justify-between mb-3"><h3 class="font-bold">🎛️ Panel de Control de Sensores Sísmicos</h3><button onclick="toggleAllSensors()" id="masterToggle" title="Activar o desactivar todos los sensores simultáneamente" class="px-3 py-1.5 rounded-lg bg-rose-500/20 border border-rose-500/40 text-xs font-medium">Desactivar Todos</button></div>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
@@ -460,7 +460,7 @@
   </div>
 </section>
 <!-- TSUNAMIS -->
-<section id="content-tsunamis" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
+<section id="content-tsunamis" class="tab-content panama-only max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
   <div class="glass rounded-2xl p-4 mb-4">
     <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
       <div class="flex items-center gap-3"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-3xl">🌊</div><div><h3 class="text-xl font-bold">Sistema de Alerta de Tsunamis</h3><p class="text-xs text-slate-400">Monitoreo de maremotos en costas panameñas</p></div></div>
@@ -525,7 +525,7 @@
       </div>
     </div>
   </div>
-  <div class="glass rounded-2xl p-4">
+  <div class="glass rounded-2xl p-4 panama-only">
     <h4 class="font-bold mb-3 text-sm">📡 Satélites Monitoreando Panamá</h4>
     <div class="space-y-2">
       <div class="glass rounded-xl p-3 flex items-center justify-between"><div class="flex items-center gap-2"><span class="text-lg">🛰️</span><div><p class="text-xs font-bold">GOES-16 (NOAA)</p><p class="text-[9px] text-slate-400">Clima y atmósfera</p></div></div><span class="text-[10px] text-emerald-400">● Activo</span></div>
@@ -534,7 +534,7 @@
       <div class="glass rounded-xl p-3 flex items-center justify-between"><div class="flex items-center gap-2"><span class="text-lg">🛰️</span><div><p class="text-xs font-bold">Jason-3 (NASA)</p><p class="text-[9px] text-slate-400">Nivel del mar y tsunamis</p></div></div><span class="text-[10px] text-emerald-400">● Activo</span></div>
     </div>
   </div>
-  <div class="glass rounded-2xl p-4 mt-4">
+  <div class="glass rounded-2xl p-4 mt-4 panama-only">
     <h4 class="font-bold mb-3 text-sm">✈️ Navegación Aérea — Frecuencias VHF</h4>
     <p class="text-xs text-slate-300 mb-3">El monitor de frecuencias detecta señales utilizadas por la aviación en Panamá. Cada barra representa una banda de frecuencia usada para comunicaciones entre torres de control y aeronaves.</p>
     <div class="grid md:grid-cols-2 gap-3">
@@ -573,7 +573,7 @@
   </div>
 </section>
 <!-- EPIDEMIA -->
-<section id="content-epidemia" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
+<section id="content-epidemia" class="tab-content panama-only max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
   <div class="glass rounded-2xl p-4 border border-rose-500/20">
     <div class="flex items-center justify-between mb-3">
       <h4 class="font-bold text-sm">🦠 Monitoreo Epidemiológico — Panamá</h4>
@@ -676,11 +676,14 @@
 </footer>
 <script>
 // ============================================
-// 🌍 UBICACIÓN - Geolocation API
+// 🌍 UBICACIÓN - Geolocation API + Geocoding inverso
 // ============================================
 let USER_LAT = 8.9824;
 let USER_LON = -79.5199;
 let userLocationName = 'CD de Panamá';
+let userCountry = 'Panamá';
+let isInPanama = true;
+
 function getUserLocation() {
   if ('geolocation' in navigator) {
     navigator.geolocation.getCurrentPosition(
@@ -693,6 +696,7 @@ function getUserLocation() {
         fetchWeather();
         fetchAirQuality();
         fetchRealQuakes();
+        fetchLocationName();
       },
       err => {
         console.warn('Geolocation error:', err.message);
@@ -702,10 +706,43 @@ function getUserLocation() {
           USER_LON = parseFloat(localStorage.getItem('eco-lon'));
         }
         updateLocationBadge();
+        fetchLocationName();
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
     );
+  } else {
+    fetchLocationName();
   }
+}
+
+async function fetchLocationName() {
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${USER_LAT}&lon=${USER_LON}&format=json&accept-language=es`, {
+      headers: { 'User-Agent': 'EcoMonitorPanama/1.0' }
+    });
+    if (!res.ok) throw new Error('Geocode API error');
+    const data = await res.json();
+    const city = data.address?.city || data.address?.town || data.address?.village || data.address?.municipality || data.address?.county || '';
+    const state = data.address?.state || '';
+    userCountry = data.address?.country || 'Desconocido';
+    isInPanama = userCountry.toLowerCase() === 'panamá' || userCountry.toLowerCase() === 'panama';
+    userLocationName = city ? (city + (state ? ', ' + state : '')) : (userCountry || 'Tu ubicación');
+    const badge = document.getElementById('locationBadge');
+    if (badge) badge.textContent = userLocationName;
+    updatePanamaUI();
+  } catch (err) {
+    console.warn('Reverse geocode error:', err.message);
+  }
+}
+
+function updatePanamaUI() {
+  document.querySelectorAll('.panama-only').forEach(el => el.style.display = isInPanama ? '' : 'none');
+  const weatherSub = document.querySelector('#content-clima .text-xs.text-slate-400');
+  if (weatherSub) weatherSub.textContent = `Datos de Open-Meteo API · ${userLocationName}`;
+}
+
+function openInWaze() {
+  window.open(`https://www.waze.com/ul?ll=${USER_LAT},${USER_LON}&navigate=yes&zoom=15`, '_blank');
 }
 // ============================================
 // 🌤️ CLIMA - API Open-Meteo (gratis, sin API key)
@@ -847,7 +884,12 @@ async function fetchAirQuality() {
 let lastUsgsFetch = 0;
 async function fetchRealQuakes() {
   try {
-    const url = 'https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minlatitude=7&maxlatitude=10&minlongitude=-83&maxlongitude=-77&minmagnitude=1&orderby=time&limit=15';
+    const range = 5;
+    const minLat = Math.max(USER_LAT - range, -90);
+    const maxLat = Math.min(USER_LAT + range, 90);
+    const minLon = Math.max(USER_LON - range, -180);
+    const maxLon = Math.min(USER_LON + range, 180);
+    const url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minlatitude=${minLat}&maxlatitude=${maxLat}&minlongitude=${minLon}&maxlongitude=${maxLon}&minmagnitude=1&orderby=time&limit=15`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('USGS API error');
     const data = await res.json();
@@ -901,7 +943,8 @@ function updateLocationBadge() {
     const d = Math.hypot(USER_LAT - c.lat, USER_LON - c.lon);
     if (d < minDist) { minDist = d; closest = c.name; }
   });
-  userLocationName = minDist < 0.5 ? closest : 'Tu ubicación';
+  const fallback = minDist < 0.5 ? closest : 'Tu ubicación';
+  userLocationName = userLocationName || fallback;
   badge.textContent = userLocationName;
 }
 function updateWeatherUI() {
