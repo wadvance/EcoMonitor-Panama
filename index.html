@@ -2523,11 +2523,14 @@ function showLoginModal() {
     <p class="text-xs text-slate-400 mb-4">Iniciá sesión o continuá como demo</p>
     <div id="loginError" class="text-[10px] text-rose-400 mb-2 hidden">Credenciales incorrectas</div>
     <input type="text" id="loginUser" placeholder="Usuario" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-sm text-white mb-2">
-    <input type="password" id="loginPass" placeholder="Contraseña" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-sm text-white mb-3" onkeydown="if(event.key==='Enter')doLogin()">
-    <button onclick="doLogin()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 text-black font-bold mb-2">🔓 Iniciar sesión</button>
-    <button onclick="continueAsDemo()" class="w-full py-2 rounded-xl glass text-xs text-slate-300 hover:bg-white/10">Continuar como Demo (10 días gratis)</button>
+    <input type="password" id="loginPass" placeholder="Contraseña" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-sm text-white mb-3">
+    <button id="loginBtn" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 text-black font-bold mb-2">🔓 Iniciar sesión</button>
+    <button id="demoBtn" class="w-full py-2 rounded-xl glass text-xs text-slate-300 hover:bg-white/10">Continuar como Demo (10 días gratis)</button>
   </div>`;
   document.body.appendChild(modal);
+  document.getElementById('loginBtn').addEventListener('click', doLogin);
+  document.getElementById('demoBtn').addEventListener('click', continueAsDemo);
+  document.getElementById('loginPass').addEventListener('keydown', function(e) { if (e.key === 'Enter') doLogin(); });
   setTimeout(() => document.getElementById('loginUser')?.focus(), 300);
 }
 
