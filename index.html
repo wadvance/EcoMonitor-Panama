@@ -357,6 +357,7 @@
       <div><h4 class="text-xs font-semibold mb-2 text-slate-300">Tendencia 24h</h4><div class="glass rounded-xl p-3 h-48"><canvas id="envChart"></canvas></div></div>
     </div>
     <div class="mt-4"><h4 class="text-xs font-semibold mb-2 text-slate-300">Recomendaciones de Salud</h4><div id="envRecs" class="grid md:grid-cols-2 gap-2"></div></div>
+    <div class="mt-4"><h4 class="text-xs font-semibold mb-2 text-slate-300">📍 Zonas con Alto Índice en Panamá</h4><div id="envZones" class="grid md:grid-cols-3 gap-2"></div></div>
   </div>
 </section>
 <!-- MAPA -->
@@ -1124,6 +1125,65 @@ function showEnvDetail(id) {
     div.className = `rounded-lg p-2 border ${colors[r.type]} text-[11px]`;
     div.innerHTML = `<span class="mr-1">${icons[r.type]}</span>${r.text}`;
     recs.appendChild(div);
+  });
+  renderEnvZones(id);
+}
+function renderEnvZones(catId) {
+  const container = document.getElementById('envZones');
+  if (!container) return;
+  container.innerHTML = '';
+  const coastalProvs = ['bocas','chiriqui','colon','panama','darien','gunayala'];
+  let filtered = [];
+  provinces.forEach(p => {
+    let score = 0, label = '', value = '';
+    const aqiNum = parseInt(p.aqi);
+    const co2Num = parseInt(p.co2.replace(/[^\d]/g,''));
+    const o3Num = parseFloat(p.o3.replace(/[^\d.]/g,''));
+    if (catId === 'aire') {
+      score = aqiNum; value = 'AQI ' + p.aqi;
+      label = score > 70 ? 'Alto' : score > 50 ? 'Medio' : 'Bajo';
+    } else if (catId === 'atmosfera') {
+      score = co2Num; value = 'CO₂ ' + p.co2;
+      label = o3Num > 0.055 ? 'Ozono ↑' : 'Normal';
+    } else if (catId === 'suelo') {
+      score = p.chem === 'Alto' ? 90 : p.chem === 'Elevado' ? 75 : p.level === 'alta' ? 60 : 30;
+      value = 'Químicos: ' + p.chem;
+      label = score > 70 ? 'Contaminado' : score > 50 ? 'Regular' : 'Limpio';
+    } else if (catId === 'agua') {
+      score = p.level === 'optima' ? 15 : p.level === 'baja' ? 30 : p.level === 'media' ? 50 : 75;
+      value = 'Nivel: ' + p.level;
+      label = score > 60 ? 'Vigilar' : score > 35 ? 'Aceptable' : 'Buena';
+    } else if (catId === 'rios') {
+      score = o3Num * 1000 + aqiNum / 2;
+      value = 'Calidad: ' + p.level;
+      label = p.level === 'alta' ? 'Presión' : p.level === 'media' ? 'Moderado' : 'Sano';
+    } else if (catId === 'mar') {
+      if (!coastalProvs.includes(p.id)) return;
+      score = p.level === 'alta' ? 80 : p.level === 'media' ? 50 : 25;
+      value = 'Costa ' + (['bocas','colon','gunayala'].includes(p.id) ? 'Caribe' : 'Pacífico');
+      label = score > 60 ? 'Afectado' : score > 30 ? 'Estable' : 'Sano';
+    } else if (catId === 'plantas') {
+      score = p.level === 'optima' ? 10 : p.level === 'baja' ? 25 : p.level === 'media' ? 45 : 65;
+      value = 'Estrés: ' + p.level;
+      label = score > 50 ? 'Riesgo' : score > 25 ? 'Vigilancia' : 'Sano';
+    } else if (catId === 'quimicos') {
+      score = p.chem === 'Alto' ? 95 : p.chem === 'Elevado' ? 75 : 20;
+      value = 'Químicos: ' + p.chem;
+      label = score > 70 ? 'Peligro ⚠️' : score > 40 ? 'Alerta' : 'Normal';
+    }
+    filtered.push({ ...p, score, label, value });
+  });
+  const sorted = filtered.sort((a,b) => b.score - a.score).slice(0, 6);
+  if (sorted.length === 0) { container.innerHTML = '<p class="text-xs text-slate-500">Sin datos disponibles</p>'; return; }
+  const minS = sorted[sorted.length-1].score;
+  const maxS = sorted[0].score;
+  sorted.forEach(p => {
+    const pct = maxS > minS ? ((p.score - minS) / (maxS - minS)) * 100 : 50;
+    const c = pct > 70 ? 'rose' : pct > 40 ? 'amber' : 'emerald';
+    const div = document.createElement('div');
+    div.className = `glass rounded-lg p-2 border-l-2 border-${c}-500`;
+    div.innerHTML = `<div class="flex items-center justify-between mb-0.5"><span class="text-[10px] font-bold truncate">${p.name}</span><span class="text-[8px] px-1 rounded bg-${c}-500/20 text-${c}-400 font-medium">${p.label}</span></div><p class="text-[8px] text-slate-400 truncate">${p.value}</p><div class="h-1 mt-1 bg-slate-700 rounded-full overflow-hidden"><div class="h-full rounded-full bg-${c}-400 transition-all" style="width:${Math.max(5,pct)}%"></div></div>`;
+    container.appendChild(div);
   });
 }
 // ============================================
