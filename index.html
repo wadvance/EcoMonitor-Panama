@@ -801,14 +801,12 @@ async function fetchWeather() {
     updateWeatherUI();
     updateWeatherCharts();
     document.getElementById('weatherUpdated').textContent = new Date().toLocaleTimeString('es-PA', { hour: '2-digit', minute: '2-digit' });
-    addNotification('success', '🌤️ Clima actualizado', 'Datos meteorológicos recibidos de Open-Meteo');
   } catch (err) {
     console.error('Weather fetch error:', err);
     // Fallback: datos simulados realistas para Panamá
     weatherData = generateFallbackWeather();
     updateWeatherUI();
     updateWeatherCharts();
-    addNotification('warning', '⚠️ Clima en modo offline', 'Usando datos simulados. Verifica tu conexión.');
   }
 }
 function generateFallbackWeather() {
@@ -878,7 +876,6 @@ async function fetchAirQuality() {
     document.getElementById('liveAqi').textContent = aqi;
     document.getElementById('envAire').textContent = aqi;
     document.getElementById('aqiSource').textContent = 'Open-Meteo';
-    addNotification('success', '💨 Aire actualizado', 'AQI ' + aqi + ' desde Open-Meteo');
   } catch (err) {
     console.error('Air Quality fetch error:', err);
   }
