@@ -120,7 +120,7 @@
       <div class="flex-1">
         <p class="font-bold text-rose-400 text-sm" id="alarmTitle">ALERTA</p>
         <p class="text-xs text-slate-300" id="alarmMessage">Mensaje</p>
-        <p class="text-[10px] text-slate-400 mt-0.5" id="alarmTime">--</p>
+        <p class="text-[10px] text-white font-medium" id="alarmTime">--</p>
       </div>
       <button onclick="stopAlarm()" title="Silenciar la alarma activa y detener el sonido de emergencia" class="px-3 py-1.5 rounded-lg bg-rose-500 text-white text-xs font-bold">🔕 Silenciar</button>
     </div>
@@ -455,7 +455,7 @@
   </div>
   <!-- ZONAS SÍSMICAS -->
   <div class="glass rounded-2xl p-4 mt-4">
-    <div class="flex items-center justify-between mb-3"><h3 class="font-bold">📍 Zonas Sísmicas de Panamá</h3><span class="text-[10px] text-slate-400" id="zoneCount">13 zonas monitoreadas</span></div>
+    <div class="flex items-center justify-between mb-3"><h3 class="font-bold">📍 Zonas Sísmicas de Panamá</h3><span class="text-[10px] text-slate-400" id="zoneCount">14 zonas monitoreadas</span></div>
     <p class="text-xs text-slate-300 mb-3">Panamá se encuentra en el <b class="text-rose-400">Cinturón de Fuego del Pacífico</b>. La placa de Nazca subduce bajo la placa Caribe, generando actividad sísmica en toda la región occidental y central del país.</p>
     <div id="seismicZonesList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-96 overflow-y-auto scrollbar-hide"></div>
   </div>
@@ -887,14 +887,20 @@ async function fetchAirQuality() {
 // 🌋 SISMOS REALES - USGS Earthquake API
 // ============================================
 let lastUsgsFetch = 0;
+function formatQuakeTime(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString('es-PA', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' +
+    d.toLocaleTimeString('es-PA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+
 async function fetchRealQuakes() {
   try {
-    const range = 5;
-    const minLat = Math.max(USER_LAT - range, -90);
-    const maxLat = Math.min(USER_LAT + range, 90);
-    const minLon = Math.max(USER_LON - range, -180);
-    const maxLon = Math.min(USER_LON + range, 180);
-    const url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minlatitude=${minLat}&maxlatitude=${maxLat}&minlongitude=${minLon}&maxlongitude=${maxLon}&minmagnitude=1&orderby=time&limit=15`;
+    // Cobertura específica para zonas sísmicas de Panamá: Chiriquí, Paso Canoas, Punta Burica
+    const minLat = 5.5;
+    const maxLat = 10.5;
+    const minLon = -84.5;
+    const maxLon = -76.5;
+    const url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minlatitude=${minLat}&maxlatitude=${maxLat}&minlongitude=${minLon}&maxlongitude=${maxLon}&minmagnitude=1&orderby=time&limit=20`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('USGS API error');
     const data = await res.json();
@@ -907,16 +913,18 @@ async function fetchRealQuakes() {
         const depth = f.geometry.coordinates[2] || 10;
         const place = props.place || 'Panamá';
         const time = props.time ? timeAgo(props.time) : 'Desconocido';
-        quakeHistory.push({ mag, depth: Math.round(depth), location: place, time });
+        const quakeTime = props.time ? formatQuakeTime(props.time) : '--';
+        quakeHistory.push({ mag, depth: Math.round(depth), location: place, time, quakeTime });
         if (mag >= 2.5) {
           const icon = mag >= 4 ? '🚨' : mag >= 3 ? '⚠️' : '🌋';
           const type = mag >= 4 ? 'danger' : mag >= 3 ? 'warning' : 'info';
-          addNotification(type, icon + ' Sismo M' + mag.toFixed(1), place + ' · Prof. ' + Math.round(depth) + ' km');
+          addNotification(type, icon + ' Sismo M' + mag.toFixed(1),
+            '📍 ' + place + ' · Prof. ' + Math.round(depth) + ' km · 🕐 ' + quakeTime);
         }
       });
       lastUsgsFetch = now;
       renderMiniQuakes();
-      addNotification('info', '📡 Sismos actualizados', data.features.length + ' eventos en tu región');
+      addNotification('info', '📡 Sismos actualizados', data.features.length + ' eventos sísmicos en Panamá');
     }
   } catch (err) {
     console.error('USGS fetch error:', err);
@@ -1143,6 +1151,7 @@ const sensors = [
   { id: 'S-007', name: 'Sensor Darién', type: 'sismico', location: 'Darién', active: true, signal: 85, reading: '0.001 g' },
   { id: 'S-008', name: 'Sensor Coclé', type: 'sismico', location: 'Coclé', active: true, signal: 93, reading: '0.002 g' },
   { id: 'S-009', name: 'Sismógrafo Punta Burica', type: 'sismico', location: 'Chiriquí', active: true, signal: 97, reading: '0.003 g' },
+  { id: 'S-010', name: 'Sismógrafo Paso Canoas', type: 'sismico', location: 'Chiriquí', active: true, signal: 95, reading: '0.002 g' },
   { id: 'D-001', name: 'DART Pacífico #43210', type: 'tsunami', location: 'Pacífico', active: true, signal: 99, reading: 'Normal' },
   { id: 'D-002', name: 'DART Caribe #43211', type: 'tsunami', location: 'Caribe', active: true, signal: 97, reading: 'Normal' },
   { id: 'D-003', name: 'DART Golfo Chiriquí', type: 'tsunami', location: 'Golfo Chiriquí', active: true, signal: 94, reading: 'Normal' },
@@ -1157,11 +1166,11 @@ const sensors = [
   { id: 'G-004', name: 'GPS Changuinola', type: 'gps', location: 'Bocas del Toro', active: true, signal: 92, reading: '0.1 mm/día' }
 ];
 const quakeHistory = [
-  { mag: 2.1, depth: 45, location: 'Costa Pacífico, Chiriquí', time: 'Hace 12 min' },
-  { mag: 1.8, depth: 32, location: 'Volcán Barú, Chiriquí', time: 'Hace 2 h' },
-  { mag: 3.4, depth: 68, location: 'Golfo de Chiriquí', time: 'Hace 5 h' },
-  { mag: 1.2, depth: 15, location: 'Colón', time: 'Hace 8 h' },
-  { mag: 2.7, depth: 52, location: 'Darién', time: 'Hace 14 h' }
+  { mag: 2.1, depth: 45, location: 'Costa Pacífico, Chiriquí', time: 'Hace 12 min', quakeTime: '' },
+  { mag: 1.8, depth: 32, location: 'Volcán Barú, Chiriquí', time: 'Hace 2 h', quakeTime: '' },
+  { mag: 3.4, depth: 68, location: 'Golfo de Chiriquí', time: 'Hace 5 h', quakeTime: '' },
+  { mag: 2.5, depth: 28, location: 'Paso Canoas, Chiriquí', time: 'Hace 3 h', quakeTime: '' },
+  { mag: 2.0, depth: 18, location: 'Punta Burica, Chiriquí', time: 'Hace 6 h', quakeTime: '' }
 ];
 const seismicZones = [
   { id: 'Z-01', name: 'Volcán Barú', province: 'Chiriquí', risk: 'Alta', svgX: 140, svgY: 95, events: 230, desc: 'Zona de subducción activa. Volcán dormido, actividad sísmica frecuente.' },
@@ -1176,7 +1185,8 @@ const seismicZones = [
   { id: 'Z-10', name: 'Darién', province: 'Darién', risk: 'Baja', svgX: 650, svgY: 155, events: 30, desc: 'Frontera con Colombia. Baja actividad sísmica pero con potencial de sismos profundos.' },
   { id: 'Z-11', name: 'Emberá', province: 'Emberá', risk: 'Baja', svgX: 430, svgY: 160, events: 25, desc: 'Región central-este con baja actividad sísmica registrada.' },
   { id: 'Z-12', name: 'Guna Yala', province: 'Guna Yala', risk: 'Baja', svgX: 575, svgY: 190, events: 22, desc: 'Archipiélago caribeño. Baja sismicidad, monitoreado por tsunamis.' },
-  { id: 'Z-13', name: 'Punta Burica', province: 'Chiriquí', risk: 'Media', svgX: 90, svgY: 115, events: 55, desc: 'Península fronteriza con Costa Rica. Actividad sísmica por falla de Burica.' }
+  { id: 'Z-13', name: 'Punta Burica', province: 'Chiriquí', risk: 'Media', svgX: 90, svgY: 115, events: 55, desc: 'Península fronteriza con Costa Rica. Actividad sísmica por falla de Burica.' },
+  { id: 'Z-14', name: 'Paso Canoas', province: 'Chiriquí', risk: 'Alta', svgX: 62, svgY: 98, events: 120, desc: 'Frontera terrestre con Costa Rica. Falla activa de Paso Canoas con sismos frecuentes de magnitud moderada.' }
 ];
 
 const zoneRiskColors = { Alta: 'rose', Media: 'amber', Baja: 'emerald' };
@@ -1237,7 +1247,7 @@ function renderNotifList() {
   if (notifications.length === 0) { list.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">No hay notificaciones</p>'; return; }
   const icons = { danger: '🚨', warning: '⚠️', info: 'ℹ️', success: '✅' };
   const colors = { danger: 'border-rose-500/40 bg-rose-500/10', warning: 'border-amber-500/40 bg-amber-500/10', info: 'border-cyan-500/40 bg-cyan-500/10', success: 'border-emerald-500/40 bg-emerald-500/10' };
-  list.innerHTML = notifications.map(n => `<div class="glass rounded-lg p-2 border-l-2 ${colors[n.type]}"><div class="flex items-start gap-2"><span class="text-lg">${icons[n.type]}</span><div class="flex-1 min-w-0"><p class="text-xs font-bold">${n.title}</p><p class="text-[10px] text-slate-300">${n.message}</p><p class="text-[9px] text-slate-500 mt-0.5">📅 ${n.time}</p></div></div></div>`).join('');
+  list.innerHTML = notifications.map(n => `<div class="glass rounded-lg p-2 border-l-2 ${colors[n.type]}"><div class="flex items-start gap-2"><span class="text-lg">${icons[n.type]}</span><div class="flex-1 min-w-0"><p class="text-xs font-bold text-white">${n.title}</p><p class="text-[10px] text-slate-200">${n.message}</p><p class="text-[9px] text-white mt-0.5">📅 ${n.time}</p></div></div></div>`).join('');
 }
 function clearNotifications() { notifications = []; updateNotifBadge(); renderNotifList(); document.getElementById('notifCount').textContent = '0'; }
 function toggleNotifications() {
@@ -1254,9 +1264,15 @@ function renderQuakeNotifs() {
   if (quakeHistory.length === 0) { section.classList.add('hidden'); return; }
   section.classList.remove('hidden');
   list.innerHTML = quakeHistory.slice(0, 5).map(q =>
-    '<div class="flex items-center justify-between py-1 border-b border-white/5 last:border-0">' +
-    '<span class="text-slate-300">' + q.location + '</span>' +
-    '<span class="font-bold ' + (q.mag >= 4 ? 'text-rose-400' : q.mag >= 3 ? 'text-amber-400' : 'text-cyan-400') + '">M' + q.mag.toFixed(1) + '</span>' +
+    '<div class="flex flex-col py-1.5 border-b border-white/5 last:border-0">' +
+    '<div class="flex items-center justify-between">' +
+    '<span class="text-xs text-slate-200">' + q.location + '</span>' +
+    '<span class="font-bold text-sm ' + (q.mag >= 4 ? 'text-rose-400' : q.mag >= 3 ? 'text-amber-400' : 'text-cyan-400') + '">M' + q.mag.toFixed(1) + '</span>' +
+    '</div>' +
+    '<div class="flex items-center justify-between mt-0.5">' +
+    '<span class="text-[9px] text-white">Prof. ' + q.depth + ' km</span>' +
+    '<span class="text-[9px] text-white">' + q.time + '</span>' +
+    '</div>' +
     '</div>'
   ).join('');
 }
@@ -1658,26 +1674,27 @@ function simulateQuake() {
   const mag = parseFloat(document.getElementById('magnitudeSlider').value);
   const depth = parseInt(document.getElementById('depthSlider').value);
   const now = getNow();
+  const quakeTime = formatQuakeTime(Date.now());
   if (seismo1) seismo1.trigger(mag); if (seismo2) seismo2.trigger(mag * 0.7); if (seismo3) seismo3.trigger(mag * 0.6); if (seismo4) seismo4.trigger(mag * 0.5); if (seismo5) seismo5.trigger(mag * 0.55);
   document.getElementById('lastQuakeMag').textContent = mag.toFixed(1);
   document.getElementById('lastQuakeDepth').textContent = depth + 'km';
-  quakeHistory.unshift({ mag, depth, location: 'Simulación - Panamá', time: 'Ahora' });
+  quakeHistory.unshift({ mag, depth, location: 'Simulación - Panamá', time: 'Ahora', quakeTime });
   if (quakeHistory.length > 5) quakeHistory.pop();
   renderMiniQuakes();
   if (mag >= 7 && depth < 50) {
-    triggerAlarm('danger', '🚨 TERREMOTO ' + mag.toFixed(1), `⚠️ Sismo fuerte a ${depth}km. POSIBLE TSUNAMI. EVACUAR costas. ${now}`);
+    triggerAlarm('danger', '🚨 TERREMOTO M' + mag.toFixed(1), `⚠️ Sismo fuerte a ${depth}km. POSIBLE TSUNAMI. EVACUAR costas. 🕐 ${now}`);
     document.getElementById('tsunamiRisk').textContent = 'ALTO'; document.getElementById('tsunamiRisk').className = 'text-xl font-bold text-rose-400';
     document.getElementById('quakeAlert').textContent = 'Rojo'; document.getElementById('quakeAlert').className = 'text-sm font-bold text-rose-400';
   } else if (mag >= 5) {
-    triggerAlarm('warning', '⚠️ TERREMOTO', `Magnitud ${mag.toFixed(1)} · ${depth}km. ${now}`);
+    triggerAlarm('warning', '⚠️ TERREMOTO M' + mag.toFixed(1), `Magnitud ${mag.toFixed(1)} · ${depth}km · 🕐 ${now}`);
     document.getElementById('tsunamiRisk').textContent = 'Moderado'; document.getElementById('tsunamiRisk').className = 'text-xl font-bold text-amber-400';
     document.getElementById('quakeAlert').textContent = 'Amarillo'; document.getElementById('quakeAlert').className = 'text-sm font-bold text-amber-400';
   } else if (mag >= 3) {
-    addNotification('info', '📳 Sismo', `${mag.toFixed(1)} · ${depth}km · ${now}`);
+    addNotification('info', '📳 Sismo M' + mag.toFixed(1), `📍 Panamá · Prof. ${depth} km · 🕐 ${now}`);
     document.getElementById('tsunamiRisk').textContent = 'Nulo'; document.getElementById('tsunamiRisk').className = 'text-xl font-bold text-emerald-400';
     document.getElementById('quakeAlert').textContent = 'Verde'; document.getElementById('quakeAlert').className = 'text-sm font-bold text-emerald-400';
   } else {
-    addNotification('success', '✓ Microsismo', `${mag.toFixed(1)} · ${depth}km · ${now}`);
+    addNotification('success', '✓ Microsismo M' + mag.toFixed(1), `📍 Panamá · Prof. ${depth} km · 🕐 ${now}`);
   }
 }
 function renderMiniQuakes() {
@@ -1688,7 +1705,7 @@ function renderMiniQuakes() {
     const c = q.mag >= 3 ? 'amber' : q.mag >= 2 ? 'yellow' : 'emerald';
     const div = document.createElement('div');
     div.className = 'flex items-center gap-2 glass rounded-lg p-1.5';
-    div.innerHTML = `<span class="text-xs font-bold text-${c}-400 w-8">${q.mag}</span><div class="flex-1 min-w-0"><p class="text-[10px] truncate">${q.location}</p><p class="text-[8px] text-slate-500">${q.depth}km · ${q.time}</p></div>`;
+    div.innerHTML = `<span class="text-xs font-bold text-${c}-400 w-8">M${q.mag.toFixed(1)}</span><div class="flex-1 min-w-0"><p class="text-[10px] truncate text-slate-200">${q.location}</p><p class="text-[8px] text-white">${q.depth}km · ${q.time}</p></div>`;
     list.appendChild(div);
   });
 }
@@ -1759,7 +1776,8 @@ function renderSeismicMarkers() {
   // Also show recent earthquake markers from quakeHistory
   const qCoords = {
     'Costa Pacífico, Chiriquí': [130, 150], 'Volcán Barú, Chiriquí': [140, 95],
-    'Golfo de Chiriquí': [120, 130], 'Colón': [500, 135], 'Darién': [650, 155]
+    'Golfo de Chiriquí': [120, 130], 'Colón': [500, 135], 'Darién': [650, 155],
+    'Paso Canoas, Chiriquí': [62, 98], 'Punta Burica, Chiriquí': [90, 115]
   };
   quakeHistory.forEach(q => {
     const coords = qCoords[q.location];
@@ -2311,7 +2329,7 @@ function init() {
   fetchAirQuality();
   setInterval(fetchAirQuality, 15 * 60 * 1000);
   fetchRealQuakes();
-  setInterval(fetchRealQuakes, 5 * 60 * 1000); // cada 5 min
+  setInterval(fetchRealQuakes, 2 * 60 * 1000); // cada 2 min (tiempo real)
   
   // Cargar clima real
   fetchWeather();
