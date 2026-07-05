@@ -27,6 +27,7 @@
   .pulse-dot { animation: pulse 2s infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
   .blink { animation: blink 1s infinite; }
+  .province { cursor: pointer; transition: opacity .2s; }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.5} }
   .shake { animation: shake 0.5s; }
   @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
@@ -375,33 +376,52 @@
 <section id="content-mapa" class="tab-content panama-only max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
   <div class="glass rounded-2xl p-4 mb-4">
     <div class="flex items-center justify-between mb-3"><h3 class="font-bold">🗺️ Mapa de Contaminación por Provincia</h3><div class="flex items-center gap-2"><button id="toggleSeismicMap" onclick="toggleSeismicMarkers()" title="Mostrar u ocultar las zonas sísmicas en el mapa de Panamá" class="px-2 py-1 rounded-lg bg-rose-500/20 border border-rose-500/30 text-[10px] font-medium">🔴 Zonas Sísmicas</button><span class="text-xs text-slate-400" id="mapTime">--:--</span></div></div>
-    <div class="flex gap-3 mb-4 flex-wrap text-xs">
-      <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-rose-500"></span>Alta</div>
-      <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-500"></span>Media</div>
-      <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-500"></span>Baja</div>
-      <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-cyan-500"></span>Óptima</div>
+    <div class="flex items-center gap-2 mb-3 flex-wrap text-[10px]"><span class="text-slate-400 font-medium">Leyenda de Riesgo:</span>
+      <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow shadow-rose-500/50"></span><span>Alta</span></div>
+      <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow shadow-amber-500/50"></span><span>Media</span></div>
+      <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow shadow-emerald-500/50"></span><span>Baja</span></div>
+      <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-cyan-500 shadow shadow-cyan-500/50"></span><span>Óptima</span></div>
+      <span class="ml-auto text-slate-500">★ Epicentro</span>
     </div>
-    <div class="relative bg-slate-900/50 rounded-xl p-4">
-      <svg viewBox="0 0 800 300" class="w-full h-auto">
-        <rect x="0" y="0" width="800" height="300" fill="#0c1929"/>
-        <path class="province" data-id="bocas" d="M50,80 L120,60 L150,80 L140,110 L80,120 L50,100 Z" fill="#f59e0b"/>
-        <path class="province" data-id="chiriqui" d="M120,60 L200,50 L220,90 L180,120 L140,110 L150,80 Z" fill="#f59e0b"/>
-        <path class="province" data-id="veraguas" d="M200,50 L320,55 L340,100 L300,140 L220,130 L180,120 L220,90 Z" fill="#10b981"/>
-        <path class="province" data-id="cocle" d="M320,55 L420,60 L430,100 L380,130 L340,100 Z" fill="#10b981"/>
-        <path class="province" data-id="herrera" d="M300,140 L340,100 L380,130 L360,170 L310,160 Z" fill="#10b981"/>
-        <path class="province" data-id="lossantos" d="M310,160 L360,170 L370,210 L330,220 L300,190 Z" fill="#06b6d4"/>
-        <path class="province" data-id="panamaoeste" d="M420,60 L500,55 L510,100 L470,120 L430,100 Z" fill="#ef4444"/>
-        <path class="province" data-id="panama" d="M500,55 L580,50 L600,90 L560,120 L510,100 Z" fill="#ef4444"/>
-        <path class="province" data-id="colon" d="M470,120 L510,100 L560,120 L540,160 L480,150 Z" fill="#f59e0b"/>
-        <path class="province" data-id="darien" d="M560,120 L600,90 L700,80 L750,130 L720,200 L620,210 L580,170 L540,160 Z" fill="#06b6d4"/>
-        <path class="province" data-id="embera" d="M380,130 L430,100 L470,120 L480,150 L440,180 L360,170 Z" fill="#06b6d4"/>
-        <path class="province" data-id="gunayala" d="M540,160 L580,170 L620,210 L560,220 L520,190 Z" fill="#10b981"/>
-        <circle cx="540" cy="80" r="4" fill="#fff" class="blink"/>
-        <text x="548" y="75" fill="#fff" font-size="10" font-weight="bold">CD Panamá</text>
-        <circle cx="170" cy="85" r="3" fill="#fff"/>
-        <text x="178" y="83" fill="#fff" font-size="9">David</text>
-        <circle cx="500" cy="135" r="3" fill="#fff"/>
-        <text x="508" y="133" fill="#fff" font-size="9">Colón</text>
+    <div class="relative bg-gradient-to-br from-slate-900/80 to-slate-800/40 rounded-xl p-4 border border-white/5">
+      <svg viewBox="0 0 800 300" class="w-full h-auto drop-shadow-xl">
+        <defs>
+          <radialGradient id="oceanGrad" cx="50%" cy="50%" r="70%"><stop offset="0%" stop-color="#0a1a2f"/><stop offset="100%" stop-color="#040d1a"/></radialGradient>
+          <filter id="glow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="provShadow"><feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#000" flood-opacity="0.4"/></filter>
+        </defs>
+        <rect x="0" y="0" width="800" height="300" fill="url(#oceanGrad)"/>
+        <line x1="0" y1="100" x2="800" y2="100" stroke="#ffffff" stroke-opacity="0.02" stroke-width="1"/>
+        <line x1="0" y1="200" x2="800" y2="200" stroke="#ffffff" stroke-opacity="0.02" stroke-width="1"/>
+        <line x1="200" y1="0" x2="200" y2="300" stroke="#ffffff" stroke-opacity="0.015" stroke-width="1"/>
+        <line x1="400" y1="0" x2="400" y2="300" stroke="#ffffff" stroke-opacity="0.015" stroke-width="1"/>
+        <line x1="600" y1="0" x2="600" y2="300" stroke="#ffffff" stroke-opacity="0.015" stroke-width="1"/>
+        <path class="province" data-id="bocas" d="M50,80 L120,60 L150,80 L140,110 L80,120 L50,100 Z" fill="#f59e0b" fill-opacity="0.6" stroke="#fff" stroke-width="0.8" stroke-opacity="0.3" filter="url(#provShadow)"/>
+        <path class="province" data-id="chiriqui" d="M120,60 L200,50 L220,90 L180,120 L140,110 L150,80 Z" fill="#f59e0b" fill-opacity="0.6" stroke="#fff" stroke-width="0.8" stroke-opacity="0.3" filter="url(#provShadow)"/>
+        <path class="province" data-id="veraguas" d="M200,50 L320,55 L340,100 L300,140 L220,130 L180,120 L220,90 Z" fill="#10b981" fill-opacity="0.6" stroke="#fff" stroke-width="0.8" stroke-opacity="0.3" filter="url(#provShadow)"/>
+        <path class="province" data-id="cocle" d="M320,55 L420,60 L430,100 L380,130 L340,100 Z" fill="#10b981" fill-opacity="0.6" stroke="#fff" stroke-width="0.8" stroke-opacity="0.3" filter="url(#provShadow)"/>
+        <path class="province" data-id="herrera" d="M300,140 L340,100 L380,130 L360,170 L310,160 Z" fill="#10b981" fill-opacity="0.6" stroke="#fff" stroke-width="0.8" stroke-opacity="0.3" filter="url(#provShadow)"/>
+        <path class="province" data-id="lossantos" d="M310,160 L360,170 L370,210 L330,220 L300,190 Z" fill="#06b6d4" fill-opacity="0.6" stroke="#fff" stroke-width="0.8" stroke-opacity="0.3" filter="url(#provShadow)"/>
+        <path class="province" data-id="panamaoeste" d="M420,60 L500,55 L510,100 L470,120 L430,100 Z" fill="#ef4444" fill-opacity="0.6" stroke="#fff" stroke-width="0.8" stroke-opacity="0.3" filter="url(#provShadow)"/>
+        <path class="province" data-id="panama" d="M500,55 L580,50 L600,90 L560,120 L510,100 Z" fill="#ef4444" fill-opacity="0.6" stroke="#fff" stroke-width="0.8" stroke-opacity="0.3" filter="url(#provShadow)"/>
+        <path class="province" data-id="colon" d="M470,120 L510,100 L560,120 L540,160 L480,150 Z" fill="#f59e0b" fill-opacity="0.6" stroke="#fff" stroke-width="0.8" stroke-opacity="0.3" filter="url(#provShadow)"/>
+        <path class="province" data-id="darien" d="M560,120 L600,90 L700,80 L750,130 L720,200 L620,210 L580,170 L540,160 Z" fill="#06b6d4" fill-opacity="0.6" stroke="#fff" stroke-width="0.8" stroke-opacity="0.3" filter="url(#provShadow)"/>
+        <path class="province" data-id="embera" d="M380,130 L430,100 L470,120 L480,150 L440,180 L360,170 Z" fill="#06b6d4" fill-opacity="0.6" stroke="#fff" stroke-width="0.8" stroke-opacity="0.3" filter="url(#provShadow)"/>
+        <path class="province" data-id="gunayala" d="M540,160 L580,170 L620,210 L560,220 L520,190 Z" fill="#10b981" fill-opacity="0.6" stroke="#fff" stroke-width="0.8" stroke-opacity="0.3" filter="url(#provShadow)"/>
+        <g filter="url(#glow)">
+          <circle cx="540" cy="80" r="5" fill="#fff" opacity="0.9"/>
+          <circle cx="540" cy="80" r="8" fill="none" stroke="#fff" stroke-width="1" opacity="0.3"/>
+        </g>
+        <text x="550" y="75" fill="#fff" font-size="10" font-weight="bold" stroke="#0c1929" stroke-width="0.5">CD Panamá</text>
+        <circle cx="170" cy="85" r="4" fill="#fff" opacity="0.8"/>
+        <text x="180" y="83" fill="#fff" font-size="9" stroke="#0c1929" stroke-width="0.5">David</text>
+        <circle cx="500" cy="135" r="4" fill="#fff" opacity="0.8"/>
+        <text x="510" y="133" fill="#fff" font-size="9" stroke="#0c1929" stroke-width="0.5">Colón</text>
+        <circle cx="660" cy="101" r="3" fill="#fff" opacity="0.7"/>
+        <text x="668" y="100" fill="#fff" font-size="8" stroke="#0c1929" stroke-width="0.5">Yaviza</text>
+        <text x="15" y="18" fill="#fff" fill-opacity="0.15" font-size="9" font-weight="bold">MAR CARIBE</text>
+        <text x="15" y="290" fill="#fff" fill-opacity="0.15" font-size="9" font-weight="bold">OCÉANO PACÍFICO</text>
+        <g transform="translate(735,15)"><circle cx="8" cy="8" r="7" fill="none" stroke="#fff" stroke-opacity="0.5" stroke-width="1"/><polygon points="8,2 10,8 8,6 6,8" fill="#fff" fill-opacity="0.6"/><text x="1" y="22" fill="#fff" fill-opacity="0.35" font-size="7">N</text></g>
         <g id="seismicMarkers" class="hidden">
           <!-- Seismic markers rendered by JS -->
         </g>
@@ -930,7 +950,7 @@ async function fetchRealQuakes() {
           const icon = mag >= 4 ? '🚨' : mag >= 3 ? '⚠️' : '🌋';
           const type = mag >= 4 ? 'danger' : mag >= 3 ? 'warning' : 'info';
           addNotification(type, icon + ' Sismo M' + mag.toFixed(1),
-            '📍 ' + place + ' · Prof. ' + Math.round(depth) + ' km · 🕐 ' + quakeTime);
+            '📍 ' + place + ' · Prof. ' + Math.round(depth) + ' km · 🕐 ' + quakeTime, place);
         }
       });
       const seedData = quakeHistory.filter(q => q.location.includes('Simulación') || q.location.includes('Paso Canoas') || q.location.includes('Punta Burica') || q.location.includes('Volcán Barú') || q.location.includes('Costa Pacífico') || q.location.includes('Golfo de Chiriquí'));
@@ -1227,8 +1247,8 @@ function updateNotifPermissionUI() {
   else if (Notification.permission === 'denied') { text.textContent = '❌ Denegado'; text.className = 'text-[10px] text-rose-400'; }
   else text.textContent = 'Pendiente';
 }
-function addNotification(type, title, message) {
-  const notif = { id: Date.now(), type, title, message, time: getNow() };
+function addNotification(type, title, message, location) {
+  const notif = { id: Date.now(), type, title, message, time: getNow(), location: location || '' };
   notifications.unshift(notif);
   if (notifications.length > 50) notifications.pop();
   updateNotifBadge();
@@ -1260,7 +1280,7 @@ function renderNotifList() {
   if (notifications.length === 0) { list.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">No hay notificaciones</p>'; return; }
   const icons = { danger: '🚨', warning: '⚠️', info: 'ℹ️', success: '✅' };
   const colors = { danger: 'border-rose-500/40 bg-rose-500/10', warning: 'border-amber-500/40 bg-amber-500/10', info: 'border-cyan-500/40 bg-cyan-500/10', success: 'border-emerald-500/40 bg-emerald-500/10' };
-  list.innerHTML = notifications.map(n => `<div onclick="closeNotifModal();gotoMapWithQuake()" class="glass rounded-lg p-2 border-l-2 ${colors[n.type]} cursor-pointer hover:bg-white/10 transition"><div class="flex items-start gap-2"><span class="text-lg">${icons[n.type]}</span><div class="flex-1 min-w-0"><p class="text-xs font-bold text-white">${n.title}</p><p class="text-[10px] text-slate-200">${n.message}</p><p class="text-[9px] text-white mt-0.5">📅 ${n.time}</p></div></div></div>`).join('');
+  list.innerHTML = notifications.map(n => `<div onclick="closeNotifModal();gotoMapWithQuake('${n.location.replace(/'/g,"\\'")}')" class="glass rounded-lg p-2 border-l-2 ${colors[n.type]} cursor-pointer hover:bg-white/10 transition"><div class="flex items-start gap-2"><span class="text-lg">${icons[n.type]}</span><div class="flex-1 min-w-0"><p class="text-xs font-bold text-white">${n.title}</p><p class="text-[10px] text-slate-200">${n.message}</p><p class="text-[9px] text-white mt-0.5">📅 ${n.time}</p></div></div></div>`).join('');
 }
 function clearNotifications() { notifications = []; updateNotifBadge(); renderNotifList(); document.getElementById('notifCount').textContent = '0'; }
 function toggleNotifications() {
@@ -1277,7 +1297,7 @@ function renderQuakeNotifs() {
   if (quakeHistory.length === 0) { section.classList.add('hidden'); return; }
   section.classList.remove('hidden');
   list.innerHTML = quakeHistory.slice(0, 5).map(q =>
-    '<div onclick="closeNotifModal();gotoMapWithQuake()" class="flex flex-col py-1.5 border-b border-white/5 last:border-0 cursor-pointer hover:bg-white/10 rounded-lg px-1">' +
+    '<div onclick="closeNotifModal();gotoMapWithQuake(\'' + q.location.replace(/'/g,"\\'") + '\')" class="flex flex-col py-1.5 border-b border-white/5 last:border-0 cursor-pointer hover:bg-white/10 rounded-lg px-1">' +
     '<div class="flex items-center justify-between">' +
     '<span class="text-xs text-slate-200">' + q.location + '</span>' +
     '<span class="font-bold text-sm ' + (q.mag >= 4 ? 'text-rose-400' : q.mag >= 3 ? 'text-amber-400' : 'text-cyan-400') + '">M' + q.mag.toFixed(1) + '</span>' +
@@ -1289,10 +1309,50 @@ function renderQuakeNotifs() {
     '</div>'
   ).join('');
 }
-function gotoMapWithQuake() {
+function gotoMapWithQuake(location) {
   showTab('mapa');
   const markers = document.getElementById('seismicMarkers');
   if (markers && markers.classList.contains('hidden')) toggleSeismicMarkers();
+  showEpicenterMarker(location || '');
+}
+function showEpicenterMarker(location) {
+  if (!location) return;
+  document.querySelectorAll('.epicenter-el').forEach(el => el.remove());
+  const qc = {
+    'Costa Pacífico, Chiriquí': [130, 150], 'Volcán Barú, Chiriquí': [140, 95],
+    'Golfo de Chiriquí': [120, 130], 'Colón': [500, 135], 'Darién': [650, 155],
+    'Paso Canoas, Chiriquí': [62, 98], 'Punta Burica, Chiriquí': [90, 115]
+  };
+  let coords = qc[location];
+  if (!coords) {
+    for (const [k, v] of Object.entries(qc)) {
+      if (location.includes(k) || k.includes(location)) { coords = v; break; }
+    }
+  }
+  if (!coords) {
+    seismicZones.forEach(z => {
+      if (location.toLowerCase().includes(z.name.toLowerCase())) { coords = [z.svgX, z.svgY]; }
+    });
+  }
+  if (!coords) {
+    const l = location.toLowerCase();
+    if (l.includes('chiriquí')||l.includes('chiriqui')||l.includes('armuelles')||l.includes('burica')||l.includes('charco')) coords = [110,120];
+    else if (l.includes('panamá')||l.includes('panama')||l.includes('ciudad')||l.includes('cd')) coords = [540,80];
+    else if (l.includes('colón')||l.includes('colon')) coords = [500,135];
+    else if (l.includes('darién')||l.includes('darien')) coords = [650,155];
+    else if (l.includes('veraguas')||l.includes('simulación')) coords = [260,95];
+    else coords = [400,150];
+  }
+  const svg = document.querySelector('#content-mapa svg');
+  if (!svg) return;
+  const ns = 'http://www.w3.org/2000/svg';
+  const el = (tag, attr) => { const e = document.createElementNS(ns, tag); Object.entries(attr).forEach(([k,v])=>e.setAttribute(k,v)); e.classList.add('epicenter-el'); svg.appendChild(e); return e; };
+  el('line',{x1:coords[0]-25,y1:coords[1],x2:coords[0]+25,y2:coords[1],stroke:'#f43f5e','stroke-width':1,'stroke-dasharray':'3,3',opacity:'0.7'});
+  el('line',{x1:coords[0],y1:coords[1]-25,x2:coords[0],y2:coords[1]+25,stroke:'#f43f5e','stroke-width':1,'stroke-dasharray':'3,3',opacity:'0.7'});
+  el('circle',{cx:coords[0],cy:coords[1],r:10,fill:'none',stroke:'#f43f5e','stroke-width':2,opacity:'0.3'});
+  el('circle',{cx:coords[0],cy:coords[1],r:7,fill:'#f43f5e',stroke:'#fff','stroke-width':2}).classList.add('epicenter-el','blink');
+  el('text',{x:coords[0]+12,y:coords[1]+4,fill:'#fff','font-size':9,'font-weight':'bold',stroke:'#0f172a','stroke-width':'.5'}).textContent = '📌 '+location;
+  setTimeout(() => document.querySelectorAll('.epicenter-el').forEach(e=>e.remove()), 12000);
 }
 function toggleSound() { soundEnabled = !soundEnabled; document.getElementById('soundToggle').classList.toggle('active'); }
 function toggleVibration() { vibrationEnabled = !vibrationEnabled; document.getElementById('vibrationToggle').classList.toggle('active'); }
@@ -1708,11 +1768,11 @@ function simulateQuake() {
     document.getElementById('tsunamiRisk').textContent = 'Moderado'; document.getElementById('tsunamiRisk').className = 'text-xl font-bold text-amber-400';
     document.getElementById('quakeAlert').textContent = 'Amarillo'; document.getElementById('quakeAlert').className = 'text-sm font-bold text-amber-400';
   } else if (mag >= 3) {
-    addNotification('info', '📳 Sismo M' + mag.toFixed(1), `📍 Panamá · Prof. ${depth} km · 🕐 ${now}`);
+    addNotification('info', '📳 Sismo M' + mag.toFixed(1), `📍 Panamá · Prof. ${depth} km · 🕐 ${now}`, 'Simulación - Panamá');
     document.getElementById('tsunamiRisk').textContent = 'Nulo'; document.getElementById('tsunamiRisk').className = 'text-xl font-bold text-emerald-400';
     document.getElementById('quakeAlert').textContent = 'Verde'; document.getElementById('quakeAlert').className = 'text-sm font-bold text-emerald-400';
   } else {
-    addNotification('success', '✓ Microsismo M' + mag.toFixed(1), `📍 Panamá · Prof. ${depth} km · 🕐 ${now}`);
+    addNotification('success', '✓ Microsismo M' + mag.toFixed(1), `📍 Panamá · Prof. ${depth} km · 🕐 ${now}`, 'Simulación - Panamá');
   }
 }
 function renderMiniQuakes() {
@@ -1723,7 +1783,7 @@ function renderMiniQuakes() {
     const c = q.mag >= 3 ? 'amber' : q.mag >= 2 ? 'yellow' : 'emerald';
     const div = document.createElement('div');
     div.className = 'flex items-center gap-2 glass rounded-lg p-1.5 cursor-pointer hover:bg-white/10 transition';
-    div.onclick = function() { showTab('mapa'); toggleSeismicMarkers(); };
+    div.onclick = function() { gotoMapWithQuake(q.location); };
     div.innerHTML = `<span class="text-xs font-bold text-${c}-400 w-8">M${q.mag.toFixed(1)}</span><div class="flex-1 min-w-0"><p class="text-[10px] truncate text-slate-200">${q.location}</p><p class="text-[8px] text-white">${q.depth}km · ${q.time}</p></div>`;
     list.appendChild(div);
   });
