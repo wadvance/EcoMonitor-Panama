@@ -10,6 +10,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="EcoMonitor">
 <meta name="mobile-web-app-capable" content="yes">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <link rel="icon" type="image/svg+xml" href="icons/icon-192.svg">
 <link rel="apple-touch-icon" type="image/svg+xml" href="icons/icon-192.svg">
 <link rel="manifest" href="manifest.json">
@@ -2554,7 +2557,7 @@ function showInstallPrompts() {
 
 window.addEventListener('load', () => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js?v=3').then(() => {
+    navigator.serviceWorker.register('sw.js?v=4').then(() => {
       console.log('SW registrado');
     }).catch(() => {});
   }
