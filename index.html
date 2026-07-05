@@ -689,7 +689,6 @@ if (location.search.includes('logout=1')) {
   localStorage.removeItem('ecomonitor-auth');
   localStorage.removeItem('ecomonitor-trial-start');
   localStorage.removeItem('ecomonitor-license');
-  sessionStorage.setItem('ecomonitor-logout', '1');
   history.replaceState(null, '', location.pathname);
 }
 // ============================================
@@ -2575,19 +2574,12 @@ window.addEventListener('load', () => {
       console.log('SW registrado');
     }).catch(() => {});
   }
-  const justLoggedOut = sessionStorage.getItem('ecomonitor-logout');
-  if (justLoggedOut) {
-    sessionStorage.removeItem('ecomonitor-logout');
+  const auth = getAuth();
+  if (!auth) {
+    showLoginModal();
+  } else {
     updateRoleUI();
     initTrialCountdown();
-  } else {
-    const auth = getAuth();
-    if (!auth) {
-      showLoginModal();
-    } else {
-      updateRoleUI();
-      initTrialCountdown();
-    }
   }
   showInstallPrompts();
 });
@@ -2647,7 +2639,6 @@ function showLoginModal() {
   modal.className = 'modal-overlay active';
   modal.style.zIndex = '99999';
   modal.innerHTML = `<div class="modal-content max-w-sm p-6 text-center relative" style="background:linear-gradient(135deg,#0f172a,#1e293b);border:2px solid #10b981;">
-    <button onclick="this.closest('.modal-overlay').remove()" class="absolute top-3 right-3 w-7 h-7 rounded-full glass hover:bg-white/20 flex items-center justify-center text-xs text-slate-300" title="Cerrar">✕</button>
     <div class="text-5xl mb-3">🔐</div>
     <h2 class="text-xl font-bold mb-1">EcoMonitor Panamá</h2>
     <p class="text-xs text-slate-400 mb-4">Iniciá sesión o continuá como demo</p>
