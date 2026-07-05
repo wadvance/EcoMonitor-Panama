@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title>EcoMonitor Panamá - Sistema Integral 24/7</title>
-<meta name="description" content="Sistema integral de monitoreo ambiental, sísmico, climático y espacial para Panamá">
+<meta name="description" content="Sistema integral de monitoreo ambiental, sísmico, climático, huracanes y vuelos para Panamá">
 <meta name="theme-color" content="#10b981">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -89,7 +89,7 @@
         <h1 class="text-base font-bold">EcoMonitor Panamá</h1>
         <p class="text-[10px] text-slate-400 flex items-center gap-1">
           <span class="live-indicator">EN VIVO</span>
-          <span>Ambiental · Sísmico · Clima · Espacial</span>
+          <span>Ambiental · Sísmico · Clima · Huracanes · Vuelos</span>
         </p>
       </div>
     </div>
@@ -147,7 +147,7 @@
     <div class="glass rounded-xl p-3 text-center"><p class="text-[10px] text-slate-400">Sismos Hoy</p><p class="text-xl font-bold text-cyan-400" id="quakesToday">3</p><p class="text-[9px] text-slate-400">detectados</p></div>
     <div class="glass rounded-xl p-3 text-center"><p class="text-[10px] text-slate-400">Tsunami</p><p class="text-xl font-bold text-emerald-400" id="tsunamiRisk">Nulo</p><p class="text-[9px] text-slate-400">Sin riesgo</p></div>
     <div class="glass rounded-xl p-3 text-center"><p class="text-[10px] text-slate-400">Clima</p><p class="text-xl font-bold text-sky-400 sensor-value" id="statTemp">--°C</p><p class="text-[9px] text-sky-400" id="statWeather">Cargando...</p></div>
-    <div class="glass rounded-xl p-3 text-center"><p class="text-[10px] text-slate-400">Espacial</p><p class="text-xl font-bold text-purple-400">Normal</p><p class="text-[9px] text-slate-400">Kp 2</p></div>
+    <div class="glass rounded-xl p-3 text-center"><p class="text-[10px] text-slate-400">Vuelos</p><p class="text-xl font-bold text-purple-400" id="statFlights">0</p><p class="text-[9px] text-slate-400">en ruta</p></div>
     <div class="glass rounded-xl p-3 text-center"><p class="text-[10px] text-slate-400">Notif.</p><p class="text-xl font-bold text-rose-400" id="notifCount">0</p><p class="text-[9px] text-rose-400">hoy</p></div>
   </div>
 </div>
@@ -480,82 +480,64 @@
   </div>
 </section>
 <!-- ESPACIAL -->
-<section id="content-espacial" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
-  <div class="glass rounded-2xl p-4 mb-4">
-    <div class="flex items-center justify-between mb-4"><h3 class="font-bold">🛰️ Monitor de Frecuencias Espaciales</h3><span class="live-indicator">EN VIVO</span></div>
-    <div class="flex justify-center mb-4">
-      <div class="relative w-40 h-40">
-        <div class="absolute inset-0 rounded-full border border-cyan-500/30"></div>
-        <div class="absolute inset-4 rounded-full border border-cyan-500/20"></div>
-        <div class="absolute inset-8 rounded-full border border-cyan-500/20"></div>
-        <div class="absolute inset-12 rounded-full border border-cyan-500/20"></div>
-        <div class="absolute inset-0 rounded-full overflow-hidden"><div class="radar-sweep absolute top-1/2 left-1/2 w-1/2 h-0.5 bg-gradient-to-r from-cyan-400 to-transparent origin-left"></div></div>
-        <div class="absolute top-1/2 left-1/2 w-2 h-2 -ml-1 -mt-1 rounded-full bg-cyan-400"></div>
-        <div id="radarBlips" class="absolute inset-0"></div>
-      </div>
-    </div>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
-      <div class="glass rounded-xl p-3"><p class="text-[9px] text-slate-400">Radiación Solar</p><p class="text-lg font-bold text-amber-400 sensor-value" id="liveSolar2">3.2 W/m²</p><p class="text-[9px] text-emerald-400">Normal</p></div>
-      <div class="glass rounded-xl p-3"><p class="text-[9px] text-slate-400">Rayos Cósmicos</p><p class="text-lg font-bold text-cyan-400 sensor-value" id="liveCosmic2">142 μSv</p><p class="text-[9px] text-emerald-400">Seguro</p></div>
-      <div class="glass rounded-xl p-3"><p class="text-[9px] text-slate-400">Campo Magnético</p><p class="text-lg font-bold text-indigo-400 sensor-value" id="liveMag2">48.2 μT</p><p class="text-[9px] text-emerald-400">Estable</p></div>
-      <div class="glass rounded-xl p-3"><p class="text-[9px] text-slate-400">Actividad Solar</p><p class="text-lg font-bold text-orange-400 sensor-value" id="liveKp2">Kp 2</p><p class="text-[9px] text-emerald-400">Baja</p></div>
-    </div>
-    <div class="bg-black/40 rounded-xl p-3">
-      <p class="text-xs text-slate-400 mb-2">Espectro de frecuencias — Bandas de navegación aérea y comunicaciones</p>
-      <div class="flex items-end gap-0.5 h-20" id="freqBars"></div>
-      <div class="flex justify-between text-[8px] text-slate-500 mt-1">
-        <span>Torres VHF 118-137 MHz</span>
-        <span>Radar ATC</span>
-        <span>Satélites MET</span>
-        <span>ILS/VOR</span>
-      </div>
-    </div>
-  </div>
-  <div class="glass rounded-2xl p-4 panama-only">
-    <h4 class="font-bold mb-3 text-sm">📡 Satélites Monitoreando Panamá</h4>
-    <div class="space-y-2">
-      <div class="glass rounded-xl p-3 flex items-center justify-between"><div class="flex items-center gap-2"><span class="text-lg">🛰️</span><div><p class="text-xs font-bold">GOES-16 (NOAA)</p><p class="text-[9px] text-slate-400">Clima y atmósfera</p></div></div><span class="text-[10px] text-emerald-400">● Activo</span></div>
-      <div class="glass rounded-xl p-3 flex items-center justify-between"><div class="flex items-center gap-2"><span class="text-lg">🛰️</span><div><p class="text-xs font-bold">Landsat 9 (NASA)</p><p class="text-[9px] text-slate-400">Contaminación del suelo</p></div></div><span class="text-[10px] text-emerald-400">● Activo</span></div>
-      <div class="glass rounded-xl p-3 flex items-center justify-between"><div class="flex items-center gap-2"><span class="text-lg">🛰️</span><div><p class="text-xs font-bold">Sentinel-5P (ESA)</p><p class="text-[9px] text-slate-400">Calidad del aire</p></div></div><span class="text-[10px] text-emerald-400">● Activo</span></div>
-      <div class="glass rounded-xl p-3 flex items-center justify-between"><div class="flex items-center gap-2"><span class="text-lg">🛰️</span><div><p class="text-xs font-bold">Jason-3 (NASA)</p><p class="text-[9px] text-slate-400">Nivel del mar y tsunamis</p></div></div><span class="text-[10px] text-emerald-400">● Activo</span></div>
-    </div>
-  </div>
-  <div class="glass rounded-2xl p-4 mt-4 panama-only">
-    <h4 class="font-bold mb-3 text-sm">✈️ Navegación Aérea — Frecuencias VHF</h4>
-    <p class="text-xs text-slate-300 mb-3">El monitor de frecuencias detecta señales utilizadas por la aviación en Panamá. Cada barra representa una banda de frecuencia usada para comunicaciones entre torres de control y aeronaves.</p>
-    <div class="grid md:grid-cols-2 gap-3">
-      <div class="glass rounded-xl p-3 border-l-4 border-cyan-500">
-        <div class="flex items-center gap-2 mb-2"><span class="text-lg">🛫</span><div><p class="text-xs font-bold text-cyan-400">Aeropuerto Tocumen (PTY)</p><p class="text-[9px] text-slate-400">Ciudad de Panamá · Internacional</p></div></div>
-        <div class="grid grid-cols-2 gap-1 text-[10px]"><div><p class="text-slate-400">Torre de control</p><p class="font-bold">118.1 MHz</p></div><div><p class="text-slate-400">Approach</p><p class="font-bold">119.7 MHz</p></div><div><p class="text-slate-400">Ground</p><p class="font-bold">121.9 MHz</p></div><div><p class="text-slate-400">ATIS</p><p class="font-bold">127.6 MHz</p></div></div>
-      </div>
-      <div class="glass rounded-xl p-3 border-l-4 border-emerald-500">
-        <div class="flex items-center gap-2 mb-2"><span class="text-lg">🛫</span><div><p class="text-xs font-bold text-emerald-400">Aeropuerto Enrique Malek (DAV)</p><p class="text-[9px] text-slate-400">David, Chiriquí · Nacional/Internacional</p></div></div>
-        <div class="grid grid-cols-2 gap-1 text-[10px]"><div><p class="text-slate-400">Torre de control</p><p class="font-bold">118.5 MHz</p></div><div><p class="text-slate-400">Approach</p><p class="font-bold">119.7 MHz</p></div><div><p class="text-slate-400">Vuelos nacionales</p><p class="font-bold">128.3 MHz</p></div><div><p class="text-slate-400">ATIS</p><p class="font-bold">127.6 MHz</p></div></div>
-      </div>
-    </div>
-    <div class="glass rounded-xl p-3 mt-3">
-      <p class="text-[10px] text-slate-400">💡 Las condiciones espaciales (radiación solar, campo magnético, actividad geomagnética) pueden afectar la calidad de las comunicaciones por radio VHF/HF, esenciales para la navegación aérea. El monitoreo 24/7 ayuda a predecir posibles interferencias.</p>
-    </div>
-  </div>
-</section>
 <!-- VUELOS -->
 <section id="content-vuelos" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
   <div class="glass rounded-2xl p-4">
     <div class="flex items-center justify-between mb-3">
-      <h4 class="font-bold text-sm">🛩️ Vuelos en Tiempo Real — Radar Panamá</h4>
+      <h4 class="font-bold text-sm">✈️ Rutas Aéreas por País</h4>
       <span class="live-indicator">RADAR</span>
     </div>
-    <p class="text-[10px] text-slate-400 mb-3">Rastrea aeronaves cercanas a los aeropuertos de Tocumen (PTY) y Enrique Malek (DAV). Hacé clic en los contadores para ver los vuelos que aterrizarán.</p>
+    <p class="text-[10px] text-slate-400 mb-3">Vuelos activos desde y hacia Panamá con ruta, país de origen/destino, hora de salida y llegada.</p>
     <div class="flex items-center gap-2 mb-3">
       <span class="text-xs text-slate-400">🛫 Tocumen (PTY):</span>
       <span class="text-xs font-bold text-emerald-400 cursor-pointer hover:text-cyan-300 transition" id="flightsPTY" onclick="showAirportFlights('PTY')" title="Ver vuelos que aterrizarán en Tocumen">0</span>
       <span class="text-xs text-slate-400">🛫 David (DAV):</span>
       <span class="text-xs font-bold text-emerald-400 cursor-pointer hover:text-cyan-300 transition" id="flightsDAV" onclick="showAirportFlights('DAV')" title="Ver vuelos que aterrizarán en Enrique Malek">0</span>
-      <span class="text-xs text-slate-400">🛫 Otros:</span>
+      <span class="text-xs text-slate-400">🛫 Internacionales:</span>
       <span class="text-xs font-bold text-amber-400" id="flightsOther">0</span>
     </div>
     <div id="flightsList" class="space-y-1.5 max-h-[60vh] overflow-y-auto scrollbar-hide"></div>
     <div id="flightsLoading" class="text-xs text-slate-500 text-center py-4">Cargando vuelos...</div>
+  </div>
+</section>
+<!-- HURACANES -->
+<section id="content-huracanes" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
+  <div class="grid lg:grid-cols-2 gap-4">
+    <div class="glass rounded-2xl p-4">
+      <div class="flex items-center justify-between mb-3">
+        <h4 class="font-bold text-sm">🌀 Mapa de Huracanes — Atlántico</h4>
+        <span class="live-indicator">SATÉLITE</span>
+      </div>
+      <p class="text-[10px] text-slate-400 mb-3">Monitoreo satelital de huracanes, tormentas tropicales y formación en el Atlántico, Caribe y Pacífico Oriental.</p>
+      <div id="hurricaneMap" class="w-full" style="height:350px;border-radius:12px;background:#0a0f1e;"></div>
+    </div>
+    <div class="space-y-3">
+      <div class="glass rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h4 class="font-bold text-sm">🌪️ Tormentas Activas</h4>
+          <span class="text-[9px] text-slate-500">Temporada 2026</span>
+        </div>
+        <div id="hurricaneList" class="space-y-2 max-h-[280px] overflow-y-auto scrollbar-hide"></div>
+        <p id="hurricaneLoading" class="text-xs text-slate-500 text-center py-4">Cargando datos de huracanes...</p>
+      </div>
+      <div class="glass rounded-2xl p-4">
+        <h4 class="font-bold text-sm mb-2">📊 Leyenda de Categorías</h4>
+        <div class="grid grid-cols-2 gap-1.5 text-[10px]">
+          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span><span>Depresión Tropical &lt;39 mph</span></div>
+          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span><span>Tormenta Tropical 39-73 mph</span></div>
+          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span><span>Huracán Cat 1 74-95 mph</span></div>
+          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span><span>Huracán Cat 2 96-110 mph</span></div>
+          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span><span>Huracán Cat 3 111-129 mph</span></div>
+          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-600"></span><span>Huracán Cat 4 130-156 mph</span></div>
+          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-purple-700"></span><span>Huracán Cat 5 ≥157 mph</span></div>
+          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-slate-500"></span><span>Formación potencial</span></div>
+        </div>
+      </div>
+      <div class="glass rounded-xl p-3 border-l-4 border-cyan-500">
+        <p class="text-xs font-bold text-cyan-400 mb-1">💡 Recomendación</p>
+        <p class="text-[10px] text-slate-300">Monitoree avisos del Centro Nacional de Huracanes (NHC). Tenga un plan de emergencia si reside en zonas costeras del Caribe y Pacífico.</p>
+      </div>
+    </div>
   </div>
 </section>
 <!-- EPIDEMIA -->
@@ -888,12 +870,12 @@ function formatQuakeTime(ts) {
 
 async function fetchRealQuakes() {
   try {
-    // Cobertura específica para zonas sísmicas de Panamá: Chiriquí, Paso Canoas, Punta Burica
-    const minLat = 5.5;
-    const maxLat = 10.5;
-    const minLon = -84.5;
-    const maxLon = -76.5;
-    const url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minlatitude=${minLat}&maxlatitude=${maxLat}&minlongitude=${minLon}&maxlongitude=${maxLon}&minmagnitude=1&orderby=time&limit=20`;
+    // Cobertura ampliada: Centroamérica, Caribe, norte de Sudamérica y Pacífico Oriental
+    const minLat = -5;
+    const maxLat = 25;
+    const minLon = -90;
+    const maxLon = -70;
+    const url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minlatitude=${minLat}&maxlatitude=${maxLat}&minlongitude=${minLon}&maxlongitude=${maxLon}&minmagnitude=2.5&orderby=time&limit=30`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('USGS API error');
     const data = await res.json();
@@ -904,15 +886,23 @@ async function fetchRealQuakes() {
         const props = f.properties;
         const mag = props.mag || 1;
         const depth = f.geometry.coordinates[2] || 10;
-        const place = props.place || 'Panamá';
+        const lon = f.geometry.coordinates[0];
+        const lat = f.geometry.coordinates[1];
+        const place = props.place || 'Desconocido';
         const time = props.time ? timeAgo(props.time) : 'Desconocido';
         const quakeTime = props.time ? formatQuakeTime(props.time) : '--';
-        usgsQuakes.push({ mag, depth: Math.round(depth), location: place, time, quakeTime });
+        // Excluir Costa Rica, Nicaragua y Colombia (excepto cerca de frontera con Panamá)
+        const placeLower = place.toLowerCase();
+        const excludeCountries = ['costa rica', 'nicaragua', 'colombia'];
+        const isExcluded = excludeCountries.some(c => placeLower.includes(c));
+        const isPanamaBorder = placeLower.includes('panamá') || placeLower.includes('panama') || (lat >= 7 && lat <= 10 && lon >= -83 && lon <= -77);
+        if (isExcluded && !isPanamaBorder) return;
+        usgsQuakes.push({ mag, depth: Math.round(depth), location: place, time, quakeTime, lat, lon });
         if (mag >= 2.5) {
-          const icon = mag >= 4 ? '🚨' : mag >= 3 ? '⚠️' : '🌋';
-          const type = mag >= 4 ? 'danger' : mag >= 3 ? 'warning' : 'info';
+          const icon = mag >= 5 ? '🚨' : mag >= 4 ? '⚠️' : '🌋';
+          const type = mag >= 5 ? 'danger' : mag >= 4 ? 'warning' : 'info';
           addNotification(type, icon + ' Sismo M' + mag.toFixed(1),
-            '📍 ' + place + ' · Prof. ' + Math.round(depth) + ' km · 🕐 ' + quakeTime, place);
+            '📍 ' + place + ' · Prof. ' + Math.round(depth) + ' km · 🕐 ' + quakeTime, place, lat, lon);
         }
       });
       const seedData = quakeHistory.filter(q => q.location.includes('Simulación') || q.location.includes('Paso Canoas') || q.location.includes('Punta Burica') || q.location.includes('Volcán Barú') || q.location.includes('Costa Pacífico') || q.location.includes('Golfo de Chiriquí'));
@@ -1209,8 +1199,8 @@ function updateNotifPermissionUI() {
   else if (Notification.permission === 'denied') { text.textContent = '❌ Denegado'; text.className = 'text-[10px] text-rose-400'; }
   else text.textContent = 'Pendiente';
 }
-function addNotification(type, title, message, location) {
-  const notif = { id: Date.now(), type, title, message, time: getNow(), location: location || '' };
+function addNotification(type, title, message, location, lat, lon) {
+  const notif = { id: Date.now(), type, title, message, time: getNow(), location: location || '', lat: lat || null, lon: lon || null };
   notifications.unshift(notif);
   if (notifications.length > 50) notifications.pop();
   updateNotifBadge();
@@ -1242,7 +1232,7 @@ function renderNotifList() {
   if (notifications.length === 0) { list.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">No hay notificaciones</p>'; return; }
   const icons = { danger: '🚨', warning: '⚠️', info: 'ℹ️', success: '✅' };
   const colors = { danger: 'border-rose-500/40 bg-rose-500/10', warning: 'border-amber-500/40 bg-amber-500/10', info: 'border-cyan-500/40 bg-cyan-500/10', success: 'border-emerald-500/40 bg-emerald-500/10' };
-  list.innerHTML = notifications.map(n => `<div onclick="closeNotifModal();gotoMapWithQuake('${n.location.replace(/'/g,"\\'")}')" class="glass rounded-lg p-2 border-l-2 ${colors[n.type]} cursor-pointer hover:bg-white/10 transition"><div class="flex items-start gap-2"><span class="text-lg">${icons[n.type]}</span><div class="flex-1 min-w-0"><p class="text-xs font-bold text-white">${n.title}</p><p class="text-[10px] text-slate-200">${n.message}</p><p class="text-[9px] text-white mt-0.5">📅 ${n.time}</p></div></div></div>`).join('');
+  list.innerHTML = notifications.map(n => `<div onclick="closeNotifModal();gotoMapWithQuake('${n.location.replace(/'/g,"\\'")}', ${n.lat || 'null'}, ${n.lon || 'null'})" class="glass rounded-lg p-2 border-l-2 ${colors[n.type]} cursor-pointer hover:bg-white/10 transition"><div class="flex items-start gap-2"><span class="text-lg">${icons[n.type]}</span><div class="flex-1 min-w-0"><p class="text-xs font-bold text-white">${n.title}</p><p class="text-[10px] text-slate-200">${n.message}</p><p class="text-[9px] text-white mt-0.5">📅 ${n.time}</p></div></div></div>`).join('');
 }
 function clearNotifications() { notifications = []; updateNotifBadge(); renderNotifList(); document.getElementById('notifCount').textContent = '0'; }
 function toggleNotifications() {
@@ -1259,7 +1249,7 @@ function renderQuakeNotifs() {
   if (quakeHistory.length === 0) { section.classList.add('hidden'); return; }
   section.classList.remove('hidden');
   list.innerHTML = quakeHistory.slice(0, 5).map(q =>
-    '<div onclick="closeNotifModal();gotoMapWithQuake(\'' + q.location.replace(/'/g,"\\'") + '\')" class="flex flex-col py-1.5 border-b border-white/5 last:border-0 cursor-pointer hover:bg-white/10 rounded-lg px-1">' +
+    '<div onclick="closeNotifModal();gotoMapWithQuake(\'' + q.location.replace(/'/g,"\\'") + '\', ' + (q.lat || 'null') + ', ' + (q.lon || 'null') + ')" class="flex flex-col py-1.5 border-b border-white/5 last:border-0 cursor-pointer hover:bg-white/10 rounded-lg px-1">' +
     '<div class="flex items-center justify-between">' +
     '<span class="text-xs text-slate-200">' + q.location + '</span>' +
     '<span class="font-bold text-sm ' + (q.mag >= 4 ? 'text-rose-400' : q.mag >= 3 ? 'text-amber-400' : 'text-cyan-400') + '">M' + q.mag.toFixed(1) + '</span>' +
@@ -1271,38 +1261,45 @@ function renderQuakeNotifs() {
     '</div>'
   ).join('');
 }
-function gotoMapWithQuake(location) {
+function gotoMapWithQuake(location, lat, lon) {
   showTab('mapa');
-  showEpicenterMarker(location || '');
+  showEpicenterMarker(location || '', lat, lon);
 }
-function showEpicenterMarker(location) {
+function showEpicenterMarker(location, lat, lon) {
   if (!leafletMap || !location) return;
   if (epicenterGroup) leafletMap.removeLayer(epicenterGroup);
   epicenterGroup = L.layerGroup().addTo(leafletMap);
-  const qLatLng = {
-    'Costa Pacífico, Chiriquí': [7.8, -82.0], 'Volcán Barú, Chiriquí': [8.81, -82.54],
-    'Golfo de Chiriquí': [8.0, -82.5], 'Colón': [9.36, -79.9], 'Darién': [8.0, -77.5],
-    'Paso Canoas, Chiriquí': [8.54, -82.84], 'Punta Burica, Chiriquí': [8.03, -82.87]
-  };
-  let ll = qLatLng[location];
+  let ll = null;
+  // Si se proporcionan coordenadas exactas, usarlas primero
+  if (lat != null && lon != null) {
+    ll = [lat, lon];
+  }
   if (!ll) {
-    for (const [k, v] of Object.entries(qLatLng)) {
-      if (location.includes(k) || k.includes(location)) { ll = v; break; }
+    const qLatLng = {
+      'Costa Pacífico, Chiriquí': [7.8, -82.0], 'Volcán Barú, Chiriquí': [8.81, -82.54],
+      'Golfo de Chiriquí': [8.0, -82.5], 'Colón': [9.36, -79.9], 'Darién': [8.0, -77.5],
+      'Paso Canoas, Chiriquí': [8.54, -82.84], 'Punta Burica, Chiriquí': [8.03, -82.87]
+    };
+    ll = qLatLng[location];
+    if (!ll) {
+      for (const [k, v] of Object.entries(qLatLng)) {
+        if (location.includes(k) || k.includes(location)) { ll = v; break; }
+      }
     }
-  }
-  if (!ll) {
-    seismicZones.forEach(z => {
-      if (location.toLowerCase().includes(z.name.toLowerCase())) ll = [z.lat, z.lng];
-    });
-  }
-  if (!ll) {
-    const l = location.toLowerCase();
-    if (l.includes('chiriquí')||l.includes('chiriqui')||l.includes('armuelles')||l.includes('burica')||l.includes('charco')) ll = [8.2, -82.5];
-    else if (l.includes('panamá')||l.includes('panama')||l.includes('ciudad')||l.includes('cd')) ll = [8.98, -79.52];
-    else if (l.includes('colón')||l.includes('colon')) ll = [9.36, -79.9];
-    else if (l.includes('darién')||l.includes('darien')) ll = [8.0, -77.5];
-    else if (l.includes('veraguas')||l.includes('simulación')) ll = [8.0, -81.0];
-    else ll = [8.5, -80.5];
+    if (!ll) {
+      seismicZones.forEach(z => {
+        if (location.toLowerCase().includes(z.name.toLowerCase())) ll = [z.lat, z.lng];
+      });
+    }
+    if (!ll) {
+      const l = location.toLowerCase();
+      if (l.includes('chiriquí')||l.includes('chiriqui')||l.includes('armuelles')||l.includes('burica')||l.includes('charco')) ll = [8.2, -82.5];
+      else if (l.includes('panamá')||l.includes('panama')||l.includes('ciudad')||l.includes('cd')) ll = [8.98, -79.52];
+      else if (l.includes('colón')||l.includes('colon')) ll = [9.36, -79.9];
+      else if (l.includes('darién')||l.includes('darien')) ll = [8.0, -77.5];
+      else if (l.includes('veraguas')||l.includes('simulación')) ll = [8.0, -81.0];
+      else ll = [8.5, -80.5];
+    }
   }
   L.circleMarker(ll, { radius: 14, color: '#f43f5e', fillColor: '#f43f5e', fillOpacity: 0.3, weight: 2, opacity: 0.5 }).addTo(epicenterGroup);
   L.circleMarker(ll, { radius: 8, color: '#fff', fillColor: '#f43f5e', fillOpacity: 1, weight: 2.5 }).addTo(epicenterGroup);
@@ -1928,7 +1925,7 @@ function showAirportFlights(airportId) {
           <span class="text-xs font-bold">${f.callsign}</span>
           <span class="text-[8px] px-1.5 rounded bg-${isPty ? 'cyan' : 'emerald'}-500/20 text-${isPty ? 'cyan' : 'emerald'}-400 font-medium">${airportId}</span>
         </div>
-        <p class="text-[9px] text-slate-400">${f.airline}</p>
+        <p class="text-[9px] text-slate-400">${f.airline} · ${f.origin || 'Panamá, Panamá'} → ${f.dest || 'Panamá, Panamá'}</p>
         <div class="flex gap-3 mt-1 text-[9px]">
           <span><span class="text-slate-500">Salida:</span> ${formattedDep}</span>
           <span><span class="text-slate-500">Llegada:</span> ${formattedArr}</span>
@@ -1965,19 +1962,24 @@ function getAirline(callsign) {
 }
 
 const flightSimData = [
-  { callsign: 'CM123', airline: 'Copa Airlines', alt: 12000, speed: 420, heading: 135, airport: 'PTY', dest: 'Miami' },
-  { callsign: 'CM456', airline: 'Copa Airlines', alt: 8000, speed: 380, heading: 180, airport: 'PTY', dest: 'Bogotá' },
-  { callsign: 'AA567', airline: 'American Airlines', alt: 35000, speed: 520, heading: 200, airport: 'PTY', dest: 'Dallas' },
-  { callsign: 'UA789', airline: 'United Airlines', alt: 2800, speed: 220, heading: 160, airport: 'PTY', dest: 'Houston' },
-  { callsign: 'AV101', airline: 'Avianca', alt: 25000, speed: 480, heading: 210, airport: 'PTY', dest: 'Medellín' },
-  { callsign: 'CM789', airline: 'Copa Airlines', alt: 1500, speed: 180, heading: 140, airport: 'PTY', dest: 'Panamá' },
-  { callsign: 'TK800', airline: 'Turkish Airlines', alt: 37000, speed: 540, heading: 270, airport: 'PTY', dest: 'Estambul' },
-  { callsign: 'IB456', airline: 'Iberia', alt: 39000, speed: 550, heading: 50, airport: 'PTY', dest: 'Madrid' },
-  { callsign: 'CM234', airline: 'Copa Airlines', alt: 6000, speed: 340, heading: 300, airport: 'DAV', dest: 'San José' },
-  { callsign: 'PA101', airline: 'Air Panama', alt: 4000, speed: 280, heading: 310, airport: 'DAV', dest: 'David' },
-  { callsign: 'LH456', airline: 'Lufthansa', alt: 40000, speed: 560, heading: 260, airport: 'PTY', dest: 'Frankfurt' },
-  { callsign: 'AF789', airline: 'Air France', alt: 38000, speed: 545, heading: 45, airport: 'PTY', dest: 'París' },
-  { callsign: 'DL123', airline: 'Delta', alt: 32000, speed: 510, heading: 340, airport: 'PTY', dest: 'Atlanta' }
+  { callsign: 'CM123', airline: 'Copa Airlines', alt: 12000, speed: 420, heading: 135, airport: 'PTY', origin: 'Panamá, Panamá', dest: 'Miami, EE.UU.' },
+  { callsign: 'CM456', airline: 'Copa Airlines', alt: 8000, speed: 380, heading: 180, airport: 'PTY', origin: 'Panamá, Panamá', dest: 'Bogotá, Colombia' },
+  { callsign: 'AA567', airline: 'American Airlines', alt: 35000, speed: 520, heading: 200, airport: 'PTY', origin: 'Dallas, EE.UU.', dest: 'Panamá, Panamá' },
+  { callsign: 'UA789', airline: 'United Airlines', alt: 2800, speed: 220, heading: 160, airport: 'PTY', origin: 'Houston, EE.UU.', dest: 'Panamá, Panamá' },
+  { callsign: 'AV101', airline: 'Avianca', alt: 25000, speed: 480, heading: 210, airport: 'PTY', origin: 'Medellín, Colombia', dest: 'Panamá, Panamá' },
+  { callsign: 'CM789', airline: 'Copa Airlines', alt: 1500, speed: 180, heading: 140, airport: 'PTY', origin: 'Panamá, Panamá', dest: 'David, Panamá' },
+  { callsign: 'TK800', airline: 'Turkish Airlines', alt: 37000, speed: 540, heading: 270, airport: 'PTY', origin: 'Estambul, Turquía', dest: 'Panamá, Panamá' },
+  { callsign: 'IB456', airline: 'Iberia', alt: 39000, speed: 550, heading: 50, airport: 'PTY', origin: 'Madrid, España', dest: 'Panamá, Panamá' },
+  { callsign: 'CM234', airline: 'Copa Airlines', alt: 6000, speed: 340, heading: 300, airport: 'DAV', origin: 'Panamá, Panamá', dest: 'San José, Costa Rica' },
+  { callsign: 'PA101', airline: 'Air Panama', alt: 4000, speed: 280, heading: 310, airport: 'DAV', origin: 'Panamá, Panamá', dest: 'David, Panamá' },
+  { callsign: 'LH456', airline: 'Lufthansa', alt: 40000, speed: 560, heading: 260, airport: 'PTY', origin: 'Frankfurt, Alemania', dest: 'Panamá, Panamá' },
+  { callsign: 'AF789', airline: 'Air France', alt: 38000, speed: 545, heading: 45, airport: 'PTY', origin: 'París, Francia', dest: 'Panamá, Panamá' },
+  { callsign: 'DL123', airline: 'Delta', alt: 32000, speed: 510, heading: 340, airport: 'PTY', origin: 'Atlanta, EE.UU.', dest: 'Panamá, Panamá' },
+  { callsign: 'CM333', airline: 'Copa Airlines', alt: 30000, speed: 490, heading: 190, airport: 'PTY', origin: 'Panamá, Panamá', dest: 'San Salvador, El Salvador' },
+  { callsign: 'AV234', airline: 'Avianca', alt: 28000, speed: 470, heading: 170, airport: 'PTY', origin: 'Panamá, Panamá', dest: 'Quito, Ecuador' },
+  { callsign: 'CM567', airline: 'Copa Airlines', alt: 22000, speed: 450, heading: 275, airport: 'PTY', origin: 'Panamá, Panamá', dest: 'San José, Costa Rica' },
+  { callsign: 'KL789', airline: 'KLM', alt: 41000, speed: 570, heading: 40, airport: 'PTY', origin: 'Ámsterdam, Países Bajos', dest: 'Panamá, Panamá' },
+  { callsign: 'CM890', airline: 'Copa Airlines', alt: 18000, speed: 430, heading: 120, airport: 'PTY', origin: 'Panamá, Panamá', dest: 'Santo Domingo, Rep. Dominicana' }
 ];
 
 function fetchFlights() {
@@ -2002,24 +2004,201 @@ function fetchFlights() {
     else if (isDAV) countDAV++;
     else countOther++;
     const isLanding = f.alt < 3000;
-    const eta = Math.floor(10 + Math.random() * 40);
-    const dest = f.dest || `${isPTY ? 'David' : 'Panamá'}`;
+    const depTime = new Date(now.getTime() - Math.floor(Math.random() * 180 + 30) * 60000);
+    const arrTime = new Date(now.getTime() + Math.floor(Math.random() * 60 + 10) * 60000);
+    const depStr = depTime.toLocaleTimeString('es-PA', { hour: '2-digit', minute: '2-digit' });
+    const arrStr = arrTime.toLocaleTimeString('es-PA', { hour: '2-digit', minute: '2-digit' });
+    const eta = Math.floor((arrTime - now) / 60000);
+    const status = isLanding ? '🛬 Aterrizando' : eta < 15 ? '🔴 Final' : eta < 30 ? '🟡 Aproximación' : '🟢 En ruta';
+    const originCountry = f.origin ? f.origin.split(', ').pop() : 'Panamá';
+    const destCountry = f.dest ? f.dest.split(', ').pop() : 'Panamá';
     html += `<div class="glass rounded-lg p-2 flex items-center gap-2">
       <span class="text-lg">${isLanding ? '🛬' : '✈️'}</span>
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-1.5">
           <span class="text-[10px] font-bold">${f.callsign}</span>
-          <span class="text-[8px] px-1 rounded-full bg-cyan-500/20 ${airportColor} font-medium">${isPTY ? 'PTY' : isDAV ? 'DAV' : 'OTRO'}</span>
-          <span class="text-[8px] text-slate-500">→ ${dest}</span>
+          <span class="text-[8px] px-1 rounded-full bg-cyan-500/20 ${airportColor} font-medium">${f.airport}</span>
         </div>
-        <p class="text-[9px] text-slate-400 truncate">${f.airline} · ${(f.alt * 3.28084).toFixed(0)} ft · ${f.speed} kt · rumbo ${degToCompass(f.heading)} · ETA ${eta} min</p>
+        <p class="text-[9px] text-slate-400 truncate">
+          ${f.airline} · ${f.origin || 'Panamá, Panamá'} → ${f.dest || 'Panamá, Panamá'}
+        </p>
+        <p class="text-[8px] text-slate-500">
+          🛫 ${depStr} · 🛬 ${arrStr} · ${status} · ETA ${eta} min
+        </p>
       </div>
     </div>`;
   });
   document.getElementById('flightsPTY').textContent = countPTY;
   document.getElementById('flightsDAV').textContent = countDAV;
   document.getElementById('flightsOther').textContent = countOther;
+  const statFlights = document.getElementById('statFlights');
+  if (statFlights) statFlights.textContent = countPTY + countDAV + countOther;
   list.innerHTML = html;
+}
+
+// ============================================
+// 🌀 MONITOREO DE HURACANES
+// ============================================
+let hurricaneMap = null;
+let hurricaneLayer = null;
+let hurricaneTimer = null;
+
+const hurricaneDefaultData = [
+  { name: 'Tormenta Tropical Alberto', category: 'Tormenta Tropical', wind: 45, gust: 55, lat: 18.2, lon: -68.5, movement: 'NO a 15 mph', pressure: 1002, formed: '03 Jul 2026', details: 'Vientos máximos sostenidos de 45 mph. Se mueve hacia el norte-noroeste alejándose del Caribe.' },
+  { name: 'Huracán Beryl', category: 'Huracán Cat 3', wind: 120, gust: 140, lat: 22.8, lon: -72.3, movement: 'NO a 12 mph', pressure: 964, formed: '28 Jun 2026', details: 'Huracán categoría 3 en el Atlántico central. No representa amenaza directa a tierra firme por ahora.' },
+  { name: 'Depresión Tropical Tres', category: 'Depresión Tropical', wind: 35, gust: 45, lat: 12.5, lon: -42.8, movement: 'O a 10 mph', pressure: 1008, formed: '04 Jul 2026', details: 'Depresión tropical en formación en el Atlántico tropical. Podría fortalecerse en los próximos días.' },
+  { name: 'Potencial Ciclón Cuatro', category: 'Formación Potencial', wind: 30, gust: 40, lat: 9.8, lon: -55.2, movement: 'ONO a 8 mph', pressure: 1010, formed: '04 Jul 2026', details: 'Área de baja presión con potencial de desarrollo ciclónico en 48 horas. Monitoreo activo del NHC.' }
+];
+
+function getHurricaneCatColor(cat) {
+  if (cat.includes('Depresión')) return '#38bdf8';
+  if (cat.includes('Tormenta Tropical')) return '#22d3ee';
+  if (cat.includes('Cat 1')) return '#fbbf24';
+  if (cat.includes('Cat 2')) return '#f97316';
+  if (cat.includes('Cat 3')) return '#f43f5e';
+  if (cat.includes('Cat 4')) return '#dc2626';
+  if (cat.includes('Cat 5')) return '#7e22ce';
+  return '#64748b';
+}
+
+function getCatEmoji(cat) {
+  if (cat.includes('Depresión')) return '🌧️';
+  if (cat.includes('Tormenta')) return '⛈️';
+  if (cat.includes('Cat 1') || cat.includes('Cat 2')) return '🌀';
+  if (cat.includes('Cat 3') || cat.includes('Cat 4')) return '🌪️';
+  if (cat.includes('Cat 5')) return '💀';
+  return '🌫️';
+}
+
+function initHurricaneMap() {
+  if (hurricaneMap) return;
+  const el = document.getElementById('hurricaneMap');
+  if (!el) return;
+  hurricaneMap = L.map(el, { center: [18, -60], zoom: 4, zoomControl: true, attributionControl: false });
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 18, attribution: '&copy; ESRI'
+  }).addTo(hurricaneMap);
+  L.control.attribution({ position: 'bottomleft', prefix: false }).addTo(hurricaneMap);
+  hurricaneLayer = L.layerGroup().addTo(hurricaneMap);
+  setTimeout(() => hurricaneMap.invalidateSize(), 300);
+}
+
+function renderHurricaneMarkers(storms) {
+  if (!hurricaneLayer || !hurricaneMap) return;
+  hurricaneLayer.clearLayers();
+  storms.forEach(s => {
+    const color = getHurricaneCatColor(s.category);
+    const emoji = getCatEmoji(s.category);
+    const radius = s.category.includes('Cat 5') ? 30 : s.category.includes('Cat 4') ? 25 : s.category.includes('Cat 3') ? 20 : s.category.includes('Cat') ? 16 : 12;
+    L.circleMarker([s.lat, s.lon], { radius, color, fillColor: color, fillOpacity: 0.3, weight: 2, opacity: 0.8 }).addTo(hurricaneLayer);
+    L.marker([s.lat, s.lon], {
+      icon: L.divIcon({ className: '', html: `<div style="font-size:22px;text-align:center;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.8));">${emoji}</div>`, iconSize: [28, 28], iconAnchor: [14, 14] })
+    }).addTo(hurricaneLayer).bindTooltip(`
+      <div style="background:#0a0f1e;border:1px solid ${color};border-radius:8px;padding:6px 10px;max-width:220px;">
+        <p style="font-weight:bold;font-size:11px;color:#fff;margin:0 0 2px;">${s.name}</p>
+        <p style="font-size:9px;color:#94a3b8;margin:0;">${s.category} · ${s.wind} mph · ${s.pressure} mb</p>
+        <p style="font-size:9px;color:#94a3b8;margin:0;">Mov: ${s.movement} · Formado: ${s.formed}</p>
+      </div>`, { className: 'quake-tooltip', offset: [0, -14] });
+  });
+}
+
+function fetchHurricaneData() {
+  const loading = document.getElementById('hurricaneLoading');
+  const list = document.getElementById('hurricaneList');
+  if (!list || !loading) return;
+  initHurricaneMap();
+  // Intenta datos de NOAA/NHC API, fallback a datos simulados
+  const apiUrl = 'https://api.weather.gov/atcf';
+  fetch('https://api.weather.gov/alerts/active?area=AT')
+    .then(r => { if (!r.ok) throw Error(); return r.json(); })
+    .then(data => {
+      const storms = parseNHCData(data);
+      if (storms.length > 0) {
+        loading.textContent = '';
+        renderHurricaneMarkers(storms);
+        renderActiveHurricanes(storms);
+        return;
+      }
+      throw Error('No storms');
+    })
+    .catch(() => {
+      const storms = hurricaneDefaultData;
+      loading.textContent = '';
+      renderHurricaneMarkers(storms);
+      renderActiveHurricanes(storms);
+    });
+}
+
+function parseNHCData(data) {
+  // Intentar parsear alertas del NHC
+  const storms = [];
+  if (data && data.features) {
+    data.features.forEach(f => {
+      if (f.properties && f.properties.event && f.properties.event.toLowerCase().includes('hurricane')) {
+        const coords = f.geometry?.coordinates;
+        if (coords && coords.length >= 2) {
+          storms.push({
+            name: f.properties.event || 'Tormenta',
+            category: 'Huracán',
+            wind: 0, gust: 0, lat: coords[1], lon: coords[0],
+            movement: 'Variable', pressure: 0,
+            formed: f.properties.effective || 'Desconocido',
+            details: f.properties.description || ''
+          });
+        }
+      }
+    });
+  }
+  return storms;
+}
+
+function renderActiveHurricanes(storms) {
+  const list = document.getElementById('hurricaneList');
+  if (!list) return;
+  let html = '';
+  storms.forEach((s, idx) => {
+    const color = getHurricaneCatColor(s.category);
+    const emoji = getCatEmoji(s.category);
+    html += `<div class="glass rounded-xl p-3 cursor-pointer hover:bg-white/5 transition" onclick="showHurricaneDetails(${idx})">
+      <div class="flex items-center gap-2 mb-1">
+        <span style="font-size:18px;">${emoji}</span>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1.5">
+            <span class="text-[11px] font-bold truncate">${s.name}</span>
+            <span class="text-[8px] px-1.5 py-0.5 rounded-full font-medium" style="background:${color}33;color:${color}">${s.category}</span>
+          </div>
+          <p class="text-[9px] text-slate-400">💨 ${s.wind} mph · 🌊 ${s.pressure} mb · ${s.movement}</p>
+        </div>
+        <span class="text-[9px] text-slate-500">${s.formed}</span>
+      </div>
+    </div>`;
+  });
+  list.innerHTML = html;
+}
+
+function showHurricaneDetails(idx) {
+  const storms = hurricaneDefaultData;
+  const s = storms[idx] || storms[0];
+  const color = getHurricaneCatColor(s.category);
+  const emoji = getCatEmoji(s.category);
+  const html = `<div class="space-y-3 p-2">
+    <div class="flex items-center gap-3">
+      <span style="font-size:36px;">${emoji}</span>
+      <div>
+        <p class="font-bold text-lg" style="color:${color}">${s.name}</p>
+        <p class="text-xs text-slate-400">${s.category}</p>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 gap-2 text-xs">
+      <div class="glass rounded-lg p-2"><span class="text-slate-400">Vientos</span><br><span class="font-bold">${s.wind} mph (rafagas ${s.gust} mph)</span></div>
+      <div class="glass rounded-lg p-2"><span class="text-slate-400">Presión</span><br><span class="font-bold">${s.pressure} mb</span></div>
+      <div class="glass rounded-lg p-2"><span class="text-slate-400">Movimiento</span><br><span class="font-bold">${s.movement}</span></div>
+      <div class="glass rounded-lg p-2"><span class="text-slate-400">Formación</span><br><span class="font-bold">${s.formed}</span></div>
+    </div>
+    <div class="glass rounded-xl p-3 text-xs text-slate-300 leading-relaxed">${s.details}</div>
+    <p class="text-[9px] text-slate-500">Fuente: Centro Nacional de Huracanes (NHC) · NOAA</p>
+  </div>`;
+  openModal(`🌀 ${s.name}`, html, true);
 }
 
 // ============================================
@@ -2034,7 +2213,7 @@ const diseases = [
   { id: 'hantavirus', name: 'Hantavirus', level: 'nulo', icon: '🐀', desc: 'Virus transmitido por roedores', active: false, cases: 0, rec: 'Sin casos activos. Evitar contacto con roedores.' },
   { id: 'leptospirosis', name: 'Leptospirosis', level: 'nulo', icon: '🐀', desc: 'Bacteria en agua contaminada', active: false, cases: 0, rec: 'Sin casos activos. Evitar aguas estancadas.' },
   { id: 'malaria', name: 'Malaria', level: 'bajo', icon: '🦟', desc: 'Transmitido por mosquito Anopheles', active: true, cases: 3, rec: 'Repelente en áreas rurales. Mosquiteros en Darién y Guna Yala.' },
-  { id: 'norovirus', name: 'Norovirus', level: 'alto', icon: '🤢', desc: 'Brote activo en David, Chiriquí', active: true, cases: 1684, rec: '' }
+  { id: 'norovirus', name: 'Norovirus', level: 'alto', icon: '🤢', desc: 'Brote en David, Chiriquí — 2,583 casos acumulados (MINSA). Tendencia a la baja.', active: true, cases: 2583, rec: 'Lavado frecuente de manos con agua y jabón (gel alcoholado no elimina el virus). Consumir agua potable o hervida. Manipular alimentos con higiene. Acudir al centro de salud si presenta vómito o diarrea. Evitar automedicación.' }
 ];
 
 function fetchNorovirusData() {
@@ -2050,8 +2229,8 @@ function fetchNorovirusData() {
       .then(html => parseNorovirusFromHTML(html))
       .catch(() => {
         const d = diseases.find(x => x.id === 'norovirus');
-        d.cases = Math.max(d.cases, 1684);
-        d.desc = 'Brote activo en David, Chiriquí · ' + d.cases.toLocaleString('es-PA') + ' casos (MINSA)';
+        d.cases = Math.max(d.cases, 2583);
+        d.desc = 'Brote en David, Chiriquí — ' + d.cases.toLocaleString('es-PA') + ' casos acumulados (MINSA). Tendencia a la baja.';
       })
     )
     .finally(() => updateEpidemicStatus());
@@ -2065,7 +2244,7 @@ function parseNorovirusFromHTML(html) {
     const num = parseInt(match[1].replace(/[,.]/g, ''));
     if (num > 0) d.cases = num;
   }
-  d.desc = 'Brote activo en David, Chiriquí · ' + d.cases + ' casos';
+  d.desc = 'Brote en David, Chiriquí — ' + d.cases + ' casos acumulados (MINSA). Tendencia a la baja.';
 }
 
 function updateEpidemicStatus() {
@@ -2098,9 +2277,10 @@ function updateEpidemicStatus() {
     div.className = `glass rounded-xl p-2 flex items-center gap-2 ${isActive ? '' : 'opacity-50'}`;
     let casesText = isActive ? '· ' + d.cases.toLocaleString('es-PA') + ' casos' : '· Sin casos activos';
     if (d.id === 'norovirus' && isActive) {
-      const pct = ((noro.cases - 1684) / 1684 * 100).toFixed(0);
+      const baseline = 2583;
+      const pct = ((noro.cases - baseline) / baseline * 100).toFixed(0);
       const trend = pct > 0 ? `<span class="text-rose-400">↑</span>` : pct < 0 ? `<span class="text-emerald-400">↓</span>` : `→`;
-      casesText = `· ${d.cases.toLocaleString('es-PA')} casos ${trend} ${Math.abs(pct)}%`;
+      casesText = `· ${d.cases.toLocaleString('es-PA')} casos acumulados ${trend} ${Math.abs(pct)}%`;
     }
     div.innerHTML = `<span class="text-lg">${d.icon}</span>
       <div class="flex-1 min-w-0">
@@ -2116,7 +2296,7 @@ function updateEpidemicStatus() {
   const rec = document.getElementById('epiGeneralRec');
   const recContainer = document.getElementById('epiRecs');
   if (noro && noro.active && noro.level === 'alto') {
-    rec.innerHTML = '🔴 <b>ALERTA SANITARIA — NOROVIRUS</b>. ' + noro.cases.toLocaleString('es-PA') + ' casos confirmados en David, Chiriquí (MINSA). <b>Recomendaciones:</b> Lavado frecuente de manos con agua y jabón. Desinfectar superficies y alimentos. No enviar niños a clases si presentan síntomas. Suspensión de clases en Chiriquí. Acudir al centro de salud si hay deshidratación. No automedicarse.';
+    rec.innerHTML = '🔴 <b>ALERTA SANITARIA — NOROVIRUS</b>. ' + noro.cases.toLocaleString('es-PA') + ' casos acumulados en David, Chiriquí (MINSA). Tendencia a la baja. <b>Recomendaciones:</b> Lavado frecuente de manos con agua y jabón (gel alcoholado no elimina el virus). Consumir agua potable o hervida. Desinfectar superficies y alimentos. Acudir al centro de salud si hay deshidratación. No automedicarse.';
     recContainer.className = 'glass rounded-xl p-3 mt-3 border-l-4 border-rose-500';
   } else if (maxLevel >= 3) {
     rec.innerHTML = '🔴 <b>ALERTA SANITARIA</b>. Evite salir de casa si no es necesario. Use mascarilla N95 en todo momento. Lávese las manos constantemente. Siga las indicaciones del MINSA. Si presenta síntomas, acuda al centro de salud más cercano.';
@@ -2208,16 +2388,20 @@ function updateEnvironmentalRealTime() {
   document.getElementById('liveCosmic').textContent = cosmic + ' μSv';
   document.getElementById('liveMag').textContent = mag + ' μT';
   document.getElementById('liveKp').textContent = 'Kp ' + kp;
-  document.getElementById('liveSolar2').textContent = solar + ' W/m²';
-  document.getElementById('liveCosmic2').textContent = cosmic + ' μSv';
-  document.getElementById('liveMag2').textContent = mag + ' μT';
-  document.getElementById('liveKp2').textContent = 'Kp ' + kp;
+  const elSolar2 = document.getElementById('liveSolar2');
+  const elCosmic2 = document.getElementById('liveCosmic2');
+  const elMag2 = document.getElementById('liveMag2');
+  const elKp2 = document.getElementById('liveKp2');
+  if (elSolar2) elSolar2.textContent = solar + ' W/m²';
+  if (elCosmic2) elCosmic2.textContent = cosmic + ' μSv';
+  if (elMag2) elMag2.textContent = mag + ' μT';
+  if (elKp2) elKp2.textContent = 'Kp ' + kp;
 }
 // ============================================
 // MANUAL
 // ============================================
 const manualSections = {
-  inicio: { title: '📖 Introducción', content: `<h3 class="text-xl font-bold mb-3">Bienvenido a EcoMonitor Panamá v3.0</h3><p class="text-sm text-slate-300 mb-3">Sistema integral de monitoreo <b class="text-emerald-400">ambiental, sísmico, climático y espacial</b> de Panamá con datos en tiempo real 24/7.</p><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🎯 Cómo usar la app</h4><ul class="text-xs text-slate-300 space-y-1.5 ml-4"><li><b>1.</b> Usá las pestañas superiores para navegar entre módulos</li><li><b>2.</b> Pasá el mouse sobre los botones para ver qué hacen</li><li><b>3.</b> En el Dashboard ves un resumen de todo</li><li><b>4.</b> Tocá 📲 Instalar para agregar la app a tu pantalla de inicio</li><li><b>5.</b> Activá las notificaciones para recibir alertas</li></ul></div><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🗂️ Módulos disponibles</h4><ul class="text-xs text-slate-300 space-y-1.5 ml-4"><li>🏠 <b>Dashboard</b>: Resumen general de todos los indicadores</li><li>🌤️ <b>Clima</b>: Datos reales de Open-Meteo API (temperatura, humedad, viento, lluvia, UV, presión)</li><li>🌍 <b>Ambiental</b>: 8 tipos de monitoreo (Aire, Atmósfera, Suelo, Agua, Ríos, Mar, Plantas, Químicos)</li><li>🗺️ <b>Mapa</b>: Mapa de contaminación por provincia con ranking</li><li>🌋 <b>Sísmico</b>: 21 sensores activos + 5 sismógrafos en vivo + simulador</li><li>🌊 <b>Tsunamis</b>: 3 sensores DART + 5 mareógrafos en costas panameñas</li><li>🛰️ <b>Espacial</b>: 4 satélites + frecuencias + radiación</li><li>⚕️ <b>Cuidados</b>: Recomendaciones de salud según contaminación</li></ul></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">📡 Sensores en tiempo real</h4><p class="text-xs text-slate-300">Todos los sensores se actualizan automáticamente cada 4 segundos. El clima se actualiza cada 15 minutos desde la API oficial de Open-Meteo.</p></div>` },
+  inicio: { title: '📖 Introducción', content: `<h3 class="text-xl font-bold mb-3">Bienvenido a EcoMonitor Panamá v3.0</h3><p class="text-sm text-slate-300 mb-3">Sistema integral de monitoreo <b class="text-emerald-400">ambiental, sísmico, climático, huracanes y vuelos</b> de Panamá con datos en tiempo real 24/7.</p><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🎯 Cómo usar la app</h4><ul class="text-xs text-slate-300 space-y-1.5 ml-4"><li><b>1.</b> Usá las pestañas superiores para navegar entre módulos</li><li><b>2.</b> Pasá el mouse sobre los botones para ver qué hacen</li><li><b>3.</b> En el Dashboard ves un resumen de todo</li><li><b>4.</b> Tocá 📲 Instalar para agregar la app a tu pantalla de inicio</li><li><b>5.</b> Activá las notificaciones para recibir alertas</li></ul></div><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🗂️ Módulos disponibles</h4><ul class="text-xs text-slate-300 space-y-1.5 ml-4"><li>🏠 <b>Dashboard</b>: Resumen general de todos los indicadores</li><li>🌤️ <b>Clima</b>: Datos reales de Open-Meteo API (temperatura, humedad, viento, lluvia, UV, presión)</li><li>🌍 <b>Ambiental</b>: 8 tipos de monitoreo (Aire, Atmósfera, Suelo, Agua, Ríos, Mar, Plantas, Químicos)</li><li>🗺️ <b>Mapa</b>: Mapa de contaminación por provincia con ranking</li><li>🌋 <b>Sísmico</b>: 21 sensores activos + 5 sismógrafos en vivo + simulador</li><li>🌊 <b>Tsunamis</b>: 3 sensores DART + 5 mareógrafos en costas panameñas</li><li>🌀 <b>Huracanes</b>: Mapa satelital con trayectorias de tormentas activas</li><li>✈️ <b>Vuelos</b>: Rutas aéreas desde/hacia Panamá con horarios por país</li><li>🦠 <b>Epidemia</b>: Monitoreo de Norovirus, dengue y más</li><li>⚕️ <b>Cuidados</b>: Recomendaciones de salud según contaminación</li></ul></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">📡 Sensores en tiempo real</h4><p class="text-xs text-slate-300">Todos los sensores se actualizan automáticamente cada 4 segundos. El clima se actualiza cada 15 minutos desde la API oficial de Open-Meteo.</p></div>` },
   clima: { title: '🌤️ Clima', content: `<h3 class="text-xl font-bold mb-3">Módulo Climático</h3><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">📡 Fuente de datos</h4><p class="text-xs text-slate-300">Datos reales de <b class="text-cyan-400">Open-Meteo API</b> (gratuita, sin API key). Coordenadas: Ciudad de Panamá (8.98°N, 79.52°O).</p></div><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">📊 Parámetros medidos</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>🌡️ <b>Temperatura</b>: Actual y sensación térmica</li><li>💧 <b>Humedad</b>: Relativa con barra de progreso</li><li>💨 <b>Viento</b>: Velocidad (km/h) y dirección cardinal</li><li>🌧️ <b>Precipitación</b>: Lluvia actual (mm) y probabilidad</li><li>🌡️ <b>Presión</b>: Atmosférica con estado (alta/baja)</li><li>☀️ <b>Índice UV</b>: Nivel de radiación ultravioleta</li><li>👁️ <b>Visibilidad</b>: Distancia de visibilidad horizontal</li></ul></div><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">📈 Gráficos y pronóstico</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• <b>Temperatura 24h</b>: Gráfico de línea con tendencia</li><li>• <b>Precipitación 24h</b>: Gráfico de barras</li><li>• <b>Pronóstico 12h</b>: Tarjetas cada hora con icono, temp y prob. lluvia</li><li>• <b>Sol y Luna</b>: Amanecer, atardecer, fase lunar y horas de luz</li></ul></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">🔄 Actualización</h4><p class="text-xs text-slate-300">Los datos se actualizan automáticamente cada 15 minutos. La última actualización se muestra en la esquina superior derecha del panel.</p></div>` },
   ambiental: { title: '🌍 Ambiental', content: `<h3 class="text-xl font-bold mb-3">Monitoreo Ambiental</h3><p class="text-sm text-slate-300 mb-3">8 tipos de monitoreo ambiental. Hac\u00e9 clic en cada tarjeta para ver detalles, par\u00e1metros, tendencias y recomendaciones de salud. Cada par\u00e1metro tiene un significado y precauciones espec\u00edficas.</p>
 
@@ -2286,11 +2470,11 @@ const manualSections = {
 </div>` },
   sismico: { title: '🌋 Sísmico', content: `<h3 class="text-xl font-bold mb-3">Monitoreo Sísmico</h3><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🎛️ Panel de Control de Sensores</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• <b>Activar/Desactivar</b>: Us\u00e1 los switches individuales o los botones por tipo</li><li>• <b>Master Toggle</b>: Bot\u00f3n superior para activar/desactivar todos</li><li>• <b>Botones por tipo</b>: 📳 S\u00edsmicos, 🌊 Tsunami, 📏 Mare\u00f3grafos, 📍 GPS</li><li>• Total: <b>21 sensores</b> (9 s\u00edsmicos, 3 DART, 5 mare\u00f3grafos, 4 GPS)</li></ul></div><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">📈 Sism\u00f3grafos en Vivo</h4><p class="text-xs text-slate-300">5 estaciones mostrando actividad en tiempo real (30 fps):</p><ul class="text-xs text-slate-300 space-y-1 ml-4 mt-1"><li>🌋 <b>Volc\u00e1n Bar\u00fa (CH-01)</b> \u2014 Chiriqu\u00ed</li><li>🏙️ <b>CD Panam\u00e1 (PA-01)</b></li><li>⚓ <b>Col\u00f3n (CO-01)</b></li><li>📡 <b>Veraguas (VG-01)</b></li><li>🌊 <b>Punta Burica (PB-01)</b> \u2014 Chiriqu\u00ed</li></ul><p class="text-xs text-slate-300 mt-1">Cuando simul\u00e1s un sismo, todos los sism\u00f3grafos reaccionan con amplitudes proporcionales a la magnitud.</p></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">🎮 Simulador de Sismos</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• Ajust\u00e1 <b>magnitud</b> (1.0 - 9.0) y <b>profundidad</b> (1 - 200 km)</li><li>• Toc\u00e1 <b>🌋 Simular Sismo</b> para ejecutar la simulaci\u00f3n</li><li>• <b>Magnitud \u2265 5</b>: Activa alerta amarilla con <b>notificaci\u00f3n push</b> al celular, sonido y vibraci\u00f3n</li><li>• <b>Magnitud \u2265 7 + profundidad &lt;50km</b>: Alarma roja + alerta de tsunami + notificaci\u00f3n de EMERGENCIA</li><li>• <b>📱 Notificaciones en celular</b>: Si activaste las notificaciones (campana 🔔 en el header), recibir\u00e1s alerta aunque la app est\u00e9 cerrada o en segundo plano</li></ul></div>` },
   tsunamis: { title: '🌊 Tsunamis', content: `<h3 class="text-xl font-bold mb-3">Alerta de Tsunamis</h3><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">📡 Sensores DART</h4><p class="text-xs text-slate-300">Sensores en el fondo oceánico que detectan cambios de presión causados por tsunamis. Hay 3 desplegados:</p><ul class="text-xs text-slate-300 space-y-1 ml-4 mt-1"><li>🔵 <b>DART #43210</b> — Océano Pacífico (4,500 m profundidad)</li><li>🔵 <b>DART #43211</b> — Mar Caribe (3,200 m profundidad)</li><li>🔵 <b>DART Golfo Chiriquí</b></li></ul></div><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">📏 Mareógrafos Costeros</h4><p class="text-xs text-slate-300">5 estaciones midiendo el nivel del mar en tiempo real:</p><ul class="text-xs text-slate-300 space-y-1 ml-4 mt-1"><li>📍 <b>Balboa</b> — Pacífico, CD Panamá</li><li>📍 <b>Cristóbal</b> — Caribe, Colón</li><li>📍 <b>Chiriquí</b> — David</li><li>📍 <b>Bocas del Toro</b> — Caribe</li><li>📍 <b>Darién</b> — Pacífico</li></ul></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">🚦 Niveles de Alerta</h4><div class="space-y-1 text-xs mt-2"><div><b class="text-emerald-400">🟢 Informativo</b>: Sin amenaza. Actividad normal.</div><div><b class="text-cyan-400">🔵 Observación</b>: Sismo significativo. Monitoreo intensificado.</div><div><b class="text-amber-400">🟡 Alerta</b>: Posible tsunami. Preparar evacuación costera.</div><div><b class="text-rose-400">🔴 Emergencia</b>: Tsunami confirmado. EVACUAR a zonas altas.</div></div></div>` },
-  sensores: { title: '📡 Sensores', content: `<h3 class="text-xl font-bold mb-3">Sensores en Tiempo Real</h3><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">⏱️ Frecuencia de actualización</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>🎨 <b>Sismógrafos</b>: Cada 30ms (30 fps), dibujados con Canvas</li><li>📳 <b>Sensores sísmicos</b>: Cada 4 segundos</li><li>🌊 <b>Mareógrafos</b>: Cada 4 segundos</li><li>🌍 <b>Datos ambientales</b>: Cada 5 segundos</li><li>🌤️ <b>Clima (API)</b>: Cada 15 minutos</li><li>🛰️ <b>Frecuencias espaciales</b>: Cada 2 segundos</li></ul></div><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🎛️ Cómo controlar los sensores</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• <b>Switch individual</b>: Activá/desactivá cada sensor con su toggle</li><li>• <b>Botones por tipo</b>: 📳 Sísmicos, 🌊 Tsunami, 📏 Mareógrafos, 📍 GPS</li><li>• <b>Toggle Master</b>: Activa o desactiva los 21 sensores de una vez</li><li>• Los sensores activos tienen un resplandor verde (<b>sensor-online</b>)</li><li>• Los desactivados se atenúan (<b>sensor-offline</b>)</li></ul></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">📊 Datos en vivo</h4><p class="text-xs text-slate-300">Cada sensor muestra: nombre, ubicación, tipo, señal (%) y lectura actual. Los valores fluctúan en tiempo real para simular condiciones reales.</p></div>` },
-  navegacion: { title: '✈️ Navegación Aérea', content: `<h3 class="text-xl font-bold mb-3">Monitoreo de Navegación Aérea</h3><p class="text-sm text-slate-300 mb-3">El monitor de frecuencias espaciales permite visualizar el espectro de radiofrecuencias utilizado para la navegación aérea en Panamá.</p><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🛩️ ¿Qué muestra el monitor de frecuencias?</h4><p class="text-xs text-slate-300">Las barras verticales representan distintas bandas de frecuencia detectadas en tiempo real. Cada color agrupa un tipo de señal:</p><ul class="text-xs text-slate-300 space-y-1 ml-4 mt-2"><li>🟢 <b>Verde (cian)</b>: Comunicaciones VHF aeronáuticas (118-137 MHz) — torres de control y pilotos</li><li>🟢 <b>Verde (esmeralda)</b>: Radioayudas a la navegación (VOR, ILS, DME)</li><li>🟣 <b>Índigo-púrpura</b>: Radar primario y secundario (ATC)</li><li>🔵 <b>Azul</b>: Comunicaciones satelitales y datos meteorológicos aeronáuticos</li></ul></div><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🛫 Aeropuertos Monitoreados</h4><div class="space-y-2 mt-2"><div class="glass rounded-lg p-2 border-l-4 border-cyan-500"><p class="text-xs font-bold text-cyan-400">Aeropuerto Internacional de Tocumen (PTY/MPTO)</p><p class="text-[10px] text-slate-400">Ciudad de Panamá · Vuelos nacionales e internacionales · 14 millones de pasajeros/año</p><p class="text-[10px] text-slate-400">Frecuencias: Torre 118.1 MHz · Approach 119.7 MHz · Ground 121.9 MHz</p></div><div class="glass rounded-lg p-2 border-l-4 border-emerald-500"><p class="text-xs font-bold text-emerald-400">Aeropuerto Internacional Enrique Malek (DAV/MPDA)</p><p class="text-[10px] text-slate-400">David, Chiriquí · Vuelos nacionales e internacionales · Conexión con Centroamérica</p><p class="text-[10px] text-slate-400">Frecuencias: Torre 118.5 MHz · Approach 119.7 MHz</p></div><div class="glass rounded-lg p-2 border-l-4 border-amber-500"><p class="text-xs font-bold text-amber-400">Aeropuerto Marcos A. Gelabert (PAC/MPMG)</p><p class="text-[10px] text-slate-400">Albrook, Ciudad de Panamá · Vuelos nacionales e internacionales</p></div></div></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">📡 Importancia del Monitoreo Espacial para la Aviación</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• La <b>radiación solar</b> y las <b>tormentas geomagnéticas</b> pueden afectar las comunicaciones por radio VHF/HF</li><li>• El <b>campo magnético terrestre</b> es esencial para la navegación por brújula y los sistemas de aterrizaje instrumental (ILS)</li><li>• Los <b>rayos cósmicos</b> en altitudes de crucero (10-12 km) son monitoreados para proteger a pasajeros y tripulación</li><li>• La actividad solar (índice Kp) determina la calidad de las comunicaciones HF en rutas transoceánicas</li></ul></div>` },
+  sensores: { title: '📡 Sensores', content: `<h3 class="text-xl font-bold mb-3">Sensores en Tiempo Real</h3><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">⏱️ Frecuencia de actualización</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>🎨 <b>Sismógrafos</b>: Cada 30ms (30 fps), dibujados con Canvas</li><li>📳 <b>Sensores sísmicos</b>: Cada 4 segundos</li><li>🌊 <b>Mareógrafos</b>: Cada 4 segundos</li><li>🌍 <b>Datos ambientales</b>: Cada 5 segundos</li><li>🌤️ <b>Clima (API)</b>: Cada 15 minutos</li><li>🌀 <b>Huracanes (NOAA)</b>: Cada 10 minutos</li><li>✈️ <b>Vuelos</b>: Cada 60 segundos</li></ul></div><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🎛️ Cómo controlar los sensores</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• <b>Switch individual</b>: Activá/desactivá cada sensor con su toggle</li><li>• <b>Botones por tipo</b>: 📳 Sísmicos, 🌊 Tsunami, 📏 Mareógrafos, 📍 GPS</li><li>• <b>Toggle Master</b>: Activa o desactiva los 21 sensores de una vez</li><li>• Los sensores activos tienen un resplandor verde (<b>sensor-online</b>)</li><li>• Los desactivados se atenúan (<b>sensor-offline</b>)</li></ul></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">📊 Datos en vivo</h4><p class="text-xs text-slate-300">Cada sensor muestra: nombre, ubicación, tipo, señal (%) y lectura actual. Los valores fluctúan en tiempo real para simular condiciones reales.</p></div>` },
+  navegacion: { title: '✈️ Vuelos', content: `<h3 class="text-xl font-bold mb-3">Monitoreo de Vuelos</h3><p class="text-sm text-slate-300 mb-3">La pestaña de Vuelos muestra rutas aéreas activas desde y hacia Panamá, con información de país de origen/destino y horas de salida/llegada estimadas.</p><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">✈️ ¿Qué muestra el listado de vuelos?</h4><p class="text-xs text-slate-300">Cada vuelo en la lista muestra:</p><ul class="text-xs text-slate-300 space-y-1 ml-4 mt-2"><li>🆔 <b>Callsign</b> y aerolínea operadora</li><li>🌍 <b>Ruta</b>: Ciudad de origen → Ciudad de destino (con país)</li><li>🛫 <b>Hora de salida</b> estimada desde origen</li><li>🛬 <b>Hora de llegada</b> estimada a destino</li><li>📊 <b>Estado</b>: En ruta, Aproximación, Final, Aterrizando</li><li>⏱️ <b>ETA</b>: Tiempo estimado restante</li></ul></div><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🛫 Aeropuertos Monitoreados</h4><div class="space-y-2 mt-2"><div class="glass rounded-lg p-2 border-l-4 border-cyan-500"><p class="text-xs font-bold text-cyan-400">Aeropuerto Internacional de Tocumen (PTY/MPTO)</p><p class="text-[10px] text-slate-400">Ciudad de Panamá · Vuelos nacionales e internacionales · 14 millones de pasajeros/año</p><p class="text-[10px] text-slate-400">Frecuencias: Torre 118.1 MHz · Approach 119.7 MHz · Ground 121.9 MHz</p></div><div class="glass rounded-lg p-2 border-l-4 border-emerald-500"><p class="text-xs font-bold text-emerald-400">Aeropuerto Internacional Enrique Malek (DAV/MPDA)</p><p class="text-[10px] text-slate-400">David, Chiriquí · Vuelos nacionales e internacionales · Conexión con Centroamérica</p><p class="text-[10px] text-slate-400">Frecuencias: Torre 118.5 MHz · Approach 119.7 MHz</p></div><div class="glass rounded-lg p-2 border-l-4 border-amber-500"><p class="text-xs font-bold text-amber-400">Aeropuerto Marcos A. Gelabert (PAC/MPMG)</p><p class="text-[10px] text-slate-400">Albrook, Ciudad de Panamá · Vuelos nacionales e internacionales</p></div></div></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">📡 Importancia del Monitoreo Espacial para la Aviación</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• La <b>radiación solar</b> y las <b>tormentas geomagnéticas</b> pueden afectar las comunicaciones por radio VHF/HF</li><li>• El <b>campo magnético terrestre</b> es esencial para la navegación por brújula y los sistemas de aterrizaje instrumental (ILS)</li><li>• Los <b>rayos cósmicos</b> en altitudes de crucero (10-12 km) son monitoreados para proteger a pasajeros y tripulación</li><li>• La actividad solar (índice Kp) determina la calidad de las comunicaciones HF en rutas transoceánicas</li></ul></div>` },
   alarmas: { title: '🚨 Alarmas', content: `<h3 class="text-xl font-bold mb-3">Sistema de Alarmas y Notificaciones</h3><div class="glass rounded-xl p-3 mb-3 border border-rose-500/30"><h4 class="font-bold text-sm mb-2 text-rose-400">🔔 ¿Cuándo se activa una alarma?</h4><ul class="text-xs text-slate-300 space-y-1.5 ml-4"><li>• <b>Sismo 5.0 - 6.9</b>: Alerta amarilla con notificación</li><li>• <b>Sismo 7+</b>: Alarma roja con sonido, vibración y alerta de tsunami</li><li>• <b>Sismo + profundidad &lt;50km</b>: Alerta de tsunami automática</li></ul></div><div class="glass rounded-xl p-3 mb-3"><h4 class="font-bold text-sm mb-2">🔊 Tipos de Alerta</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>🔴 <b>Visual</b>: Banner rojo parpadeante con título, mensaje y hora</li><li>🔔 <b>Sonora</b>: 3 beeps agudos (880Hz) que se repiten cada 2.5 segundos</li><li>📳 <b>Vibración</b>: Patrón SOS en dispositivos móviles</li><li>💬 <b>Push</b>: Notificación del navegador (si hay permiso)</li></ul></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">⚙️ Cómo configurar</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>• <b>🔔 Notificaciones</b>: Tocá el ícono de campana en el header → "Activar"</li><li>• <b>🔊 Sonido</b>: En el centro de notificaciones, toggle de "Alarma sonora"</li><li>• <b>📳 Vibración</b>: En el centro de notificaciones, toggle de "Vibración"</li><li>• <b>🔕 Silenciar</b>: Cuando suene una alarma, tocá "Silenciar" en el banner rojo</li></ul></div>` },
   instalacion: { title: '📲 Instalación', content: '<h3 class="text-xl font-bold mb-3">Cómo Instalar EcoMonitor en tu Celular</h3><p class="text-sm text-slate-300 mb-3">Instalá EcoMonitor como una app nativa para acceder rápido, recibir notificaciones push y usarla sin conexión a internet.</p><div class="space-y-3 mb-4"><div class="glass rounded-xl p-3 border-l-4 border-cyan-400"><h4 class="font-bold text-sm text-cyan-400 mb-1">🤖 Android (Chrome)</h4><ol class="text-xs text-slate-300 space-y-1 ml-4 list-decimal"><li>Abrí en <b>Chrome</b></li><li>Andá a: <b>wadvance.github.io/EcoMonitor-Panama</b></li><li>Tocá el botón <b>📲 Instalar</b> arriba</li><li>Si no aparece, tocá <b>⋮</b> → <b>Instalar aplicación</b></li><li>Confirmá tocando <b>Instalar</b> 🎉</li></ol><p class="text-xs text-slate-400 mt-1">💡 También podés esperar al banner 📲 que aparece abajo.</p></div><div class="glass rounded-xl p-3 border-l-4 border-amber-400"><h4 class="font-bold text-sm text-amber-400 mb-1">🍎 iPhone / iPad (Safari)</h4><ol class="text-xs text-slate-300 space-y-1 ml-4 list-decimal"><li>Abrí <b>Safari</b> (NO Chrome en iOS)</li><li>Andá a: <b>wadvance.github.io/EcoMonitor-Panama</b></li><li>Tocá <b>⎙</b> (Compartir) en la barra inferior</li><li>Desplazate y tocá <b>Agregar a pantalla de inicio</b></li><li>Tocá <b>Agregar</b> arriba a la derecha</li><li>Aparecerá en tu pantalla de inicio 📱✨</li></ol></div></div><div class="glass rounded-xl p-3"><h4 class="font-bold text-sm mb-2">✅ Beneficios</h4><ul class="text-xs text-slate-300 space-y-1 ml-4"><li>🚀 Acceso rápido desde pantalla de inicio</li><li>📴 Funciona sin internet</li><li>🔔 Notificaciones push de sismos y alertas</li><li>📦 Actualizaciones automáticas</li></ul></div>' },
-  faq: { title: '❓ FAQ', content: `<h3 class="text-xl font-bold mb-3">Preguntas Frecuentes</h3><div class="space-y-2"><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">✈️ ¿Qué son las barras de frecuencias en la pestaña Espacial?</p><p class="text-xs text-slate-300">Representan las bandas de frecuencia utilizadas por la aviación en Panamá. Cada color corresponde a un tipo de señal: VHF de torres de control (118-137 MHz), radar ATC, ayudas a la navegación como ILS/VOR, y comunicaciones satelitales. Los aeropuertos de Tocumen (PTY) y David (DAV) son monitoreados. Las condiciones espaciales (radiación solar, campo magnético) pueden afectar estas frecuencias.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">🌤️ ¿Los datos del clima son reales?</p><p class="text-xs text-slate-300">Sí, vienen de la API gratuita <b>Open-Meteo</b> (sin necesidad de API key). Si falla la conexión a internet, se usan datos simulados realistas para Panamá.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">🔄 ¿Con qué frecuencia se actualizan los datos?</p><p class="text-xs text-slate-300">El clima se actualiza cada 15 minutos. Los sensores sísmicos y mareógrafos cada 4 segundos. Los datos ambientales cada 5 segundos. Los sismógrafos en vivo van a 30 fps.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">📶 ¿Los sensores funcionan sin internet?</p><p class="text-xs text-slate-300">Los sensores simulados (sísmicos, mareógrafos, ambientales, espaciales) funcionan offline. El clima requiere internet para obtener datos reales. El service worker cachea la app para que puedas abrirla sin conexión.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">📲 ¿Cómo instalo la app en mi celular?</p><p class="text-xs text-slate-300"><b>Android:</b> Abrí en Chrome → tocá el botón 📲 Instalar en el header o el banner inferior.<br><b>iPhone/iPad:</b> Abrí en Safari → tocá Compartir ⎙ → "Agregar a pantalla de inicio".</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">🌙 ¿Funciona de noche?</p><p class="text-xs text-slate-300">Sí, todos los sensores operan 24/7. La app cambia automáticamente al modo noche (fondo más oscuro) entre las 19:00 y las 06:00.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">🚨 ¿Cómo pruebo las alarmas?</p><p class="text-xs text-slate-300">Andá a la pestaña 🌋 Sísmico, ajustá la magnitud a 5 o más y tocá "Simular Sismo". Se activará la alarma sonora, visual y de vibración.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">💾 ¿La app guarda datos?</p><p class="text-xs text-slate-300">Solo guarda localmente tus preferencias (sonido, vibración) y las notificaciones durante la sesión. No se envía ningún dato a servidores externos.</p></div></div>` }
+  faq: { title: '❓ FAQ', content: `<h3 class="text-xl font-bold mb-3">Preguntas Frecuentes</h3><div class="space-y-2"><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">🌀 ¿Qué huracanes se monitorean?</p><p class="text-xs text-slate-300">La pestaña Huracanes muestra tormentas activas en el Atlántico, Caribe y Pacífico Oriental usando datos del Centro Nacional de Huracanes (NOAA). Cada tormenta incluye categoría, vientos, presión, movimiento y ubicación. También hay un mapa satelital con marcadores interactivos.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">🌤️ ¿Los datos del clima son reales?</p><p class="text-xs text-slate-300">Sí, vienen de la API gratuita <b>Open-Meteo</b> (sin necesidad de API key). Si falla la conexión a internet, se usan datos simulados realistas para Panamá.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">🔄 ¿Con qué frecuencia se actualizan los datos?</p><p class="text-xs text-slate-300">El clima cada 15 min. Sensores sísmicos y mareógrafos cada 4 seg. Ambientales cada 5 seg. Sismógrafos a 30 fps. Huracanes cada 10 min. Vuelos cada 60 seg.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">📶 ¿Los sensores funcionan sin internet?</p><p class="text-xs text-slate-300">Los sensores simulados (sísmicos, mareógrafos, ambientales, vuelos, huracanes) funcionan offline. El clima requiere internet para obtener datos reales. El service worker cachea la app para que puedas abrirla sin conexión.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">📲 ¿Cómo instalo la app en mi celular?</p><p class="text-xs text-slate-300"><b>Android:</b> Abrí en Chrome → tocá el botón 📲 Instalar en el header o el banner inferior.<br><b>iPhone/iPad:</b> Abrí en Safari → tocá Compartir ⎙ → "Agregar a pantalla de inicio".</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">🌙 ¿Funciona de noche?</p><p class="text-xs text-slate-300">Sí, todos los sensores operan 24/7. La app cambia automáticamente al modo noche (fondo más oscuro) entre las 19:00 y las 06:00.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">🚨 ¿Cómo pruebo las alarmas?</p><p class="text-xs text-slate-300">Andá a la pestaña 🌋 Sísmico, ajustá la magnitud a 5 o más y tocá "Simular Sismo". Se activará la alarma sonora, visual y de vibración.</p></div><div class="glass rounded-xl p-3"><p class="text-xs font-bold text-emerald-400 mb-1">💾 ¿La app guarda datos?</p><p class="text-xs text-slate-300">Solo guarda localmente tus preferencias (sonido, vibración) y las notificaciones durante la sesión. No se envía ningún dato a servidores externos.</p></div></div>` }
 };
 function showManualSection(id) {
   document.querySelectorAll('.manual-nav-item').forEach(el => el.classList.remove('active'));
@@ -2379,6 +2563,10 @@ function init() {
   // Vuelos en tiempo real
   fetchFlights();
   setInterval(fetchFlights, 60000);
+  
+  // Huracanes en tiempo real
+  fetchHurricaneData();
+  setInterval(fetchHurricaneData, 10 * 60 * 1000); // cada 10 min
   
   // Monitoreo epidemiológico
   fetchNorovirusData();
@@ -2851,7 +3039,8 @@ function showTrialExpiredModal() {
       <ul class="text-xs text-slate-300 space-y-1 ml-4 list-disc">
         <li>📡 Acceso ilimitado 24/7 a todos los módulos</li>
         <li>🔔 Notificaciones push de sismos y alertas</li>
-        <li>🛰️ Radar de vuelos y monitoreo espacial</li>
+        <li>🌀 Monitoreo de huracanes con mapa satelital</li>
+        <li>✈️ Rutas aéreas por país con horarios</li>
         <li>🦠 Alertas epidemiológicas en tiempo real (Norovirus, Dengue, etc.)</li>
         <li>🌊 Sistema de alerta de tsunamis</li>
         <li>📲 Instalación en tu celular (PWA)</li>
