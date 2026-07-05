@@ -2318,6 +2318,7 @@ function init() {
   showEnvDetail('aire');
   renderNotifList();
   document.getElementById('notifCount').textContent = notifications.length;
+  updateRoleUI();
   const logoutEl = document.getElementById('logoutBtn');
   if (logoutEl) {
     logoutEl.addEventListener('click', logout);
