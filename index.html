@@ -905,9 +905,11 @@ async function fetchRealQuakes() {
         const mag = props.mag || 1;
         const depth = f.geometry.coordinates[2] || 10;
         const place = props.place || 'Panamá';
+        const coords = f.geometry.coordinates;
+        if (/Costa Rica|Nicaragua|Colombia/i.test(place) && !/Panama|Panamá/i.test(place)) return; // solo Panamá, excepto frontera
         const time = props.time ? timeAgo(props.time) : 'Desconocido';
         const quakeTime = props.time ? formatQuakeTime(props.time) : '--';
-        usgsQuakes.push({ mag, depth: Math.round(depth), location: place, time, quakeTime });
+        usgsQuakes.push({ mag, depth: Math.round(depth), location: place, time, quakeTime, lat: coords[1], lng: coords[0] });
         if (mag >= 2.5) {
           const icon = mag >= 4 ? '🚨' : mag >= 3 ? '⚠️' : '🌋';
           const type = mag >= 4 ? 'danger' : mag >= 3 ? 'warning' : 'info';
@@ -916,6 +918,13 @@ async function fetchRealQuakes() {
         }
       });
       const seedData = quakeHistory.filter(q => q.location.includes('Simulación') || q.location.includes('Paso Canoas') || q.location.includes('Punta Burica') || q.location.includes('Volcán Barú') || q.location.includes('Costa Pacífico') || q.location.includes('Golfo de Chiriquí'));
+      // Asegurar lat/lng en seedData
+      const seedLatLng = {
+        'Paso Canoas, Chiriquí': [8.54, -82.84], 'Punta Burica, Chiriquí': [8.03, -82.87],
+        'Volcán Barú, Chiriquí': [8.81, -82.54], 'Golfo de Chiriquí': [8.0, -82.5],
+        'Costa Pacífico, Chiriquí': [7.8, -82.0], 'Simulación - Panamá': [8.2, -81.2]
+      };
+      seedData.forEach(s => { const ll = seedLatLng[s.location]; if (ll) { s.lat = ll[0]; s.lng = ll[1]; } });
       quakeHistory = [...usgsQuakes, ...seedData].slice(0, 12);
       lastUsgsFetch = now;
       renderMiniQuakes();
@@ -1279,15 +1288,13 @@ function showEpicenterMarker(location) {
   if (!leafletMap || !location) return;
   if (epicenterGroup) leafletMap.removeLayer(epicenterGroup);
   epicenterGroup = L.layerGroup().addTo(leafletMap);
-  const qLatLng = {
-    'Costa Pacífico, Chiriquí': [7.8, -82.0], 'Volcán Barú, Chiriquí': [8.81, -82.54],
-    'Golfo de Chiriquí': [8.0, -82.5], 'Colón': [9.36, -79.9], 'Darién': [8.0, -77.5],
-    'Paso Canoas, Chiriquí': [8.54, -82.84], 'Punta Burica, Chiriquí': [8.03, -82.87]
-  };
-  let ll = qLatLng[location];
+  let ll = null;
+  // Buscar lat/lng en quakeHistory
+  const found = quakeHistory.find(q => q.location === location);
+  if (found && found.lat && found.lng) ll = [found.lat, found.lng];
   if (!ll) {
-    for (const [k, v] of Object.entries(qLatLng)) {
-      if (location.includes(k) || k.includes(location)) { ll = v; break; }
+    for (const q of quakeHistory) {
+      if (q.location.includes(location) || location.includes(q.location)) { if (q.lat && q.lng) ll = [q.lat, q.lng]; break; }
     }
   }
   if (!ll) {
@@ -1706,7 +1713,7 @@ function simulateQuake() {
   if (seismo1) seismo1.trigger(mag); if (seismo2) seismo2.trigger(mag * 0.7); if (seismo3) seismo3.trigger(mag * 0.6); if (seismo4) seismo4.trigger(mag * 0.5); if (seismo5) seismo5.trigger(mag * 0.55);
   document.getElementById('lastQuakeMag').textContent = mag.toFixed(1);
   document.getElementById('lastQuakeDepth').textContent = depth + 'km';
-  quakeHistory.unshift({ mag, depth, location: 'Simulación - Panamá', time: 'Ahora', quakeTime });
+  quakeHistory.unshift({ mag, depth, location: 'Simulación - Panamá', time: 'Ahora', quakeTime, lat: 8.2, lng: -81.2 });
   if (quakeHistory.length > 5) quakeHistory.pop();
   renderMiniQuakes();
   if (mag >= 7 && depth < 50) {
@@ -1801,16 +1808,12 @@ function renderSeismicMarkers() {
     L.circleMarker([z.lat, z.lng], { radius: 8, color: '#fff', fillColor: colors[z.risk], fillOpacity: 0.6, weight: 1.5 }).addTo(seismicLayer).bindTooltip(z.name + ' (' + z.risk + ')', { className: 'zone-label ' + z.risk.toLowerCase(), direction: 'right', offset: [5, 0] });
     L.circle([z.lat, z.lng], { radius: 2000, color: colors[z.risk], weight: 1, opacity: 0.25, fill: false }).addTo(seismicLayer);
   });
-  const qLatLng = {
-    'Costa Pacífico, Chiriquí': [7.8, -82.0], 'Volcán Barú, Chiriquí': [8.81, -82.54],
-    'Golfo de Chiriquí': [8.0, -82.5], 'Colón': [9.36, -79.9], 'Darién': [8.0, -77.5],
-    'Paso Canoas, Chiriquí': [8.54, -82.84], 'Punta Burica, Chiriquí': [8.03, -82.87]
-  };
   quakeHistory.forEach(q => {
-    const ll = qLatLng[q.location];
-    if (!ll) return;
-    const icon = L.divIcon({ html: '💥', iconSize: [20, 20], className: '' });
-    L.marker(ll, { icon }).addTo(seismicLayer).bindTooltip('M' + q.mag + ' · ' + q.location + ' · ' + q.time, { className: 'quake-tooltip' });
+    if (!q.lat || !q.lng) return;
+    const mc = q.mag >= 5 ? '#f43f5e' : q.mag >= 4 ? '#fb923c' : q.mag >= 3 ? '#f59e0b' : q.mag >= 2 ? '#38bdf8' : '#10b981';
+    const r = Math.min(5 + q.mag * 2, 16);
+    L.circleMarker([q.lat, q.lng], { radius: r, color: '#fff', fillColor: mc, fillOpacity: 0.85, weight: 2.5 }).addTo(seismicLayer)
+      .bindTooltip('<b>M' + q.mag.toFixed(1) + '</b> · ' + q.location + '<br>🕐 ' + (q.quakeTime || q.time) + ' · 📏 ' + q.depth + ' km', { className: 'quake-tooltip' });
   });
 }
 function renderSeismicZones() {
