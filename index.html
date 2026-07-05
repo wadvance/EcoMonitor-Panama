@@ -2018,7 +2018,7 @@ const diseases = [
   { id: 'hantavirus', name: 'Hantavirus', level: 'nulo', icon: '🐀', desc: 'Virus transmitido por roedores', active: false, cases: 0, rec: 'Sin casos activos. Evitar contacto con roedores.' },
   { id: 'leptospirosis', name: 'Leptospirosis', level: 'nulo', icon: '🐀', desc: 'Bacteria en agua contaminada', active: false, cases: 0, rec: 'Sin casos activos. Evitar aguas estancadas.' },
   { id: 'malaria', name: 'Malaria', level: 'bajo', icon: '🦟', desc: 'Transmitido por mosquito Anopheles', active: true, cases: 3, rec: 'Repelente en áreas rurales. Mosquiteros en Darién y Guna Yala.' },
-  { id: 'norovirus', name: 'Norovirus', level: 'alto', icon: '🤢', desc: 'Brote activo en David, Chiriquí', active: true, cases: 1580, rec: '' }
+  { id: 'norovirus', name: 'Norovirus', level: 'alto', icon: '🤢', desc: 'Brote activo en David, Chiriquí', active: true, cases: 1684, rec: '' }
 ];
 
 function fetchNorovirusData() {
@@ -2034,8 +2034,8 @@ function fetchNorovirusData() {
       .then(html => parseNorovirusFromHTML(html))
       .catch(() => {
         const d = diseases.find(x => x.id === 'norovirus');
-        d.cases = d.cases + Math.floor(Math.random() * 35) + 5;
-        d.desc = 'Brote en expansión · ' + d.cases.toLocaleString('es-PA') + ' casos';
+        d.cases = Math.max(d.cases, 1684);
+        d.desc = 'Brote activo en David, Chiriquí · ' + d.cases.toLocaleString('es-PA') + ' casos (MINSA)';
       })
     )
     .finally(() => updateEpidemicStatus());
@@ -2082,7 +2082,7 @@ function updateEpidemicStatus() {
     div.className = `glass rounded-xl p-2 flex items-center gap-2 ${isActive ? '' : 'opacity-50'}`;
     let casesText = isActive ? '· ' + d.cases.toLocaleString('es-PA') + ' casos' : '· Sin casos activos';
     if (d.id === 'norovirus' && isActive) {
-      const pct = ((noro.cases - 1500) / 1500 * 100).toFixed(0);
+      const pct = ((noro.cases - 1684) / 1684 * 100).toFixed(0);
       const trend = pct > 0 ? `<span class="text-rose-400">↑</span>` : pct < 0 ? `<span class="text-emerald-400">↓</span>` : `→`;
       casesText = `· ${d.cases.toLocaleString('es-PA')} casos ${trend} ${Math.abs(pct)}%`;
     }
@@ -2355,7 +2355,7 @@ function init() {
   fetchNorovirusData();
   // Epidemic auto-refresh every 5 min
   
-  setTimeout(() => addNotification('success', '✓ EcoMonitor v3.0 activado', 'Todos los sensores y clima funcionando. ' + getNow()), 1500);
+  addNotification('success', '✓ EcoMonitor v3.0 activado', 'Sistema integral monitoreando Panamá 24/7');
 }
 init();
 
