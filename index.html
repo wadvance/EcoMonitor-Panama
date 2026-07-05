@@ -2314,6 +2314,7 @@ function init() {
   renderFreqBars();
   showEnvDetail('aire');
   renderNotifList();
+  updateRoleUI();
   seismo1 = initSeismo('seismo1', 0.08);
   seismo2 = initSeismo('seismo2', 0.05);
   seismo3 = initSeismo('seismo3', 0.05);
@@ -2354,6 +2355,7 @@ function init() {
   fetchNorovirusData();
   // Epidemic auto-refresh every 5 min
   
+  initTrialCountdown();
   addNotification('success', '✓ EcoMonitor v3.0 activado', 'Sistema integral monitoreando Panamá 24/7');
 }
 init();
@@ -2664,20 +2666,28 @@ function updateRoleUI() {
   const trialBadge = document.getElementById('trialBadge');
   if (!badge) return;
   const role = getUserRole();
+  const name = getUserName();
   if (role === 'superadmin') {
-    badge.textContent = '⭐ Super Admin';
+    badge.textContent = '⭐ ' + name;
     badge.className = 'px-2 py-1 text-[9px] rounded-full bg-purple-500/20 border border-purple-500/50 text-purple-300 font-medium';
     if (logoutBtn) logoutBtn.classList.remove('hidden');
     if (trialBadge) { trialBadge.textContent = '🔓 Ilimitado'; trialBadge.className = 'px-2 py-1 text-[9px] rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-medium'; trialBadge.title = 'Acceso completo ilimitado'; }
   } else if (role === 'admin') {
-    badge.textContent = '🔷 Admin';
+    badge.textContent = '🔷 ' + name;
     badge.className = 'px-2 py-1 text-[9px] rounded-full bg-blue-500/20 border border-blue-500/50 text-blue-300 font-medium';
     if (logoutBtn) logoutBtn.classList.remove('hidden');
     if (trialBadge) { trialBadge.textContent = '🔓 Ilimitado'; trialBadge.className = 'px-2 py-1 text-[9px] rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-medium'; trialBadge.title = 'Acceso completo ilimitado'; }
   } else {
-    badge.textContent = '';
-    badge.className = 'hidden';
-    if (logoutBtn) logoutBtn.classList.add('hidden');
+    badge.textContent = '👤 ' + name;
+    badge.className = 'px-2 py-1 text-[9px] rounded-full bg-slate-500/20 border border-slate-500/30 text-slate-300 font-medium';
+    if (logoutBtn) logoutBtn.classList.remove('hidden');
+    const remaining = getDaysRemaining();
+    if (trialBadge && remaining && remaining !== Infinity) {
+      const d = remaining.days || 0;
+      trialBadge.textContent = '⏳ ' + d + ' días';
+      trialBadge.className = d <= 3 ? 'px-2 py-1 text-[9px] rounded-full bg-rose-500/30 border border-rose-500/50 text-rose-300 font-medium' : 'px-2 py-1 text-[9px] rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-medium';
+      trialBadge.title = 'Periodo de prueba: ' + d + ' días restantes';
+    }
   }
 }
 
