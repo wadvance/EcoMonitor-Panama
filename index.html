@@ -676,8 +676,9 @@
 </div>
 
 <footer class="max-w-7xl mx-auto px-4 py-6 text-center text-slate-500 text-xs">
-  <p>EcoMonitor Panamá © 2025 — Sistema Integral de Monitoreo Ambiental, Sísmico, Climático y Espacial</p>
+  <p>EcoMonitor Panamá © 2026 — Sistema Integral de Monitoreo Ambiental, Sísmico, Climático y Espacial</p>
   <p class="mt-1">🌍 Ambiental · 🌤️ Clima · 🌋 Sísmico · 🌊 Tsunamis · 🛰️ Espacial · 🔔 24/7</p>
+  <p class="mt-1">JMAB — Todos los Derechos Reservados</p>
 </footer>
 <script>
 // ============================================
@@ -2628,7 +2629,8 @@ function showLoginModal() {
   modal.id = 'loginModal';
   modal.className = 'modal-overlay active';
   modal.style.zIndex = '99999';
-  modal.innerHTML = `<div class="modal-content max-w-sm p-6 text-center" style="background:linear-gradient(135deg,#0f172a,#1e293b);border:2px solid #10b981;">
+  modal.innerHTML = `<div class="modal-content max-w-sm p-6 text-center relative" style="background:linear-gradient(135deg,#0f172a,#1e293b);border:2px solid #10b981;">
+    <button onclick="this.closest('.modal-overlay').remove()" class="absolute top-3 right-3 w-7 h-7 rounded-full glass hover:bg-white/20 flex items-center justify-center text-xs text-slate-300" title="Cerrar">✕</button>
     <div class="text-5xl mb-3">🔐</div>
     <h2 class="text-xl font-bold mb-1">EcoMonitor Panamá</h2>
     <p class="text-xs text-slate-400 mb-4">Iniciá sesión o continuá como demo</p>
