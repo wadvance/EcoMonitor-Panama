@@ -794,8 +794,11 @@ function getUvStatus(uv) {
 }
 async function fetchWeather() {
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${USER_LAT}&longitude=${USER_LON}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,uv_index&hourly=temperature_2m,precipitation_probability,precipitation,weather_code&daily=sunrise,sunset,uv_index_max&timezone=America%2FPanama&forecast_days=2`;
-    const res = await fetch(url);
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeout);
     if (!res.ok) throw new Error('API error');
     weatherData = await res.json();
     updateWeatherUI();
@@ -803,10 +806,10 @@ async function fetchWeather() {
     document.getElementById('weatherUpdated').textContent = new Date().toLocaleTimeString('es-PA', { hour: '2-digit', minute: '2-digit' });
   } catch (err) {
     console.error('Weather fetch error:', err);
-    // Fallback: datos simulados realistas para Panamá
     weatherData = generateFallbackWeather();
     updateWeatherUI();
     updateWeatherCharts();
+    document.getElementById('weatherUpdated').textContent = new Date().toLocaleTimeString('es-PA', { hour: '2-digit', minute: '2-digit' });
   }
 }
 function generateFallbackWeather() {
@@ -2314,10 +2317,10 @@ function init() {
   renderFreqBars();
   showEnvDetail('aire');
   renderNotifList();
-  updateRoleUI();
+  document.getElementById('notifCount').textContent = notifications.length;
   const logoutEl = document.getElementById('logoutBtn');
   if (logoutEl) {
-    logoutEl.addEventListener('click', function(e) { e.preventDefault(); logout(); });
+    logoutEl.addEventListener('click', logout);
     logoutEl.addEventListener('touchend', function(e) { e.preventDefault(); logout(); });
   }
   seismo1 = initSeismo('seismo1', 0.08);
@@ -2329,6 +2332,10 @@ function init() {
   updateTime();
   setInterval(updateTime, 1000);
   
+  // Clima inicial inmediato (fallback)
+  weatherData = generateFallbackWeather();
+  updateWeatherUI();
+  
   // Geolocalización y datos reales
   getUserLocation();
   fetchAirQuality();
@@ -2336,7 +2343,7 @@ function init() {
   fetchRealQuakes();
   setInterval(fetchRealQuakes, 2 * 60 * 1000); // cada 2 min (tiempo real)
   
-  // Cargar clima real
+  // Cargar clima real (reemplaza fallback cuando llegue)
   fetchWeather();
   setInterval(fetchWeather, 15 * 60 * 1000); // cada 15 min
   setInterval(fetchNorovirusData, 5 * 60 * 1000); // cada 5 min
