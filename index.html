@@ -18,6 +18,8 @@
 <link rel="manifest" href="manifest.json">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.0/index.css">
 <style>
   body { font-family: 'Inter', sans-serif; }
@@ -37,9 +39,12 @@
   .toggle-switch.active { background: #10b981; }
   .toggle-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: white; border-radius: 50%; transition: all 0.3s; }
   .toggle-switch.active::after { left: 20px; }
-  .province { transition: all 0.3s; cursor: pointer; stroke: rgba(255,255,255,0.3); stroke-width: 1; }
-  .province:hover { stroke: #fff; stroke-width: 2; filter: brightness(1.3); }
-  .province.selected { stroke: #fff; stroke-width: 2.5; filter: brightness(1.4); }
+  .leaflet-container { background: #0a0f1e; border-radius: 12px; }
+  .city-label { background: none !important; border: none !important; box-shadow: none !important; color: #fff !important; font-weight: bold !important; font-size: 11px !important; text-shadow: 0 1px 4px rgba(0,0,0,0.9) !important; }
+  .zone-label { background: rgba(0,0,0,0.7) !important; border: 1px solid rgba(255,255,255,0.2) !important; border-radius: 4px !important; padding: 2px 6px !important; color: #fff !important; font-size: 9px !important; }
+  .quake-tooltip { background: rgba(0,0,0,0.85) !important; border: 1px solid #f59e0b !important; color: #fff !important; font-size: 10px !important; }
+  .epicenter-tooltip { background: rgba(239,68,68,0.95) !important; border: 1px solid #fff !important; color: #fff !important; font-size: 11px !important; font-weight: bold !important; padding: 4px 8px !important; border-radius: 8px !important; }
+  .epicenter-pin { width: 28px; height: 28px; background: #f43f5e; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 20px rgba(244,63,94,0.8); }
   .card-hover { transition: all 0.3s; cursor: pointer; }
   .card-hover:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(0,0,0,0.3); }
   .danger-pulse { animation: dangerPulse 1.5s infinite; }
@@ -375,58 +380,15 @@
 <!-- MAPA -->
 <section id="content-mapa" class="tab-content panama-only max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
   <div class="glass rounded-2xl p-4 mb-4">
-    <div class="flex items-center justify-between mb-3"><h3 class="font-bold">🗺️ Mapa de Contaminación por Provincia</h3><div class="flex items-center gap-2"><button id="toggleSeismicMap" onclick="toggleSeismicMarkers()" title="Mostrar u ocultar las zonas sísmicas en el mapa de Panamá" class="px-2 py-1 rounded-lg bg-rose-500/20 border border-rose-500/30 text-[10px] font-medium">🔴 Zonas Sísmicas</button><span class="text-xs text-slate-400" id="mapTime">--:--</span></div></div>
-    <div class="flex items-center gap-2 mb-3 flex-wrap text-[10px]"><span class="text-slate-400 font-medium">Leyenda de Riesgo:</span>
+    <div class="flex items-center justify-between mb-3"><h3 class="font-bold">🗺️ Mapa Satelital de Panamá</h3><div class="flex items-center gap-2"><button id="toggleSeismicMap" onclick="toggleSeismicMarkers()" title="Mostrar u ocultar las zonas sísmicas en el mapa satelital de Panamá" class="px-2 py-1 rounded-lg bg-rose-500/20 border border-rose-500/30 text-[10px] font-medium">🔴 Zonas Sísmicas</button><span class="text-xs text-slate-400" id="mapTime">--:--</span></div></div>
+    <div class="flex items-center gap-2 mb-3 flex-wrap text-[10px]"><span class="text-slate-400 font-medium">Leyenda:</span>
       <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow shadow-rose-500/50"></span><span>Alta</span></div>
       <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow shadow-amber-500/50"></span><span>Media</span></div>
       <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow shadow-emerald-500/50"></span><span>Baja</span></div>
-      <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-cyan-500 shadow shadow-cyan-500/50"></span><span>Óptima</span></div>
-      <span class="ml-auto text-slate-500">★ Epicentro</span>
+      <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-sky-500 shadow shadow-sky-500/50"></span><span>Ciudad</span></div>
+      <span class="ml-auto text-slate-500"><span class="inline-block w-3 h-3 rounded-full bg-rose-500 border border-white align-middle mr-0.5"></span> Epicentro</span>
     </div>
-    <div class="relative bg-gradient-to-br from-slate-900/80 to-slate-800/40 rounded-xl p-4 border border-white/5">
-      <svg viewBox="0 0 800 300" class="w-full h-auto drop-shadow-xl">
-        <defs>
-          <radialGradient id="oceanGrad" cx="50%" cy="50%" r="70%"><stop offset="0%" stop-color="#0a1a2f"/><stop offset="100%" stop-color="#040d1a"/></radialGradient>
-          <filter id="glow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          <filter id="provShadow"><feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#000" flood-opacity="0.4"/></filter>
-        </defs>
-        <rect x="0" y="0" width="800" height="300" fill="url(#oceanGrad)"/>
-        <line x1="0" y1="100" x2="800" y2="100" stroke="#ffffff" stroke-opacity="0.02" stroke-width="1"/>
-        <line x1="0" y1="200" x2="800" y2="200" stroke="#ffffff" stroke-opacity="0.02" stroke-width="1"/>
-        <line x1="200" y1="0" x2="200" y2="300" stroke="#ffffff" stroke-opacity="0.015" stroke-width="1"/>
-        <line x1="400" y1="0" x2="400" y2="300" stroke="#ffffff" stroke-opacity="0.015" stroke-width="1"/>
-        <line x1="600" y1="0" x2="600" y2="300" stroke="#ffffff" stroke-opacity="0.015" stroke-width="1"/>
-        <path class="province" data-id="bocas" d="M50,80 L120,60 L150,80 L140,110 L80,120 L50,100 Z" fill="#f59e0b" fill-opacity="0.6" stroke="#fff" stroke-width="0.8" stroke-opacity="0.3" filter="url(#provShadow)"/>
-        <path class="province" data-id="chiriqui" d="M120,60 L200,50 L220,90 L180,120 L140,110 L150,80 Z" fill="#f59e0b" fill-opacity="0.6" stroke="#fff" stroke-width="0.8" stroke-opacity="0.3" filter="url(#provShadow)"/>
-        <path class="province" data-id="veraguas" d="M200,50 L320,55 L340,100 L300,140 L220,130 L180,120 L220,90 Z" fill="#10b981" fill-opacity="0.6" stroke="#fff" stroke-width="0.8" stroke-opacity="0.3" filter="url(#provShadow)"/>
-        <path class="province" data-id="cocle" d="M320,55 L420,60 L430,100 L380,130 L340,100 Z" fill="#10b981" fill-opacity="0.6" stroke="#fff" stroke-width="0.8" stroke-opacity="0.3" filter="url(#provShadow)"/>
-        <path class="province" data-id="herrera" d="M300,140 L340,100 L380,130 L360,170 L310,160 Z" fill="#10b981" fill-opacity="0.6" stroke="#fff" stroke-width="0.8" stroke-opacity="0.3" filter="url(#provShadow)"/>
-        <path class="province" data-id="lossantos" d="M310,160 L360,170 L370,210 L330,220 L300,190 Z" fill="#06b6d4" fill-opacity="0.6" stroke="#fff" stroke-width="0.8" stroke-opacity="0.3" filter="url(#provShadow)"/>
-        <path class="province" data-id="panamaoeste" d="M420,60 L500,55 L510,100 L470,120 L430,100 Z" fill="#ef4444" fill-opacity="0.6" stroke="#fff" stroke-width="0.8" stroke-opacity="0.3" filter="url(#provShadow)"/>
-        <path class="province" data-id="panama" d="M500,55 L580,50 L600,90 L560,120 L510,100 Z" fill="#ef4444" fill-opacity="0.6" stroke="#fff" stroke-width="0.8" stroke-opacity="0.3" filter="url(#provShadow)"/>
-        <path class="province" data-id="colon" d="M470,120 L510,100 L560,120 L540,160 L480,150 Z" fill="#f59e0b" fill-opacity="0.6" stroke="#fff" stroke-width="0.8" stroke-opacity="0.3" filter="url(#provShadow)"/>
-        <path class="province" data-id="darien" d="M560,120 L600,90 L700,80 L750,130 L720,200 L620,210 L580,170 L540,160 Z" fill="#06b6d4" fill-opacity="0.6" stroke="#fff" stroke-width="0.8" stroke-opacity="0.3" filter="url(#provShadow)"/>
-        <path class="province" data-id="embera" d="M380,130 L430,100 L470,120 L480,150 L440,180 L360,170 Z" fill="#06b6d4" fill-opacity="0.6" stroke="#fff" stroke-width="0.8" stroke-opacity="0.3" filter="url(#provShadow)"/>
-        <path class="province" data-id="gunayala" d="M540,160 L580,170 L620,210 L560,220 L520,190 Z" fill="#10b981" fill-opacity="0.6" stroke="#fff" stroke-width="0.8" stroke-opacity="0.3" filter="url(#provShadow)"/>
-        <g filter="url(#glow)">
-          <circle cx="540" cy="80" r="5" fill="#fff" opacity="0.9"/>
-          <circle cx="540" cy="80" r="8" fill="none" stroke="#fff" stroke-width="1" opacity="0.3"/>
-        </g>
-        <text x="550" y="75" fill="#fff" font-size="10" font-weight="bold" stroke="#0c1929" stroke-width="0.5">CD Panamá</text>
-        <circle cx="170" cy="85" r="4" fill="#fff" opacity="0.8"/>
-        <text x="180" y="83" fill="#fff" font-size="9" stroke="#0c1929" stroke-width="0.5">David</text>
-        <circle cx="500" cy="135" r="4" fill="#fff" opacity="0.8"/>
-        <text x="510" y="133" fill="#fff" font-size="9" stroke="#0c1929" stroke-width="0.5">Colón</text>
-        <circle cx="660" cy="101" r="3" fill="#fff" opacity="0.7"/>
-        <text x="668" y="100" fill="#fff" font-size="8" stroke="#0c1929" stroke-width="0.5">Yaviza</text>
-        <text x="15" y="18" fill="#fff" fill-opacity="0.15" font-size="9" font-weight="bold">MAR CARIBE</text>
-        <text x="15" y="290" fill="#fff" fill-opacity="0.15" font-size="9" font-weight="bold">OCÉANO PACÍFICO</text>
-        <g transform="translate(735,15)"><circle cx="8" cy="8" r="7" fill="none" stroke="#fff" stroke-opacity="0.5" stroke-width="1"/><polygon points="8,2 10,8 8,6 6,8" fill="#fff" fill-opacity="0.6"/><text x="1" y="22" fill="#fff" fill-opacity="0.35" font-size="7">N</text></g>
-        <g id="seismicMarkers" class="hidden">
-          <!-- Seismic markers rendered by JS -->
-        </g>
-      </svg>
-    </div>
+    <div id="leafletMap" style="height:440px;width:100%;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);"></div>
   </div>
   <div id="provDetail" class="glass rounded-2xl p-4 hidden">
     <div class="flex items-center justify-between mb-3"><div><h4 class="font-bold text-lg" id="provName">-</h4><p class="text-xs" id="provLevel">-</p></div><div id="provAQI" class="text-3xl font-bold">-</div></div>
@@ -1205,20 +1167,20 @@ let quakeHistory = [
   { mag: 2.0, depth: 18, location: 'Punta Burica, Chiriquí', time: 'Hace 6 h', quakeTime: '' }
 ];
 const seismicZones = [
-  { id: 'Z-01', name: 'Volcán Barú', province: 'Chiriquí', risk: 'Alta', svgX: 140, svgY: 95, events: 230, desc: 'Zona de subducción activa. Volcán dormido, actividad sísmica frecuente.' },
-  { id: 'Z-02', name: 'Golfo de Chiriquí', province: 'Chiriquí', risk: 'Alta', svgX: 120, svgY: 130, events: 185, desc: 'Fosa tectónica frente a la costa chiricana. Sismos de magnitud moderada a fuerte.' },
-  { id: 'Z-03', name: 'Costa Pacífica', province: 'Chiriquí/Veraguas', risk: 'Alta', svgX: 130, svgY: 150, events: 160, desc: 'Placa de Nazca subduce bajo la placa Caribe. Sismos frecuentes en la costa sur.' },
-  { id: 'Z-04', name: 'Bocas del Toro', province: 'Bocas del Toro', risk: 'Media', svgX: 95, svgY: 80, events: 95, desc: 'Zona de falla activa en el Caribe occidental panameño.' },
-  { id: 'Z-05', name: 'Veraguas Central', province: 'Veraguas', risk: 'Media', svgX: 260, svgY: 100, events: 88, desc: 'Falla de Veraguas. Actividad sísmica moderada con epicentros en la cordillera central.' },
-  { id: 'Z-06', name: 'Coclé', province: 'Coclé', risk: 'Media', svgX: 380, svgY: 90, events: 72, desc: 'Falla de Coclé. Sismos superficiales de baja a moderada magnitud.' },
-  { id: 'Z-07', name: 'CD Panamá', province: 'Panamá', risk: 'Media', svgX: 540, svgY: 80, events: 65, desc: 'Capital bajo monitoreo sísmico constante. Falla de Panamá con sismos moderados.' },
-  { id: 'Z-08', name: 'Colón', province: 'Colón', risk: 'Media', svgX: 500, svgY: 135, events: 58, desc: 'Costa caribeña. Actividad sísmica relacionada con fallas submarinas.' },
-  { id: 'Z-09', name: 'Herrera/Los Santos', province: 'Herrera/Los Santos', risk: 'Baja', svgX: 345, svgY: 145, events: 35, desc: 'Península de Azuero. Baja actividad sísmica histórica.' },
-  { id: 'Z-10', name: 'Darién', province: 'Darién', risk: 'Baja', svgX: 650, svgY: 155, events: 30, desc: 'Frontera con Colombia. Baja actividad sísmica pero con potencial de sismos profundos.' },
-  { id: 'Z-11', name: 'Emberá', province: 'Emberá', risk: 'Baja', svgX: 430, svgY: 160, events: 25, desc: 'Región central-este con baja actividad sísmica registrada.' },
-  { id: 'Z-12', name: 'Guna Yala', province: 'Guna Yala', risk: 'Baja', svgX: 575, svgY: 190, events: 22, desc: 'Archipiélago caribeño. Baja sismicidad, monitoreado por tsunamis.' },
-  { id: 'Z-13', name: 'Punta Burica', province: 'Chiriquí', risk: 'Media', svgX: 90, svgY: 115, events: 55, desc: 'Península fronteriza con Costa Rica. Actividad sísmica por falla de Burica.' },
-  { id: 'Z-14', name: 'Paso Canoas', province: 'Chiriquí', risk: 'Alta', svgX: 62, svgY: 98, events: 120, desc: 'Frontera terrestre con Costa Rica. Falla activa de Paso Canoas con sismos frecuentes de magnitud moderada.' }
+  { id: 'Z-01', name: 'Volcán Barú', province: 'Chiriquí', risk: 'Alta', svgX: 140, svgY: 95, lat: 8.81, lng: -82.54, events: 230, desc: 'Zona de subducción activa. Volcán dormido, actividad sísmica frecuente.' },
+  { id: 'Z-02', name: 'Golfo de Chiriquí', province: 'Chiriquí', risk: 'Alta', svgX: 120, svgY: 130, lat: 8.0, lng: -82.5, events: 185, desc: 'Fosa tectónica frente a la costa chiricana. Sismos de magnitud moderada a fuerte.' },
+  { id: 'Z-03', name: 'Costa Pacífica', province: 'Chiriquí/Veraguas', risk: 'Alta', svgX: 130, svgY: 150, lat: 7.8, lng: -82.0, events: 160, desc: 'Placa de Nazca subduce bajo la placa Caribe. Sismos frecuentes en la costa sur.' },
+  { id: 'Z-04', name: 'Bocas del Toro', province: 'Bocas del Toro', risk: 'Media', svgX: 95, svgY: 80, lat: 9.1, lng: -82.5, events: 95, desc: 'Zona de falla activa en el Caribe occidental panameño.' },
+  { id: 'Z-05', name: 'Veraguas Central', province: 'Veraguas', risk: 'Media', svgX: 260, svgY: 100, lat: 8.2, lng: -81.2, events: 88, desc: 'Falla de Veraguas. Actividad sísmica moderada con epicentros en la cordillera central.' },
+  { id: 'Z-06', name: 'Coclé', province: 'Coclé', risk: 'Media', svgX: 380, svgY: 90, lat: 8.5, lng: -80.4, events: 72, desc: 'Falla de Coclé. Sismos superficiales de baja a moderada magnitud.' },
+  { id: 'Z-07', name: 'CD Panamá', province: 'Panamá', risk: 'Media', svgX: 540, svgY: 80, lat: 8.98, lng: -79.52, events: 65, desc: 'Capital bajo monitoreo sísmico constante. Falla de Panamá con sismos moderados.' },
+  { id: 'Z-08', name: 'Colón', province: 'Colón', risk: 'Media', svgX: 500, svgY: 135, lat: 9.36, lng: -79.9, events: 58, desc: 'Costa caribeña. Actividad sísmica relacionada con fallas submarinas.' },
+  { id: 'Z-09', name: 'Herrera/Los Santos', province: 'Herrera/Los Santos', risk: 'Baja', svgX: 345, svgY: 145, lat: 7.8, lng: -80.5, events: 35, desc: 'Península de Azuero. Baja actividad sísmica histórica.' },
+  { id: 'Z-10', name: 'Darién', province: 'Darién', risk: 'Baja', svgX: 650, svgY: 155, lat: 8.0, lng: -77.8, events: 30, desc: 'Frontera con Colombia. Baja actividad sísmica pero con potencial de sismos profundos.' },
+  { id: 'Z-11', name: 'Emberá', province: 'Emberá', risk: 'Baja', svgX: 430, svgY: 160, lat: 8.5, lng: -78.2, events: 25, desc: 'Región central-este con baja actividad sísmica registrada.' },
+  { id: 'Z-12', name: 'Guna Yala', province: 'Guna Yala', risk: 'Baja', svgX: 575, svgY: 190, lat: 9.0, lng: -78.5, events: 22, desc: 'Archipiélago caribeño. Baja sismicidad, monitoreado por tsunamis.' },
+  { id: 'Z-13', name: 'Punta Burica', province: 'Chiriquí', risk: 'Media', svgX: 90, svgY: 115, lat: 8.03, lng: -82.87, events: 55, desc: 'Península fronteriza con Costa Rica. Actividad sísmica por falla de Burica.' },
+  { id: 'Z-14', name: 'Paso Canoas', province: 'Chiriquí', risk: 'Alta', svgX: 62, svgY: 98, lat: 8.54, lng: -82.84, events: 120, desc: 'Frontera terrestre con Costa Rica. Falla activa de Paso Canoas con sismos frecuentes de magnitud moderada.' }
 ];
 
 const zoneRiskColors = { Alta: 'rose', Media: 'amber', Baja: 'emerald' };
@@ -1311,48 +1273,45 @@ function renderQuakeNotifs() {
 }
 function gotoMapWithQuake(location) {
   showTab('mapa');
-  const markers = document.getElementById('seismicMarkers');
-  if (markers && markers.classList.contains('hidden')) toggleSeismicMarkers();
   showEpicenterMarker(location || '');
 }
 function showEpicenterMarker(location) {
-  if (!location) return;
-  document.querySelectorAll('.epicenter-el').forEach(el => el.remove());
-  const qc = {
-    'Costa Pacífico, Chiriquí': [130, 150], 'Volcán Barú, Chiriquí': [140, 95],
-    'Golfo de Chiriquí': [120, 130], 'Colón': [500, 135], 'Darién': [650, 155],
-    'Paso Canoas, Chiriquí': [62, 98], 'Punta Burica, Chiriquí': [90, 115]
+  if (!leafletMap || !location) return;
+  if (epicenterGroup) leafletMap.removeLayer(epicenterGroup);
+  epicenterGroup = L.layerGroup().addTo(leafletMap);
+  const qLatLng = {
+    'Costa Pacífico, Chiriquí': [7.8, -82.0], 'Volcán Barú, Chiriquí': [8.81, -82.54],
+    'Golfo de Chiriquí': [8.0, -82.5], 'Colón': [9.36, -79.9], 'Darién': [8.0, -77.5],
+    'Paso Canoas, Chiriquí': [8.54, -82.84], 'Punta Burica, Chiriquí': [8.03, -82.87]
   };
-  let coords = qc[location];
-  if (!coords) {
-    for (const [k, v] of Object.entries(qc)) {
-      if (location.includes(k) || k.includes(location)) { coords = v; break; }
+  let ll = qLatLng[location];
+  if (!ll) {
+    for (const [k, v] of Object.entries(qLatLng)) {
+      if (location.includes(k) || k.includes(location)) { ll = v; break; }
     }
   }
-  if (!coords) {
+  if (!ll) {
     seismicZones.forEach(z => {
-      if (location.toLowerCase().includes(z.name.toLowerCase())) { coords = [z.svgX, z.svgY]; }
+      if (location.toLowerCase().includes(z.name.toLowerCase())) ll = [z.lat, z.lng];
     });
   }
-  if (!coords) {
+  if (!ll) {
     const l = location.toLowerCase();
-    if (l.includes('chiriquí')||l.includes('chiriqui')||l.includes('armuelles')||l.includes('burica')||l.includes('charco')) coords = [110,120];
-    else if (l.includes('panamá')||l.includes('panama')||l.includes('ciudad')||l.includes('cd')) coords = [540,80];
-    else if (l.includes('colón')||l.includes('colon')) coords = [500,135];
-    else if (l.includes('darién')||l.includes('darien')) coords = [650,155];
-    else if (l.includes('veraguas')||l.includes('simulación')) coords = [260,95];
-    else coords = [400,150];
+    if (l.includes('chiriquí')||l.includes('chiriqui')||l.includes('armuelles')||l.includes('burica')||l.includes('charco')) ll = [8.2, -82.5];
+    else if (l.includes('panamá')||l.includes('panama')||l.includes('ciudad')||l.includes('cd')) ll = [8.98, -79.52];
+    else if (l.includes('colón')||l.includes('colon')) ll = [9.36, -79.9];
+    else if (l.includes('darién')||l.includes('darien')) ll = [8.0, -77.5];
+    else if (l.includes('veraguas')||l.includes('simulación')) ll = [8.0, -81.0];
+    else ll = [8.5, -80.5];
   }
-  const svg = document.querySelector('#content-mapa svg');
-  if (!svg) return;
-  const ns = 'http://www.w3.org/2000/svg';
-  const el = (tag, attr) => { const e = document.createElementNS(ns, tag); Object.entries(attr).forEach(([k,v])=>e.setAttribute(k,v)); e.classList.add('epicenter-el'); svg.appendChild(e); return e; };
-  el('line',{x1:coords[0]-25,y1:coords[1],x2:coords[0]+25,y2:coords[1],stroke:'#f43f5e','stroke-width':1,'stroke-dasharray':'3,3',opacity:'0.7'});
-  el('line',{x1:coords[0],y1:coords[1]-25,x2:coords[0],y2:coords[1]+25,stroke:'#f43f5e','stroke-width':1,'stroke-dasharray':'3,3',opacity:'0.7'});
-  el('circle',{cx:coords[0],cy:coords[1],r:10,fill:'none',stroke:'#f43f5e','stroke-width':2,opacity:'0.3'});
-  el('circle',{cx:coords[0],cy:coords[1],r:7,fill:'#f43f5e',stroke:'#fff','stroke-width':2}).classList.add('epicenter-el','blink');
-  el('text',{x:coords[0]+12,y:coords[1]+4,fill:'#fff','font-size':9,'font-weight':'bold',stroke:'#0f172a','stroke-width':'.5'}).textContent = '📌 '+location;
-  setTimeout(() => document.querySelectorAll('.epicenter-el').forEach(e=>e.remove()), 12000);
+  L.circleMarker(ll, { radius: 14, color: '#f43f5e', fillColor: '#f43f5e', fillOpacity: 0.3, weight: 2, opacity: 0.5 }).addTo(epicenterGroup);
+  L.circleMarker(ll, { radius: 8, color: '#fff', fillColor: '#f43f5e', fillOpacity: 1, weight: 2.5 }).addTo(epicenterGroup);
+  L.polyline([[ll[0], ll[1]-0.03],[ll[0], ll[1]+0.03]], { color: '#f43f5e', weight: 1, dashArray: '3,5', opacity: 0.6 }).addTo(epicenterGroup);
+  L.polyline([[ll[0]-0.03, ll[1]],[ll[0]+0.03, ll[1]]], { color: '#f43f5e', weight: 1, dashArray: '3,5', opacity: 0.6 }).addTo(epicenterGroup);
+  L.marker(ll, { icon: L.divIcon({ html: '<div class="epicenter-pin"></div>', iconSize: [28, 28], iconAnchor: [14, 14], className: '' }), zIndexOffset: 1000 }).addTo(epicenterGroup).bindTooltip('📌 ' + location, { className: 'epicenter-tooltip', direction: 'top', offset: [0, -16] });
+  leafletMap.flyTo(ll, 8, { duration: 1.2 });
+  if (epicenterTimer) clearTimeout(epicenterTimer);
+  epicenterTimer = setTimeout(() => { if (epicenterGroup) leafletMap.removeLayer(epicenterGroup); epicenterGroup = null; }, 12000);
 }
 function toggleSound() { soundEnabled = !soundEnabled; document.getElementById('soundToggle').classList.toggle('active'); }
 function toggleVibration() { vibrationEnabled = !vibrationEnabled; document.getElementById('vibrationToggle').classList.toggle('active'); }
@@ -1398,6 +1357,7 @@ function showTab(tab) {
   document.getElementById(`content-${tab}`).classList.remove('hidden');
   const btn = document.getElementById(`tab-${tab}`);
   btn.classList.add('tab-active'); btn.classList.remove('glass');
+  if (tab === 'mapa' && leafletMap) setTimeout(() => leafletMap.invalidateSize(), 100);
 }
 // ============================================
 // AMBIENTAL
@@ -1630,16 +1590,6 @@ function renderEnvZones(catId) {
 // ============================================
 // MAPA
 // ============================================
-document.querySelectorAll('.province').forEach(prov => {
-  const provData = provinces.find(p => p.id === prov.dataset.id);
-  if (provData) prov.setAttribute('title', `Ver datos de ${provData.name}: AQI ${provData.aqi}, nivel ${provData.level}`);
-  prov.addEventListener('click', function() {
-    document.querySelectorAll('.province').forEach(p => p.classList.remove('selected'));
-    this.classList.add('selected');
-    const data = provinces.find(p => p.id === this.dataset.id);
-    if (data) showProvDetail(data);
-  });
-});
 function showProvDetail(data) {
   const panel = document.getElementById('provDetail');
   panel.classList.remove('hidden');
@@ -1810,70 +1760,57 @@ function renderSeismicZones() {
     list.appendChild(div);
   });
 }
+// ============================================
+// 🗺️ LEAFLET MAPA SATELITAL
+// ============================================
+let leafletMap = null, seismicLayer = null, epicenterGroup = null, epicenterTimer = null;
+function initLeafletMap() {
+  if (leafletMap) return;
+  const el = document.getElementById('leafletMap');
+  if (!el) return;
+  leafletMap = L.map(el, { center: [8.5, -80.5], zoom: 7, zoomControl: true, attributionControl: false });
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18, attribution: '&copy; ESRI' }).addTo(leafletMap);
+  L.control.attribution({ position: 'bottomleft', prefix: false }).addTo(leafletMap);
+  L.circleMarker([8.98, -79.52], { radius: 7, color: '#38bdf8', fillColor: '#fff', fillOpacity: 0.9, weight: 2 }).addTo(leafletMap).bindTooltip('CD Panamá', { permanent: true, direction: 'right', offset: [5, 0], className: 'city-label' });
+  L.circleMarker([8.43, -82.43], { radius: 5, color: '#38bdf8', fillColor: '#fff', fillOpacity: 0.9, weight: 1.5 }).addTo(leafletMap).bindTooltip('David', { permanent: true, direction: 'right', offset: [5, 0], className: 'city-label' });
+  L.circleMarker([9.36, -79.9], { radius: 5, color: '#38bdf8', fillColor: '#fff', fillOpacity: 0.9, weight: 1.5 }).addTo(leafletMap).bindTooltip('Colón', { permanent: true, direction: 'right', offset: [5, 0], className: 'city-label' });
+  L.circleMarker([8.16, -77.69], { radius: 4, color: '#38bdf8', fillColor: '#fff', fillOpacity: 0.7, weight: 1 }).addTo(leafletMap).bindTooltip('Yaviza', { permanent: true, direction: 'right', offset: [5, 0], className: 'city-label' });
+  seismicLayer = L.layerGroup().addTo(leafletMap);
+  renderSeismicMarkers();
+  setTimeout(() => leafletMap.invalidateSize(), 300);
+}
 function toggleSeismicMarkers() {
-  const g = document.getElementById('seismicMarkers');
   const btn = document.getElementById('toggleSeismicMap');
-  if (!g) return;
-  const wasHidden = g.classList.contains('hidden');
-  g.classList.toggle('hidden');
-  btn.textContent = wasHidden ? '🔴 Ocultar Zonas' : '🔴 Zonas Sísmicas';
-  btn.className = wasHidden ? 'px-2 py-1 rounded-lg bg-rose-500/30 border border-rose-500/50 text-[10px] font-medium' : 'px-2 py-1 rounded-lg bg-rose-500/20 border border-rose-500/30 text-[10px] font-medium';
-  if (wasHidden) renderSeismicMarkers();
+  if (!seismicLayer || !leafletMap) return;
+  if (leafletMap.hasLayer(seismicLayer)) {
+    leafletMap.removeLayer(seismicLayer);
+    btn.textContent = '🔴 Zonas Sísmicas';
+    btn.className = 'px-2 py-1 rounded-lg bg-rose-500/20 border border-rose-500/30 text-[10px] font-medium';
+  } else {
+    leafletMap.addLayer(seismicLayer);
+    renderSeismicMarkers();
+    btn.textContent = '🔴 Ocultar Zonas';
+    btn.className = 'px-2 py-1 rounded-lg bg-rose-500/30 border border-rose-500/50 text-[10px] font-medium';
+  }
 }
 function renderSeismicMarkers() {
-  const g = document.getElementById('seismicMarkers');
-  if (!g) return;
-  g.innerHTML = '';
-  g.classList.remove('hidden');
+  if (!seismicLayer) return;
+  seismicLayer.clearLayers();
+  const colors = { Alta: '#f43f5e', Media: '#f59e0b', Baja: '#10b981' };
   seismicZones.forEach(z => {
-    const colors = { Alta: { fill: '#f43f5e', stroke: '#e11d48' }, Media: { fill: '#f59e0b', stroke: '#d97706' }, Baja: { fill: '#10b981', stroke: '#059669' } };
-    const col = colors[z.risk];
-    // Epicenter circle with pulse
-    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    c.setAttribute('cx', z.svgX); c.setAttribute('cy', z.svgY);
-    c.setAttribute('r', '6'); c.setAttribute('fill', col.fill);
-    c.setAttribute('stroke', col.stroke); c.setAttribute('stroke-width', '2');
-    c.setAttribute('opacity', '0.8');
-    c.setAttribute('title', `${z.name} (${z.risk}) · ${z.events} eventos/año`);
-    c.classList.add('blink');
-    g.appendChild(c);
-    // Outer ring
-    const ring = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    ring.setAttribute('cx', z.svgX); ring.setAttribute('cy', z.svgY);
-    ring.setAttribute('r', '10'); ring.setAttribute('fill', 'none');
-    ring.setAttribute('stroke', col.fill); ring.setAttribute('stroke-width', '1');
-    ring.setAttribute('opacity', '0.3');
-    g.appendChild(ring);
-    // Label
-    const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    t.setAttribute('x', z.svgX + 10); t.setAttribute('y', z.svgY + 4);
-    t.setAttribute('fill', '#fff'); t.setAttribute('font-size', '8');
-    t.setAttribute('font-weight', 'bold');
-    t.textContent = z.name;
-    g.appendChild(t);
+    L.circleMarker([z.lat, z.lng], { radius: 8, color: '#fff', fillColor: colors[z.risk], fillOpacity: 0.6, weight: 1.5 }).addTo(seismicLayer).bindTooltip(z.name + ' (' + z.risk + ')', { className: 'zone-label ' + z.risk.toLowerCase(), direction: 'right', offset: [5, 0] });
+    L.circle([z.lat, z.lng], { radius: 2000, color: colors[z.risk], weight: 1, opacity: 0.25, fill: false }).addTo(seismicLayer);
   });
-  // Also show recent earthquake markers from quakeHistory
-  const qCoords = {
-    'Costa Pacífico, Chiriquí': [130, 150], 'Volcán Barú, Chiriquí': [140, 95],
-    'Golfo de Chiriquí': [120, 130], 'Colón': [500, 135], 'Darién': [650, 155],
-    'Paso Canoas, Chiriquí': [62, 98], 'Punta Burica, Chiriquí': [90, 115]
+  const qLatLng = {
+    'Costa Pacífico, Chiriquí': [7.8, -82.0], 'Volcán Barú, Chiriquí': [8.81, -82.54],
+    'Golfo de Chiriquí': [8.0, -82.5], 'Colón': [9.36, -79.9], 'Darién': [8.0, -77.5],
+    'Paso Canoas, Chiriquí': [8.54, -82.84], 'Punta Burica, Chiriquí': [8.03, -82.87]
   };
   quakeHistory.forEach(q => {
-    const coords = qCoords[q.location];
-    if (!coords) return;
-    const x = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    x.setAttribute('x', coords[0] - 5); x.setAttribute('y', coords[1] - 10);
-    x.setAttribute('text-anchor', 'middle'); x.setAttribute('font-size', '14');
-    x.textContent = '💥';
-    x.setAttribute('title', `Sismo M${q.mag} · ${q.location} · Hace ${q.time}`);
-    g.appendChild(x);
-    // Magnitude label
-    const ml = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    ml.setAttribute('x', coords[0]); ml.setAttribute('y', coords[1] - 18);
-    ml.setAttribute('fill', '#fb923c'); ml.setAttribute('font-size', '7');
-    ml.setAttribute('text-anchor', 'middle'); ml.setAttribute('font-weight', 'bold');
-    ml.textContent = `M${q.mag}`;
-    g.appendChild(ml);
+    const ll = qLatLng[q.location];
+    if (!ll) return;
+    const icon = L.divIcon({ html: '💥', iconSize: [20, 20], className: '' });
+    L.marker(ll, { icon }).addTo(seismicLayer).bindTooltip('M' + q.mag + ' · ' + q.location + ' · ' + q.time, { className: 'quake-tooltip' });
   });
 }
 function renderSeismicZones() {
@@ -2392,6 +2329,7 @@ const TRIAL_LICENSE_KEY = 'ecomonitor-license';
 // ============================================
 let seismo1, seismo2, seismo3, seismo4, seismo5, miniSeismo;
 function init() {
+  initLeafletMap();
   updateLocationBadge();
   renderSensors();
   renderRanking();
