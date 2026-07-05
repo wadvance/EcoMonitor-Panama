@@ -903,15 +903,15 @@ async function fetchRealQuakes() {
     const data = await res.json();
     if (data.features && data.features.length > 0) {
       const now = Date.now();
-      quakeHistory.length = 0;
-      data.features.forEach((f, i) => {
+      const usgsQuakes = [];
+      data.features.forEach((f) => {
         const props = f.properties;
         const mag = props.mag || 1;
         const depth = f.geometry.coordinates[2] || 10;
         const place = props.place || 'Panamá';
         const time = props.time ? timeAgo(props.time) : 'Desconocido';
         const quakeTime = props.time ? formatQuakeTime(props.time) : '--';
-        quakeHistory.push({ mag, depth: Math.round(depth), location: place, time, quakeTime });
+        usgsQuakes.push({ mag, depth: Math.round(depth), location: place, time, quakeTime });
         if (mag >= 2.5) {
           const icon = mag >= 4 ? '🚨' : mag >= 3 ? '⚠️' : '🌋';
           const type = mag >= 4 ? 'danger' : mag >= 3 ? 'warning' : 'info';
@@ -919,9 +919,10 @@ async function fetchRealQuakes() {
             '📍 ' + place + ' · Prof. ' + Math.round(depth) + ' km · 🕐 ' + quakeTime);
         }
       });
+      const seedData = quakeHistory.filter(q => q.location.includes('Simulación') || q.location.includes('Paso Canoas') || q.location.includes('Punta Burica') || q.location.includes('Volcán Barú') || q.location.includes('Costa Pacífico') || q.location.includes('Golfo de Chiriquí'));
+      quakeHistory = [...usgsQuakes, ...seedData].slice(0, 12);
       lastUsgsFetch = now;
       renderMiniQuakes();
-      addNotification('info', '📡 Sismos actualizados', data.features.length + ' eventos sísmicos en Panamá');
     }
   } catch (err) {
     console.error('USGS fetch error:', err);
@@ -1162,7 +1163,7 @@ const sensors = [
   { id: 'G-003', name: 'GPS Geodésico Colón', type: 'gps', location: 'Colón', active: true, signal: 95, reading: '0.3 mm/día' },
   { id: 'G-004', name: 'GPS Changuinola', type: 'gps', location: 'Bocas del Toro', active: true, signal: 92, reading: '0.1 mm/día' }
 ];
-const quakeHistory = [
+let quakeHistory = [
   { mag: 2.1, depth: 45, location: 'Costa Pacífico, Chiriquí', time: 'Hace 12 min', quakeTime: '' },
   { mag: 1.8, depth: 32, location: 'Volcán Barú, Chiriquí', time: 'Hace 2 h', quakeTime: '' },
   { mag: 3.4, depth: 68, location: 'Golfo de Chiriquí', time: 'Hace 5 h', quakeTime: '' },
@@ -1241,6 +1242,7 @@ function updateNotifBadge() {
 }
 function renderNotifList() {
   const list = document.getElementById('notifList');
+  document.getElementById('notifCount').textContent = notifications.length;
   if (notifications.length === 0) { list.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">No hay notificaciones</p>'; return; }
   const icons = { danger: '🚨', warning: '⚠️', info: 'ℹ️', success: '✅' };
   const colors = { danger: 'border-rose-500/40 bg-rose-500/10', warning: 'border-amber-500/40 bg-amber-500/10', info: 'border-cyan-500/40 bg-cyan-500/10', success: 'border-emerald-500/40 bg-emerald-500/10' };
