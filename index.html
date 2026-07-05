@@ -109,7 +109,7 @@
       </div>
       <span id="trialBadge" class="px-2 py-1 text-[9px] rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-medium" title="Periodo de prueba">⏳ --</span>
       <span id="roleBadge" class="hidden"></span>
-      <button id="logoutBtn" onclick="logout()" class="hidden glass rounded-lg px-2 py-1 hover:bg-white/10 transition text-[9px]" title="Cerrar sesión">🚪 Salir</button>
+      <button id="logoutBtn" class="hidden glass rounded-lg px-2 py-1 hover:bg-white/10 active:bg-white/20 transition text-[9px] cursor-pointer select-none" title="Cerrar sesión" style="touch-action:manipulation;z-index:999">🚪 Salir</button>
     </div>
   </div>
 </header>
@@ -2315,6 +2315,11 @@ function init() {
   showEnvDetail('aire');
   renderNotifList();
   updateRoleUI();
+  const logoutEl = document.getElementById('logoutBtn');
+  if (logoutEl) {
+    logoutEl.addEventListener('click', function(e) { e.preventDefault(); logout(); });
+    logoutEl.addEventListener('touchend', function(e) { e.preventDefault(); logout(); });
+  }
   seismo1 = initSeismo('seismo1', 0.08);
   seismo2 = initSeismo('seismo2', 0.05);
   seismo3 = initSeismo('seismo3', 0.05);
@@ -2602,7 +2607,7 @@ function login(username, password) {
 
 function logout() {
   localStorage.removeItem(AUTH_KEY);
-  location.reload();
+  setTimeout(function() { location.reload(); }, 100);
 }
 
 function showLoginModal() {
