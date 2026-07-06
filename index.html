@@ -382,6 +382,47 @@
 </section>
 <!-- SÍSMICO -->
 <section id="content-sismico" class="tab-content panama-only max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
+  <!-- MONITOREO GLOBAL estilo SERVIR -->
+  <div class="glass rounded-2xl p-4 mb-4 bg-gradient-to-br from-rose-500/10 to-orange-500/10 border border-rose-500/20">
+    <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-orange-500 flex items-center justify-center text-2xl">🌋</div>
+        <div>
+          <h3 class="text-lg font-bold">Monitoreo: huracanes, tormentas, sismos, terremotos | SERVIR</h3>
+          <p class="text-xs text-slate-400">Sistema de Monitoreo Regional - Datos USGS en tiempo real</p>
+        </div>
+      </div>
+      <span class="live-indicator">EN VIVO</span>
+    </div>
+    <div class="flex items-center gap-2 mb-3 text-[10px] text-slate-400">
+      <span>MONITOREO GLOBAL:</span>
+      <button class="px-2 py-1 rounded bg-rose-500/30 text-white font-bold">24h</button>
+      <button class="px-2 py-1 rounded bg-slate-700/50 hover:bg-slate-600/50">7d</button>
+    </div>
+    <div class="grid grid-cols-4 gap-2">
+      <div class="glass rounded-xl p-2 text-center border border-emerald-500/30">
+        <div class="text-2xl mb-1">&#128993;</div>
+        <p class="text-lg font-bold text-emerald-400" id="quakeCount-3">0</p>
+        <p class="text-[9px] text-slate-400">3.0 - 4.4</p>
+      </div>
+      <div class="glass rounded-xl p-2 text-center border border-amber-500/30">
+        <div class="text-2xl mb-1">&#129000;</div>
+        <p class="text-lg font-bold text-amber-400" id="quakeCount-4">0</p>
+        <p class="text-[9px] text-slate-400">4.5 - 5.4</p>
+      </div>
+      <div class="glass rounded-xl p-2 text-center border border-orange-500/30">
+        <div class="text-2xl mb-1">&#128992;</div>
+        <p class="text-lg font-bold text-orange-400" id="quakeCount-5">0</p>
+        <p class="text-[9px] text-slate-400">5.5 - 6.4</p>
+      </div>
+      <div class="glass rounded-xl p-2 text-center border border-rose-500/30">
+        <div class="text-2xl mb-1">&#128998;</div>
+        <p class="text-lg font-bold text-rose-400" id="quakeCount-6">0</p>
+        <p class="text-[9px] text-slate-400">M > 6.5</p>
+      </div>
+    </div>
+    <p class="text-[10px] text-slate-400 mt-2 text-center">Sismos en las Americas mayores a 4.0 Mw en las ultimas 24 horas</p>
+  </div>
   <div class="glass rounded-2xl p-4 mb-4">
     <div class="flex items-center justify-between mb-3"><h3 class="font-bold">🎛️ Panel de Control de Sensores Sísmicos</h3><button onclick="toggleAllSensors()" id="masterToggle" title="Activar o desactivar todos los sensores simultáneamente" class="px-3 py-1.5 rounded-lg bg-rose-500/20 border border-rose-500/40 text-xs font-medium">Desactivar Todos</button></div>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
@@ -982,6 +1023,23 @@ async function fetchRealQuakes() {
       lastUsgsFetch = now;
       if (notifiedQuakes.size > 500) notifiedQuakes.clear();
       renderMiniQuakes();
+
+      // Actualizar contadores por magnitud estilo SERVIR
+      let count34 = 0, count45 = 0, count55 = 0, count65 = 0;
+      usgsQuakes.forEach(q => {
+        if (q.mag >= 3.0 && q.mag < 4.5) count34++;
+        else if (q.mag >= 4.5 && q.mag < 5.5) count45++;
+        else if (q.mag >= 5.5 && q.mag < 6.5) count55++;
+        else if (q.mag >= 6.5) count65++;
+      });
+      const el34 = document.getElementById('quakeCount-3');
+      const el45 = document.getElementById('quakeCount-4');
+      const el55 = document.getElementById('quakeCount-5');
+      const el66 = document.getElementById('quakeCount-6');
+      if (el34) el34.textContent = count34;
+      if (el45) el45.textContent = count45;
+      if (el55) el55.textContent = count55;
+      if (el66) el66.textContent = count65;
     }
   } catch (err) {
     console.error('USGS fetch error:', err);
