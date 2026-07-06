@@ -386,9 +386,8 @@
       <h3 class="font-bold">🗺️ Mapa Satelital Global</h3>
       <div class="flex items-center gap-2 flex-wrap">
         <select id="baseMapSelector" onchange="switchBaseMap(this.value)" class="glass rounded-lg px-2 py-1 text-[10px] font-medium border border-slate-600 bg-transparent text-white cursor-pointer">
-          <option value="goes">🛰️ GOES-16 Satélite (NOAA)</option>
+          <option value="firefly">🔥 Satélite Firefly (ESRI)</option>
           <option value="esri">🌍 Satélite ESRI</option>
-          <option value="firefly">🔥 ESRI Firefly</option>
           <option value="dark">🌑 Oscuro (CartoDB)</option>
           <option value="osm">🗺️ Calles (OSM)</option>
         </select>
@@ -598,9 +597,8 @@
       <h4 class="font-bold text-sm">🌀 Mapa de Huracanes — Atlántico</h4>
       <div class="flex items-center gap-2 flex-wrap">
         <select id="hurricaneBaseMapSelector" onchange="switchHurricaneBaseMap(this.value)" class="glass rounded-lg px-2 py-1 text-[10px] font-medium border border-slate-600 bg-transparent text-white cursor-pointer">
-          <option value="goes">🛰️ GOES-16 Satélite (NOAA)</option>
+          <option value="firefly">🔥 Satélite Firefly (ESRI)</option>
           <option value="esri">🌍 Satélite ESRI</option>
-          <option value="firefly">🔥 ESRI Firefly</option>
           <option value="dark">🌑 Oscuro (CartoDB)</option>
           <option value="osm">🗺️ Calles (OSM)</option>
         </select>
@@ -1944,9 +1942,8 @@ let weatherLayer = null;
 let rainRadarLayer = null;
 let weatherOverlayEnabled = false;
 const BASE_MAPS = {
-  esri: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: '&copy; ESRI' }),
-  goes: L.tileLayer('https://nowcoast.noaa.gov/arcgis/rest/services/nowcoast/satellite_goes_geocolor/MapServer/tile/{z}/{y}/{x}', { maxZoom: 12, attribution: 'NOAA GOES-16' }),
   firefly: L.tileLayer('https://fly.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Firefly/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: '&copy; ESRI Firefly' }),
+  esri: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: '&copy; ESRI' }),
   dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19, attribution: '&copy; CARTO' }),
   osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' })
 };
@@ -1996,7 +1993,7 @@ function initLeafletMap() {
   const el = document.getElementById('leafletMap');
   if (!el) return;
   leafletMap = L.map(el, { center: [8.5, -80.5], zoom: 6, zoomControl: true, attributionControl: false });
-  baseLayer = BASE_MAPS.goes.addTo(leafletMap);
+  baseLayer = BASE_MAPS.firefly.addTo(leafletMap);
   L.control.attribution({ position: 'bottomleft', prefix: false }).addTo(leafletMap);
   L.circleMarker([8.98, -79.52], { radius: 7, color: '#38bdf8', fillColor: '#fff', fillOpacity: 0.9, weight: 2 }).addTo(leafletMap).bindTooltip('CD Panamá', { permanent: true, direction: 'right', offset: [5, 0], className: 'city-label' });
   L.circleMarker([8.43, -82.43], { radius: 5, color: '#38bdf8', fillColor: '#fff', fillOpacity: 0.9, weight: 1.5 }).addTo(leafletMap).bindTooltip('David', { permanent: true, direction: 'right', offset: [5, 0], className: 'city-label' });
@@ -2375,7 +2372,7 @@ function initHurricaneMap() {
   const el = document.getElementById('hurricaneMap');
   if (!el) return;
   hurricaneMap = L.map(el, { center: [18, -60], zoom: 4, zoomControl: true, attributionControl: false });
-  hurricaneBaseLayer = BASE_MAPS.goes.addTo(hurricaneMap);
+  hurricaneBaseLayer = BASE_MAPS.firefly.addTo(hurricaneMap);
   L.control.attribution({ position: 'bottomleft', prefix: false }).addTo(hurricaneMap);
   hurricaneLayer = L.layerGroup().addTo(hurricaneMap);
   setTimeout(() => hurricaneMap.invalidateSize(), 300);
