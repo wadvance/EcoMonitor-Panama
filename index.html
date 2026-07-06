@@ -593,12 +593,22 @@
 <!-- HURACANES -->
 <section id="content-huracanes" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
   <div class="glass rounded-2xl p-4 mb-4">
-    <div class="flex items-center justify-between mb-3">
+    <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
       <h4 class="font-bold text-sm">🌀 Mapa de Huracanes — Atlántico</h4>
-      <span class="live-indicator">SATÉLITE</span>
+      <div class="flex items-center gap-2 flex-wrap">
+        <select id="hurricaneBaseMapSelector" onchange="switchHurricaneBaseMap(this.value)" class="glass rounded-lg px-2 py-1 text-[10px] font-medium border border-slate-600 bg-transparent text-white cursor-pointer">
+          <option value="esri">🛰️ Satélite (ESRI)</option>
+          <option value="osm">🗺️ Calles (OSM)</option>
+          <option value="dark">🌑 Oscuro (CartoDB)</option>
+          <option value="topo">⛰️ Topográfico</option>
+        </select>
+        <button onclick="toggleHurricaneWeather()" id="toggleHurrWeatherBtn" class="px-2 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/30 text-[10px] font-medium">☁️ Clima</button>
+        <span class="live-indicator">SATÉLITE</span>
+      </div>
     </div>
     <p class="text-[10px] text-slate-400 mb-3">Monitoreo satelital de huracanes, tormentas tropicales y formación en el Atlántico, Caribe y Pacífico Oriental. Fuente: NOAA / NHC.</p>
-    <div id="hurricaneMap" class="w-full" style="height:520px;border-radius:12px;background:#0a0f1e;"></div>
+    <div id="hurricaneMap" class="w-full" style="height:520px;border-radius:12px;background:#0a0f1e;border:1px solid rgba(255,255,255,0.08);"></div>
+    <p class="text-[9px] text-slate-500 mt-2">🌤️ Capa climática: <span id="hurrWeatherStatus">desactivada</span> · Fuente: RainViewer / NOAA GOES</p>
   </div>
   <div class="grid md:grid-cols-3 gap-4">
     <div class="glass rounded-2xl p-4 md:col-span-2">
@@ -1517,6 +1527,10 @@ function showTab(tab) {
     renderMap();
     setTimeout(() => { if (leafletMap) leafletMap.invalidateSize(); }, 100);
   }
+  if (tab === 'huracanes') {
+    initHurricaneMap();
+    setTimeout(() => { if (hurricaneMap) hurricaneMap.invalidateSize(); }, 100);
+  }
 }
 // ============================================
 // AMBIENTAL
@@ -2320,6 +2334,10 @@ function fetchFlights() {
 let hurricaneMap = null;
 let hurricaneLayer = null;
 let hurricaneTimer = null;
+let hurricaneBaseLayer = null;
+let hurricaneWeatherLayer = null;
+let hurricaneRainLayer = null;
+let hurricaneWeatherEnabled = false;
 
 const hurricaneDefaultData = [
   { name: 'Tormenta Tropical Alberto', category: 'Tormenta Tropical', wind: 45, gust: 55, lat: 18.2, lon: -68.5, movement: 'NO a 15 mph', pressure: 1002, formed: '03 Jul 2026', details: 'Vientos máximos sostenidos de 45 mph. Se mueve hacia el norte-noroeste alejándose del Caribe.' },
@@ -2353,12 +2371,44 @@ function initHurricaneMap() {
   const el = document.getElementById('hurricaneMap');
   if (!el) return;
   hurricaneMap = L.map(el, { center: [18, -60], zoom: 4, zoomControl: true, attributionControl: false });
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    maxZoom: 18, attribution: '&copy; ESRI'
-  }).addTo(hurricaneMap);
+  hurricaneBaseLayer = BASE_MAPS.esri.addTo(hurricaneMap);
   L.control.attribution({ position: 'bottomleft', prefix: false }).addTo(hurricaneMap);
   hurricaneLayer = L.layerGroup().addTo(hurricaneMap);
   setTimeout(() => hurricaneMap.invalidateSize(), 300);
+}
+function switchHurricaneBaseMap(id) {
+  if (!hurricaneMap || !BASE_MAPS[id]) return;
+  if (hurricaneBaseLayer) hurricaneMap.removeLayer(hurricaneBaseLayer);
+  hurricaneBaseLayer = BASE_MAPS[id].addTo(hurricaneMap);
+  if (hurricaneWeatherEnabled && hurricaneWeatherLayer) hurricaneMap.addLayer(hurricaneWeatherLayer);
+}
+function toggleHurricaneWeather() {
+  hurricaneWeatherEnabled = !hurricaneWeatherEnabled;
+  const btn = document.getElementById('toggleHurrWeatherBtn');
+  const status = document.getElementById('hurrWeatherStatus');
+  if (hurricaneWeatherEnabled) {
+    if (!hurricaneWeatherLayer) {
+      hurricaneWeatherLayer = L.tileLayer('https://nowcoast.noaa.gov/arcgis/rest/services/nowcoast/satellite_goes_geocolor/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 12, opacity: 0.5, attribution: 'NOAA GOES'
+      });
+    }
+    if (!hurricaneRainLayer) {
+      hurricaneRainLayer = L.tileLayer('https://tilecache.rainviewer.com/v2/radar/now/256/{z}/{x}/{y}/2/1_1.png', {
+        maxZoom: 15, opacity: 0.4, attribution: 'RainViewer'
+      });
+    }
+    hurricaneMap.addLayer(hurricaneWeatherLayer);
+    hurricaneMap.addLayer(hurricaneRainLayer);
+    btn.textContent = '☁️ Ocultar Clima';
+    btn.className = 'px-2 py-1 rounded-lg bg-cyan-500/30 border border-cyan-500/50 text-[10px] font-medium';
+    status.textContent = 'nubes satelitales NOAA + radar RainViewer';
+  } else {
+    if (hurricaneWeatherLayer && hurricaneMap.hasLayer(hurricaneWeatherLayer)) hurricaneMap.removeLayer(hurricaneWeatherLayer);
+    if (hurricaneRainLayer && hurricaneMap.hasLayer(hurricaneRainLayer)) hurricaneMap.removeLayer(hurricaneRainLayer);
+    btn.textContent = '☁️ Clima';
+    btn.className = 'px-2 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/30 text-[10px] font-medium';
+    status.textContent = 'desactivada';
+  }
 }
 
 function renderHurricaneMarkers(storms) {
