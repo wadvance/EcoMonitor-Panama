@@ -46,6 +46,9 @@
   .quake-tooltip { background: rgba(0,0,0,0.85) !important; border: 1px solid #f59e0b !important; color: #fff !important; font-size: 10px !important; }
   .epicenter-tooltip { background: rgba(239,68,68,0.95) !important; border: 1px solid #fff !important; color: #fff !important; font-size: 11px !important; font-weight: bold !important; padding: 4px 8px !important; border-radius: 8px !important; }
   .epicenter-pin { width: 28px; height: 28px; background: #f43f5e; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 20px rgba(244,63,94,0.8); }
+  .quake-popup .leaflet-popup-content-wrapper { background: transparent !important; box-shadow: none !important; border-radius: 12px !important; }
+  .quake-popup .leaflet-popup-content { margin: 0 !important; padding: 0 !important; }
+  .quake-popup .leaflet-popup-tip { background: #0a0f1e !important; border: 1px solid rgba(255,255,255,0.1); }
   .card-hover { transition: all 0.3s; cursor: pointer; }
   .card-hover:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(0,0,0,0.3); }
   .danger-pulse { animation: dangerPulse 1.5s infinite; }
@@ -1458,11 +1461,44 @@ function showEpicenterMarker(location, lat, lon) {
       else ll = [8.5, -80.5];
     }
   }
+  // Buscar datos del sismo en quakeHistory por coordenadas
+  let quakeData = null;
+  if (typeof quakeHistory !== 'undefined' && lat != null && lon != null) {
+    const threshold = 0.5;
+    let closest = null, minDist = Infinity;
+    quakeHistory.forEach(q => {
+      if (q.lat == null || q.lon == null) return;
+      const d = Math.abs(q.lat - lat) + Math.abs(q.lon - lon);
+      if (d < minDist) { minDist = d; closest = q; }
+    });
+    if (closest && minDist < threshold) quakeData = closest;
+  }
+  if (!quakeData && typeof quakeHistory !== 'undefined') {
+    const l = (location || '').toLowerCase();
+    quakeHistory.forEach(q => {
+      if (!quakeData && q.location && l.includes(q.location.toLowerCase())) quakeData = q;
+    });
+  }
   L.circleMarker(ll, { radius: 14, color: '#f43f5e', fillColor: '#f43f5e', fillOpacity: 0.3, weight: 2, opacity: 0.5 }).addTo(epicenterGroup);
   L.circleMarker(ll, { radius: 8, color: '#fff', fillColor: '#f43f5e', fillOpacity: 1, weight: 2.5 }).addTo(epicenterGroup);
   L.polyline([[ll[0], ll[1]-0.03],[ll[0], ll[1]+0.03]], { color: '#f43f5e', weight: 1, dashArray: '3,5', opacity: 0.6 }).addTo(epicenterGroup);
   L.polyline([[ll[0]-0.03, ll[1]],[ll[0]+0.03, ll[1]]], { color: '#f43f5e', weight: 1, dashArray: '3,5', opacity: 0.6 }).addTo(epicenterGroup);
-  L.marker(ll, { icon: L.divIcon({ html: '<div class="epicenter-pin"></div>', iconSize: [28, 28], iconAnchor: [14, 14], className: '' }), zIndexOffset: 1000 }).addTo(epicenterGroup).bindTooltip('📌 ' + location, { className: 'epicenter-tooltip', direction: 'top', offset: [0, -16] });
+  const magColor = quakeData ? (quakeData.mag >= 4 ? '#f43f5e' : quakeData.mag >= 3 ? '#f59e0b' : '#22d3ee') : '#f43f5e';
+  const popupHtml = quakeData ? `
+    <div style="background:#0a0f1e;border:1px solid ${magColor};border-radius:10px;padding:10px 14px;min-width:200px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <span style="font-size:24px;">🌋</span>
+        <span style="font-size:20px;font-weight:bold;color:${magColor};">M${quakeData.mag.toFixed(1)}</span>
+        <span style="font-size:10px;color:#94a3b8;background:${magColor}22;padding:2px 8px;border-radius:10px;margin-left:auto;">${quakeData.depth} km</span>
+      </div>
+      <p style="font-size:11px;color:#e2e8f0;margin:0 0 4px;">📍 ${quakeData.location || location}</p>
+      <p style="font-size:10px;color:#94a3b8;margin:0;">🕐 ${quakeData.quakeTime || quakeData.time || ''}</p>
+      <p style="font-size:9px;color:#64748b;margin:2px 0 0;">${new Date().toLocaleDateString('es-PA', { day:'2-digit', month:'long', year:'numeric' })}</p>
+    </div>` : `<div style="background:#0a0f1e;border:1px solid #f43f5e;border-radius:10px;padding:8px 12px;">
+      <p style="font-size:11px;color:#e2e8f0;margin:0;">📌 ${location}</p></div>`;
+  const marker = L.marker(ll, { icon: L.divIcon({ html: '<div class="epicenter-pin"></div>', iconSize: [28, 28], iconAnchor: [14, 14], className: '' }), zIndexOffset: 1000 }).addTo(epicenterGroup);
+  marker.bindPopup(popupHtml, { className: 'quake-popup', closeButton: true, maxWidth: 300 });
+  marker.openPopup();
   const isPanama = ll[0] >= 7 && ll[0] <= 10 && ll[1] >= -83 && ll[1] <= -76;
   const isCentralAm = ll[0] >= 7 && ll[0] <= 18 && ll[1] >= -90 && ll[1] <= -75;
   const zoomLevel = isPanama ? 9 : isCentralAm ? 6 : 4;
