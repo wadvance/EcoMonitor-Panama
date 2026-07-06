@@ -999,6 +999,7 @@ async function fetchAirQuality() {
 // 🌋 SISMOS REALES - USGS Earthquake API
 // ============================================
 let lastUsgsFetch = 0;
+let notifiedQuakes = new Set();
 function formatQuakeTime(ts) {
   const d = new Date(ts);
   return d.toLocaleDateString('es-PA', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' +
@@ -1007,7 +1008,6 @@ function formatQuakeTime(ts) {
 
 async function fetchRealQuakes() {
   try {
-    // Cobertura ampliada: Centroamérica, Caribe, norte de Sudamérica y Pacífico Oriental
     const minLat = -5;
     const maxLat = 25;
     const minLon = -90;
@@ -1026,20 +1026,26 @@ async function fetchRealQuakes() {
         const lon = f.geometry.coordinates[0];
         const lat = f.geometry.coordinates[1];
         const place = props.place || 'Desconocido';
-        const time = props.time ? timeAgo(props.time) : 'Desconocido';
-        const quakeTime = props.time ? formatQuakeTime(props.time) : '--';
-        // Mostrar todos los sismos de la región (Centroamérica, Caribe, Sudamérica)
+        const eventTime = props.time || 0;
+        const time = eventTime ? timeAgo(eventTime) : 'Desconocido';
+        const quakeTime = eventTime ? formatQuakeTime(eventTime) : '--';
+        const eventId = props.net + props.code || eventTime + place + mag;
         usgsQuakes.push({ mag, depth: Math.round(depth), location: place, time, quakeTime, lat, lon });
-        if (mag >= 2.5) {
-          const icon = mag >= 5 ? '🚨' : mag >= 4 ? '⚠️' : '🌋';
-          const type = mag >= 5 ? 'danger' : mag >= 4 ? 'warning' : 'info';
-          addNotification(type, icon + ' Sismo M' + mag.toFixed(1),
-            '📍 ' + place + ' · Prof. ' + Math.round(depth) + ' km · 🕐 ' + quakeTime, place, lat, lon);
+        if (mag >= 2.5 && eventTime > 0) {
+          const hoursAge = (now - eventTime) / 3600000;
+          if (hoursAge <= 1 && !notifiedQuakes.has(eventId)) {
+            notifiedQuakes.add(eventId);
+            const icon = mag >= 5 ? '🚨' : mag >= 4 ? '⚠️' : '🌋';
+            const type = mag >= 5 ? 'danger' : mag >= 4 ? 'warning' : 'info';
+            addNotification(type, icon + ' Sismo M' + mag.toFixed(1),
+              '📍 ' + place + ' · Prof. ' + Math.round(depth) + ' km · 🕐 ' + quakeTime, place, lat, lon);
+          }
         }
       });
       const seedData = quakeHistory.filter(q => q.location.includes('Simulación') || q.location.includes('Paso Canoas') || q.location.includes('Punta Burica') || q.location.includes('Volcán Barú') || q.location.includes('Costa Pacífico') || q.location.includes('Golfo de Chiriquí'));
       quakeHistory = [...usgsQuakes, ...seedData].slice(0, 12);
       lastUsgsFetch = now;
+      if (notifiedQuakes.size > 500) notifiedQuakes.clear();
       renderMiniQuakes();
     }
   } catch (err) {
