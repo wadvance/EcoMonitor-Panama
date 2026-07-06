@@ -158,6 +158,7 @@
     <button onclick="showTab('clima')" id="tab-clima" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Clima en tiempo real: temperatura, humedad, viento, lluvia, UV y pronóstico">🌤️ Clima</button>
     <button onclick="showTab('ambiental')" id="tab-ambiental" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Monitoreo ambiental: calidad del aire, agua, suelo, ríos, mar y vegetación">🌍 Ambiental</button>
     <button onclick="showTab('mapa')" id="tab-mapa" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Mapa de contaminación por provincia: ranking y datos detallados">🗺️ Mapa</button>
+    <button onclick="showTab('satelite')" id="tab-satelite" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Monitoreo satelital: im&#225;genes GOES-16, vientos, huracanes y m&#225;s - SERVIR/CATHALAC">🛰️ Satélite</button>
     <button onclick="openInWaze()" class="glass px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap hover:bg-white/10 transition" title="Abrir ubicación actual en Waze">🧭 Waze</button>
     <button onclick="showTab('sismico')" id="tab-sismico" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Monitoreo sísmico: 8 sensores, sismógrafos en vivo y simulador de terremotos">🌋 Sísmico</button>
     <button onclick="showTab('tsunamis')" id="tab-tsunamis" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Sistema de alerta de tsunamis: sensores DART y mareógrafos en costas panameñas">🌊 Tsunamis</button>
@@ -631,6 +632,20 @@
         <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span><span class="text-[10px]">Satélites</span></div>
       </div>
     </div>
+  </div>
+</section>
+<!-- SATELITE -->
+<section id="content-satelite" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
+  <div class="glass rounded-2xl p-4 mb-4">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-bold">🛰️ Monitoreo Satelital — SERVIR / CATHALAC</h3>
+      <a href="https://www.servir.net/" target="_blank" class="text-[10px] text-cyan-400 hover:text-cyan-300 transition underline">servir.net →</a>
+    </div>
+    <p class="text-[11px] text-slate-400 mb-3">Imágenes satelitales GOES-16/19, vientos GFS, tracking de huracanes NHC, sismos en tiempo real, actividad volcánica, incendios y más. Fuente: <a href="https://www.servir.net/" target="_blank" class="text-cyan-400 underline">SERVIR.net</a> — CATHALAC.</p>
+    <div style="position:relative;width:100%;height:0;padding-bottom:56.25%;overflow:hidden;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:#000;">
+      <iframe src="https://www.servir.net/" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" loading="lazy" allow="geolocation" title="SERVIR - Monitoreo Satelital"></iframe>
+    </div>
+    <p class="text-[9px] text-slate-500 mt-2 text-center">Si no se ve correctamente, <a href="https://www.servir.net/" target="_blank" class="text-cyan-400 underline">abrí SERVIR.net directamente</a>. Servicio provisto por CATHALAC.</p>
   </div>
 </section>
 <div id="notifModal" class="modal-overlay" onclick="if(event.target===this)closeNotifModal()">
