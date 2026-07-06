@@ -3217,6 +3217,7 @@ const TRIAL_LICENSE_KEY = 'ecomonitor-license';
 // ============================================
 let seismo1, seismo2, seismo3, seismo4, seismo5, miniSeismo;
 function init() {
+  try {
   updateLocationBadge();
   renderSensors();
   renderRanking();
@@ -3281,6 +3282,7 @@ function init() {
 
   initTrialCountdown();
   addNotification('success', '✓ EcoMonitor v3.0 activado', 'Sistema integral monitoreando Panamá 24/7');
+  } catch(e) { console.error('Init error:', e); }
 }
 init();
 
