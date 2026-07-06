@@ -396,8 +396,8 @@
     </div>
     <div class="flex items-center gap-2 mb-3 text-[10px] text-slate-400">
       <span>MONITOREO GLOBAL:</span>
-      <button class="px-2 py-1 rounded bg-rose-500/30 text-white font-bold">24h</button>
-      <button class="px-2 py-1 rounded bg-slate-700/50 hover:bg-slate-600/50">7d</button>
+      <button class="px-2 py-1 rounded bg-rose-500/30 text-white font-bold" id="btn-24h" onclick="switchQuakeRange('24h')">24h</button>
+      <button class="px-2 py-1 rounded bg-slate-700/50 hover:bg-slate-600/50" id="btn-7d" onclick="switchQuakeRange('7d')">7d</button>
     </div>
     <div class="grid grid-cols-4 gap-2">
       <div class="glass rounded-xl p-2 text-center border border-emerald-500/30">
@@ -974,6 +974,7 @@ async function fetchAirQuality() {
 // 🌋 SISMOS REALES - USGS Earthquake API
 // ============================================
 let lastUsgsFetch = 0;
+let currentQuakeRange = '24h';
 let notifiedQuakes = new Set();
 function formatQuakeTime(ts) {
   const d = new Date(ts);
@@ -988,7 +989,9 @@ async function fetchRealQuakes() {
     const maxLat = 60;
     const minLon = -130;
     const maxLon = -30;
-    const url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minlatitude=${minLat}&maxlatitude=${maxLat}&minlongitude=${minLon}&maxlongitude=${maxLon}&minmagnitude=4.0&orderby=time&limit=50`;
+    const hoursBack = currentQuakeRange === '7d' ? 168 : 24;
+    const startTime = new Date(Date.now() - hoursBack * 3600000).toISOString().split('.')[0];
+    const url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${startTime}&minlatitude=${minLat}&maxlatitude=${maxLat}&minlongitude=${minLon}&maxlongitude=${maxLon}&minmagnitude=4.0&orderby=time&limit=200`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('USGS API error');
     const data = await res.json();
@@ -1044,6 +1047,23 @@ async function fetchRealQuakes() {
   } catch (err) {
     console.error('USGS fetch error:', err);
   }
+}
+
+async function switchQuakeRange(range) {
+  if (currentQuakeRange === range) return;
+  currentQuakeRange = range;
+  const btn24 = document.getElementById('btn-24h');
+  const btn7d = document.getElementById('btn-7d');
+  if (btn24 && btn7d) {
+    btn24.className = range === '24h' ? 'px-2 py-1 rounded bg-rose-500/30 text-white font-bold' : 'px-2 py-1 rounded bg-slate-700/50 hover:bg-slate-600/50';
+    btn7d.className = range === '7d' ? 'px-2 py-1 rounded bg-rose-500/30 text-white font-bold' : 'px-2 py-1 rounded bg-slate-700/50 hover:bg-slate-600/50';
+  }
+  const label = document.querySelector('.text-\\[10px\\].text-slate-400.mt-2.text-center');
+  if (label) label.textContent = range === '7d' ? 'Sismos en las Americas mayores a 4.0 Mw en los ultimos 7 dias' : 'Sismos en las Americas mayores a 4.0 Mw en las ultimas 24 horas';
+  await fetchRealQuakes();
+  if (sismoMapQuakes && sis KoMap.hasLayer(sismoMapQuakes)) { sis KoMap.removeLayer(sismoMapQuakes); }
+  legendAdded = false;
+  renderSismoMapQuakes();
 }
 function timeAgo(ts) {
   const sec = Math.floor((Date.now() - ts) / 1000);
@@ -2198,9 +2218,8 @@ function renderSismoMapQuakes() {
   quakeHistory.forEach(q => {
     if (!q.lat || !q.lon) return;
     const ll = [q.lat, q.lon];
-    const isBig = q.mag >= 4;
-    const color = q.mag >= 4 ? '#f43f5e' : q.mag >= 3 ? '#f59e0b' : '#22d3ee';
-    const radius = isBig ? 10 : 6;
+    const color = q.mag >= 6.5 ? '#ef4444' : q.mag >= 5.5 ? '#f97316' : q.mag >= 4.5 ? '#eab308' : '#22c55e';
+    const radius = q.mag >= 6.5 ? 14 : q.mag >= 5.5 ? 11 : q.mag >= 4.5 ? 9 : 7;
     L.circleMarker(ll, { radius, color: '#fff', fillColor: color, fillOpacity: 0.7, weight: 1.5 }).addTo(sismoMapQuakes)
       .bindTooltip(`<div style="background:#0a0f1e;border:1px solid ${color};border-radius:8px;padding:6px 10px;max-width:200px;">
         <p style="font-weight:bold;font-size:12px;margin:0 0 2px;">M${q.mag.toFixed(1)}</p>
@@ -2214,6 +2233,25 @@ function renderSismoMapQuakes() {
       L.circle(ll, { radius: 5000, color, weight: 1, opacity: 0.15, fillColor: color, fillOpacity: 0.05 }).addTo(sismoMapQuakes);
     }
   });
+}
+
+let legendAdded = false;
+function addSERVIRLegend() {
+  if (legendAdded || !sismoMap) return;
+  legendAdded = true;
+  const legend = L.control({ position: 'bottomright' });
+  legend.onAdd = function() {
+    const div = L.DomUtil.create('div', 'glass');
+    div.style.cssText = 'padding:10px 14px;border-radius:10px;';
+    div.innerHTML = '<p style="font-size:10px;font-weight:bold;color:#fff;margin:0 0 6px;">MONITOREO 24h</p>';
+    const items = [{ color: '#22c55e', label: '3.0-4.4' }, { color: '#eab308', label: '4.5-5.4' }, { color: '#f97316', label: '5.5-6.4' }, { color: '#ef4444', label: '>6.5' }];
+    items.forEach(item => {
+      div.innerHTML += '<div style="display:flex;align-items:center;gap:6px;margin:3px 0;"><span style="width:10px;height:10px;background:' + item.color + ';border-radius:50%;box-shadow:0 0 5px ' + item.color + ';"></span><span style="font-size:9px;color:#cbd5e1;">' + item.label + '</span></div>';
+    });
+    div.innerHTML += '<p style="font-size:7px;color:#64748b;margin:6px 0 0;">USGS Earthquake</p>';
+    return div;
+  };
+  legend.addTo(sismoMap);
 }
 
 function toggleSismoMapLayer(name) {
