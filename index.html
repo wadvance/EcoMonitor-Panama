@@ -1768,8 +1768,9 @@ function showProvDetail(data) {
   });
 }
 function renderRanking() {
-  const sorted = [...provinces].sort((a, b) => b.aqi - a.aqi);
   const list = document.getElementById('rankingList');
+  if (!list) return;
+  const sorted = [...provinces].sort((a, b) => b.aqi - a.aqi);
   list.innerHTML = '';
   const colors = { alta: 'rose', media: 'amber', baja: 'emerald', optima: 'cyan' };
   sorted.forEach((p, i) => {
