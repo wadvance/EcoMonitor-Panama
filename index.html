@@ -1061,7 +1061,7 @@ async function switchQuakeRange(range) {
   const label = document.querySelector('.text-\\[10px\\].text-slate-400.mt-2.text-center');
   if (label) label.textContent = range === '7d' ? 'Sismos en las Americas mayores a 4.0 Mw en los ultimos 7 dias' : 'Sismos en las Americas mayores a 4.0 Mw en las ultimas 24 horas';
   await fetchRealQuakes();
-  if (sismoMapQuakes && sis KoMap.hasLayer(sismoMapQuakes)) { sis KoMap.removeLayer(sismoMapQuakes); }
+  if (sismoMapQuakes && sismoMap.hasLayer(sismoMapQuakes)) { sismoMap.removeLayer(sismoMapQuakes); }
   legendAdded = false;
   renderSismoMapQuakes();
 }
