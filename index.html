@@ -541,21 +541,29 @@
 <section id="content-huracanes" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
   <div class="glass rounded-2xl p-4 mb-4">
     <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
-      <h4 class="font-bold text-sm">🌀 Mapa de Huracanes — Atlántico</h4>
+      <h4 class="font-bold text-sm">🛰️ Mapa Satelital — Sismos · Huracanes · Tsunamis</h4>
       <div class="flex items-center gap-2 flex-wrap">
         <select id="hurricaneBaseMapSelector" onchange="switchHurricaneBaseMap(this.value)" class="glass rounded-lg px-2 py-1 text-[10px] font-medium border border-slate-600 bg-transparent text-white cursor-pointer">
-          <option value="firefly">🔥 Satélite Firefly (ESRI)</option>
-          <option value="esri">🌍 Satélite ESRI</option>
-          <option value="dark">🌑 Oscuro (CartoDB)</option>
-          <option value="osm">🗺️ Calles (OSM)</option>
+          <option value="esri">🛰️ Satélite ESRI</option>
+          <option value="firefly">🔥 Firefly</option>
+          <option value="dark">🌑 Oscuro</option>
+          <option value="osm">🗺️ Calles</option>
         </select>
-        <button onclick="toggleHurricaneWeather()" id="toggleHurrWeatherBtn" class="px-2 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/30 text-[10px] font-medium">☁️ Clima</button>
+        <button onclick="toggleHurrLayer('sismos')" id="togSismos" class="px-2 py-1 rounded-lg bg-amber-500/20 border border-amber-500/30 text-[10px] font-medium">🔴 Sismos</button>
+        <button onclick="toggleHurrLayer('huracanes')" id="togHuracanes" class="px-2 py-1 rounded-lg bg-rose-500/20 border border-rose-500/30 text-[10px] font-medium">🌀 Huracanes</button>
+        <button onclick="toggleHurrLayer('tsunamis')" id="togTsunamis" class="px-2 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/30 text-[10px] font-medium">🌊 Tsunamis</button>
+        <button onclick="toggleHurrWeather()" id="toggleHurrWeatherBtn" class="px-2 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/30 text-[10px] font-medium">☁️ Clima</button>
         <span class="live-indicator">SATÉLITE</span>
       </div>
     </div>
-    <p class="text-[10px] text-slate-400 mb-3">Monitoreo satelital de huracanes, tormentas tropicales y formación en el Atlántico, Caribe y Pacífico Oriental. Fuente: NOAA / NHC.</p>
-    <div id="hurricaneMap" class="w-full" style="height:520px;border-radius:12px;background:#0a0f1e;border:1px solid rgba(255,255,255,0.08);"></div>
-    <p class="text-[9px] text-slate-500 mt-2">🌤️ Capa climática: <span id="hurrWeatherStatus">desactivada</span> · Fuente: RainViewer / NOAA GOES</p>
+    <p class="text-[10px] text-slate-400 mb-3">Monitoreo satelital combinado con datos de NOAA, USGS y PTWC. Seleccione capas: zonas sísmicas, huracanes activos y áreas de alerta de tsunami.</p>
+    <div id="hurricaneMap" class="w-full" style="height:580px;border-radius:12px;background:#0a0f1e;border:1px solid rgba(255,255,255,0.08);"></div>
+    <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[9px] text-slate-500">
+      <span>🔴 <span style="color:#f59e0b;">Sismos</span> · USGS</span>
+      <span>🌀 <span style="color:#f43f5e;">Huracanes</span> · NOAA/NHC</span>
+      <span>🌊 <span style="color:#06b6d4;">Tsunamis</span> · PTWC</span>
+      <span>☁️ <span id="hurrWeatherStatus">desactivado</span></span>
+    </div>
   </div>
   <div class="grid md:grid-cols-3 gap-4">
     <div class="glass rounded-2xl p-4 md:col-span-2">
@@ -563,26 +571,34 @@
         <h4 class="font-bold text-sm">🌪️ Tormentas Activas</h4>
         <span class="text-[9px] text-slate-500">Temporada 2026</span>
       </div>
-      <div id="hurricaneList" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[320px] overflow-y-auto scrollbar-hide"></div>
+      <div id="hurricaneList" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
       <p id="hurricaneLoading" class="text-xs text-slate-500 text-center py-4">Cargando datos de huracanes...</p>
     </div>
     <div class="space-y-3">
       <div class="glass rounded-2xl p-4">
-        <h4 class="font-bold text-sm mb-2">📊 Leyenda de Categorías</h4>
+        <h4 class="font-bold text-sm mb-2">📊 Leyenda</h4>
         <div class="space-y-1 text-[10px]">
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span><span>Depresión Tropical &lt;39 mph</span></div>
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span><span>Tormenta Tropical 39-73 mph</span></div>
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span><span>Huracán Cat 1 74-95 mph</span></div>
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span><span>Huracán Cat 2 96-110 mph</span></div>
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span><span>Huracán Cat 3 111-129 mph</span></div>
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-600"></span><span>Huracán Cat 4 130-156 mph</span></div>
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-purple-700"></span><span>Huracán Cat 5 ≥157 mph</span></div>
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-slate-500"></span><span>Formación potencial</span></div>
+          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span>Depresión Tropical &lt;39 mph</div>
+          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>Tormenta Tropical 39-73 mph</div>
+          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>Huracán Cat 1 74-95 mph</div>
+          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>Huracán Cat 2 96-110 mph</div>
+          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>Huracán Cat 3 111-129 mph</div>
+          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-600"></span>Huracán Cat 4 130-156 mph</div>
+          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-purple-700"></span>Huracán Cat 5 ≥157 mph</div>
+          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-slate-500"></span>Formación potencial</div>
+        </div>
+        <hr class="border-slate-700 my-2">
+        <div class="space-y-1 text-[10px]">
+          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span>Zona sísmica alta</div>
+          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>Zona sísmica media</div>
+          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>Zona sísmica baja</div>
+          <div class="flex items-center gap-1.5"><span style="display:inline-block;width:14px;height:14px;border:2px dashed #f43f5e;border-radius:4px;"></span>Alerta tsunami</div>
+          <div class="flex items-center gap-1.5"><span style="display:inline-block;width:14px;height:14px;border:2px dashed #06b6d4;border-radius:4px;"></span>Vigilancia tsunami</div>
         </div>
       </div>
       <div class="glass rounded-xl p-3 border-l-4 border-cyan-500">
         <p class="text-xs font-bold text-cyan-400 mb-1">💡 Recomendación</p>
-        <p class="text-[10px] text-slate-300">Monitoree avisos del Centro Nacional de Huracanes (NHC). Tenga un plan de emergencia si reside en zonas costeras del Caribe y Pacífico.</p>
+        <p class="text-[10px] text-slate-300">Monitoree avisos del Centro Nacional de Huracanes (NHC) y el Pacific Tsunami Warning Center (PTWC). Tenga un plan de emergencia en zonas costeras.</p>
       </div>
     </div>
   </div>
@@ -1478,7 +1494,11 @@ function showTab(tab) {
   if (tab === 'huracanes') {
     initHurricaneMap();
     fetchHurricaneData();
-    setTimeout(() => { if (hurricaneMap) hurricaneMap.invalidateSize(); }, 200);
+    setTimeout(() => { if (hurricaneMap) {
+      hurricaneMap.invalidateSize();
+      if (hurrSismosLayer && hurrLayersActive.sismos) renderHurrSismos();
+      if (hurrTsunamiLayer && hurrLayersActive.tsunamis) renderHurrTsunamis();
+    } }, 200);
   }
 }
 // ============================================
@@ -2060,9 +2080,8 @@ function renderMapSensors() {
   });
 }
 function renderMapFlights() {
-  const ptyEl = document.getElementById('flightsPTY');
-  const davEl = document.getElementById('flightsDAV');
-  const intEl = document.getElementById('flightsInt');
+  document.getElementById('flightsPTY');
+  document.getElementById('flightsDAV');
 }
 function renderMap() {
   renderMapQuakes();
@@ -2279,7 +2298,7 @@ function fetchFlights() {
 }
 
 // ============================================
-// 🌀 MONITOREO DE HURACANES
+// 🛰️ MAPA SATELITAL (Sismos · Huracanes · Tsunamis)
 // ============================================
 let hurricaneMap = null;
 let hurricaneLayer = null;
@@ -2288,6 +2307,9 @@ let hurricaneBaseLayer = null;
 let hurricaneWeatherLayer = null;
 let hurricaneRainLayer = null;
 let hurricaneWeatherEnabled = false;
+let hurrSismosLayer = null;
+let hurrTsunamiLayer = null;
+let hurrLayersActive = { sismos: false, huracanes: true, tsunamis: false };
 
 const hurricaneDefaultData = [
   { name: 'Tormenta Tropical Alberto', category: 'Tormenta Tropical', wind: 45, gust: 55, lat: 18.2, lon: -68.5, movement: 'NO a 15 mph', pressure: 1002, formed: '03 Jul 2026', details: 'Vientos máximos sostenidos de 45 mph. Se mueve hacia el norte-noroeste alejándose del Caribe.' },
@@ -2323,19 +2345,47 @@ function initHurricaneMap() {
   }
   const el = document.getElementById('hurricaneMap');
   if (!el) return;
-  hurricaneMap = L.map(el, { center: [18, -60], zoom: 4, zoomControl: true, attributionControl: false });
-  hurricaneBaseLayer = BASE_MAPS.firefly.addTo(hurricaneMap);
+  hurricaneMap = L.map(el, { center: [8.5, -80], zoom: 6, zoomControl: true, attributionControl: false });
+  hurricaneBaseLayer = BASE_MAPS.esri.addTo(hurricaneMap);
   L.control.attribution({ position: 'bottomleft', prefix: false }).addTo(hurricaneMap);
   hurricaneLayer = L.layerGroup().addTo(hurricaneMap);
+  hurrSismosLayer = L.layerGroup();
+  hurrTsunamiLayer = L.layerGroup();
+  renderHurrTsunamis();
+  renderHurrSismos();
+  if (hurrLayersActive.sismos) hurricaneMap.addLayer(hurrSismosLayer);
+  if (hurrLayersActive.huracanes) hurricaneMap.addLayer(hurricaneLayer);
+  if (hurrLayersActive.tsunamis) hurricaneMap.addLayer(hurrTsunamiLayer);
   setTimeout(() => hurricaneMap.invalidateSize(), 300);
 }
+
 function switchHurricaneBaseMap(id) {
   if (!hurricaneMap || !BASE_MAPS[id]) return;
   if (hurricaneBaseLayer) hurricaneMap.removeLayer(hurricaneBaseLayer);
   hurricaneBaseLayer = BASE_MAPS[id].addTo(hurricaneMap);
   if (hurricaneWeatherEnabled && hurricaneWeatherLayer) hurricaneMap.addLayer(hurricaneWeatherLayer);
 }
-function toggleHurricaneWeather() {
+
+function toggleHurrLayer(name) {
+  hurrLayersActive[name] = !hurrLayersActive[name];
+  const btn = document.getElementById('tog' + name.charAt(0).toUpperCase() + name.slice(1));
+  const layers = { sismos: hurrSismosLayer, huracanes: hurricaneLayer, tsunamis: hurrTsunamiLayer };
+  const labels = { sismos: '🔴 Sismos', huracanes: '🌀 Huracanes', tsunamis: '🌊 Tsunamis' };
+  const activeLabels = { sismos: '🔴 Ocultar Sismos', huracanes: '🌀 Ocultar Huracanes', tsunamis: '🌊 Ocultar Tsunamis' };
+  const layer = layers[name];
+  if (!layer || !hurricaneMap) return;
+  if (hurrLayersActive[name]) {
+    hurricaneMap.addLayer(layer);
+    btn.textContent = activeLabels[name];
+    btn.className = 'px-2 py-1 rounded-lg bg-rose-500/30 border border-rose-500/50 text-[10px] font-medium';
+  } else {
+    hurricaneMap.removeLayer(layer);
+    btn.textContent = labels[name];
+    btn.className = 'px-2 py-1 rounded-lg bg-amber-500/20 border border-amber-500/30 text-[10px] font-medium';
+  }
+}
+
+function toggleHurrWeather() {
   hurricaneWeatherEnabled = !hurricaneWeatherEnabled;
   const btn = document.getElementById('toggleHurrWeatherBtn');
   const status = document.getElementById('hurrWeatherStatus');
@@ -2354,13 +2404,13 @@ function toggleHurricaneWeather() {
     hurricaneMap.addLayer(hurricaneRainLayer);
     btn.textContent = '☁️ Ocultar Clima';
     btn.className = 'px-2 py-1 rounded-lg bg-cyan-500/30 border border-cyan-500/50 text-[10px] font-medium';
-    status.textContent = 'nubes satelitales NOAA + radar RainViewer';
+    status.textContent = 'nubes satelitales + radar';
   } else {
     if (hurricaneWeatherLayer && hurricaneMap.hasLayer(hurricaneWeatherLayer)) hurricaneMap.removeLayer(hurricaneWeatherLayer);
     if (hurricaneRainLayer && hurricaneMap.hasLayer(hurricaneRainLayer)) hurricaneMap.removeLayer(hurricaneRainLayer);
     btn.textContent = '☁️ Clima';
     btn.className = 'px-2 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/30 text-[10px] font-medium';
-    status.textContent = 'desactivada';
+    status.textContent = 'desactivado';
   }
 }
 
@@ -2380,6 +2430,46 @@ function renderHurricaneMarkers(storms) {
         <p style="font-size:9px;color:#94a3b8;margin:0;">${s.category} · ${s.wind} mph · ${s.pressure} mb</p>
         <p style="font-size:9px;color:#94a3b8;margin:0;">Mov: ${s.movement} · Formado: ${s.formed}</p>
       </div>`, { className: 'quake-tooltip', offset: [0, -14] });
+  });
+}
+
+function renderHurrSismos() {
+  if (!hurrSismosLayer) return;
+  hurrSismosLayer.clearLayers();
+  const colors = { Alta: '#f43f5e', Media: '#f59e0b', Baja: '#10b981' };
+  if (typeof seismicZones !== 'undefined') {
+    seismicZones.forEach(z => {
+      L.circleMarker([z.lat, z.lng], { radius: 7, color: '#fff', fillColor: colors[z.risk] || '#64748b', fillOpacity: 0.5, weight: 1.5 }).addTo(hurrSismosLayer).bindTooltip(z.name + ' (' + z.risk + ')', { className: 'zone-label ' + (z.risk || '').toLowerCase(), direction: 'right', offset: [5, 0] });
+    });
+  }
+  if (typeof quakeHistory !== 'undefined') {
+    quakeHistory.forEach(q => {
+      const qll = { 'Costa Pacífico, Chiriquí': [7.8, -82.0], 'Volcán Barú, Chiriquí': [8.81, -82.54], 'Golfo de Chiriquí': [8.0, -82.5], 'Colón': [9.36, -79.9], 'Darién': [8.0, -77.5], 'Paso Canoas, Chiriquí': [8.54, -82.84], 'Punta Burica, Chiriquí': [8.03, -82.87] };
+      const ll = qll[q.location];
+      if (ll) L.marker(ll, { icon: L.divIcon({ html: '💥', iconSize: [18, 18], className: '' }) }).addTo(hurrSismosLayer).bindTooltip('M' + q.mag + ' · ' + q.location, { className: 'quake-tooltip' });
+    });
+  }
+}
+
+const tsunamiZones = [
+  { name: '⚠️ Alerta Tsunami — Pacífico Panameño', color: '#f43f5e', coords: [[7.2,-82.8],[6.8,-81.8],[6.5,-80.5],[6.5,-79.5],[6.8,-78.5],[7.5,-77.5],[8.2,-78.5],[8.5,-79.5],[8.8,-80.8],[8.5,-82.5],[7.8,-83.5],[7.2,-82.8]] },
+  { name: '🔵 Vigilancia Tsunami — Cuenca del Pacífico', color: '#06b6d4', coords: [[5.5,-84.5],[5.0,-82.0],[4.5,-79.5],[5.0,-76.5],[6.5,-76.0],[8.5,-76.0],[9.5,-78.5],[10.0,-81.0],[9.5,-84.0],[8.0,-85.5],[5.5,-84.5]] },
+  { name: '🔵 Vigilancia Tsunami — Caribe', color: '#06b6d4', coords: [[11.5,-82.5],[11.0,-80.0],[11.0,-78.0],[10.5,-76.5],[9.5,-76.5],[9.0,-77.5],[9.0,-79.0],[9.5,-80.5],[10.0,-82.5],[11.5,-82.5]] }
+];
+
+function renderHurrTsunamis() {
+  if (!hurrTsunamiLayer) return;
+  hurrTsunamiLayer.clearLayers();
+  tsunamiZones.forEach(z => {
+    L.polygon(z.coords, { color: z.color, weight: 2, opacity: 0.6, fillColor: z.color, fillOpacity: 0.1, dashArray: '8 6' }).addTo(hurrTsunamiLayer).bindTooltip(z.name, { className: 'quake-tooltip' });
+  });
+  const tsunamiHistory = [
+    { lat: 7.5, lon: -82.5, year: '1900', mag: 7.8, desc: 'Terremoto que generó tsunami en el Pacífico chiricano' },
+    { lat: 8.0, lon: -80.0, year: '1882', mag: 7.0, desc: 'Tsunami en el Golfo de Panamá' },
+    { lat: 9.0, lon: -80.0, year: '2004', mag: 6.5, desc: 'Alerta de tsunami en el Caribe panameño' }
+  ];
+  tsunamiHistory.forEach(t => {
+    L.circleMarker([t.lat, t.lon], { radius: 6, color: '#f43f5e', fillColor: '#f43f5e', fillOpacity: 0.4, weight: 2 }).addTo(hurrTsunamiLayer).bindTooltip('🌊 ' + t.year + ' M' + t.mag + ' — ' + t.desc, { className: 'quake-tooltip' });
   });
 }
 
