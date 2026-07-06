@@ -381,7 +381,17 @@
 <!-- MAPA -->
 <section id="content-mapa" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
   <div class="glass rounded-2xl p-4 mb-4">
-    <div class="flex items-center justify-between mb-3"><h3 class="font-bold">🗺️ Mapa Satelital Global</h3><div class="flex items-center gap-2"><button id="toggleSeismicMap" onclick="toggleSeismicMarkers()" title="Mostrar u ocultar las zonas sísmicas en el mapa satelital" class="px-2 py-1 rounded-lg bg-rose-500/20 border border-rose-500/30 text-[10px] font-medium">🔴 Zonas Sísmicas</button><span class="text-xs text-slate-400" id="mapTime">--:--</span></div></div>
+    <div class="flex items-center justify-between mb-3"><h3 class="font-bold">🗺️ Mapa Satelital Global</h3><div class="flex items-center gap-2 flex-wrap">
+      <select id="baseMapSelector" onchange="switchBaseMap(this.value)" class="glass rounded-lg px-2 py-1 text-[10px] font-medium border border-slate-600 bg-transparent text-white cursor-pointer">
+        <option value="esri">🛰️ Satélite (ESRI)</option>
+        <option value="osm">🗺️ Calles (OSM)</option>
+        <option value="dark">🌑 Oscuro (CartoDB)</option>
+        <option value="topo">⛰️ Topográfico</option>
+      </select>
+      <button onclick="toggleWeatherOverlay()" id="toggleWeatherBtn" class="px-2 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/30 text-[10px] font-medium">☁️ Clima</button>
+      <button id="toggleSeismicMap" onclick="toggleSeismicMarkers()" class="px-2 py-1 rounded-lg bg-rose-500/20 border border-rose-500/30 text-[10px] font-medium">🔴 Zonas</button>
+      <span class="text-xs text-slate-400" id="mapTime">--:--</span>
+    </div></div>
     <div class="flex items-center gap-2 mb-3 flex-wrap text-[10px]"><span class="text-slate-400 font-medium">Leyenda:</span>
       <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow shadow-rose-500/50"></span><span>Alta</span></div>
       <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow shadow-amber-500/50"></span><span>Media</span></div>
@@ -390,6 +400,7 @@
       <span class="ml-auto text-slate-500"><span class="inline-block w-3 h-3 rounded-full bg-rose-500 border border-white align-middle mr-0.5"></span> Epicentro</span>
     </div>
     <div id="leafletMap" style="height:500px;width:100%;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);"></div>
+    <p class="text-[9px] text-slate-500 mt-2">🌤️ Capa climática: <span id="weatherLayerStatus">desactivada</span> · Fuente: RainViewer / NOAA GOES</p>
   </div>
   <div id="provDetail" class="glass rounded-2xl p-4 hidden">
     <div class="flex items-center justify-between mb-3"><div><h4 class="font-bold text-lg" id="provName">-</h4><p class="text-xs" id="provLevel">-</p></div><div id="provAQI" class="text-3xl font-bold">-</div></div>
@@ -1797,12 +1808,67 @@ function renderSeismicZones() {
 // 🗺️ LEAFLET MAPA SATELITAL
 // ============================================
 let leafletMap = null, seismicLayer = null, epicenterGroup = null, epicenterTimer = null;
+let baseLayer = null;
+let weatherLayer = null;
+let rainRadarLayer = null;
+let weatherOverlayEnabled = false;
+const BASE_MAPS = {
+  esri: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: '&copy; ESRI' }),
+  osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }),
+  dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19, attribution: '&copy; CARTO' }),
+  topo: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17, attribution: '&copy; OpenTopoMap' })
+};
+  esri: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: '&copy; ESRI' }),
+  osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }),
+  dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19, attribution: '&copy; CARTO' }),
+  topo: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17, attribution: '&copy; OpenTopoMap' })
+};
+
+function switchBaseMap(id) {
+  if (!leafletMap || !BASE_MAPS[id]) return;
+  if (baseLayer) leafletMap.removeLayer(baseLayer);
+  baseLayer = BASE_MAPS[id].addTo(leafletMap);
+  // Si está activo el clima, poner la capa de clima encima
+  if (weatherOverlayEnabled && weatherLayer) leafletMap.addLayer(weatherLayer);
+}
+
+function toggleWeatherOverlay() {
+  weatherOverlayEnabled = !weatherOverlayEnabled;
+  const btn = document.getElementById('toggleWeatherBtn');
+  const status = document.getElementById('weatherLayerStatus');
+  if (weatherOverlayEnabled) {
+    if (!weatherLayer) {
+      // Capa de nubes satelitales NOAA GOES (GeoColor)
+      weatherLayer = L.tileLayer('https://nowcoast.noaa.gov/arcgis/rest/services/nowcoast/satellite_goes_geocolor/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 12, opacity: 0.5, attribution: 'NOAA GOES'
+      });
+    }
+    if (!rainRadarLayer) {
+      // Capa de radar de precipitación RainViewer
+      rainRadarLayer = L.tileLayer('https://tilecache.rainviewer.com/v2/radar/now/256/{z}/{x}/{y}/2/1_1.png', {
+        maxZoom: 15, opacity: 0.4, attribution: 'RainViewer'
+      });
+    }
+    leafletMap.addLayer(weatherLayer);
+    leafletMap.addLayer(rainRadarLayer);
+    btn.textContent = '☁️ Ocultar Clima';
+    btn.className = 'px-2 py-1 rounded-lg bg-cyan-500/30 border border-cyan-500/50 text-[10px] font-medium';
+    status.textContent = 'nubes satelitales NOAA + radar RainViewer';
+  } else {
+    if (weatherLayer && leafletMap.hasLayer(weatherLayer)) leafletMap.removeLayer(weatherLayer);
+    if (rainRadarLayer && leafletMap.hasLayer(rainRadarLayer)) leafletMap.removeLayer(rainRadarLayer);
+    btn.textContent = '☁️ Clima';
+    btn.className = 'px-2 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/30 text-[10px] font-medium';
+    status.textContent = 'desactivada';
+  }
+}
+
 function initLeafletMap() {
   if (leafletMap) return;
   const el = document.getElementById('leafletMap');
   if (!el) return;
   leafletMap = L.map(el, { center: [8.5, -80.5], zoom: 6, zoomControl: true, attributionControl: false });
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: '&copy; ESRI' }).addTo(leafletMap);
+  baseLayer = BASE_MAPS.esri.addTo(leafletMap);
   L.control.attribution({ position: 'bottomleft', prefix: false }).addTo(leafletMap);
   L.circleMarker([8.98, -79.52], { radius: 7, color: '#38bdf8', fillColor: '#fff', fillOpacity: 0.9, weight: 2 }).addTo(leafletMap).bindTooltip('CD Panamá', { permanent: true, direction: 'right', offset: [5, 0], className: 'city-label' });
   L.circleMarker([8.43, -82.43], { radius: 5, color: '#38bdf8', fillColor: '#fff', fillOpacity: 0.9, weight: 1.5 }).addTo(leafletMap).bindTooltip('David', { permanent: true, direction: 'right', offset: [5, 0], className: 'city-label' });
