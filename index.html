@@ -453,6 +453,22 @@
     <div id="sensorsList" class="space-y-1.5 max-h-96 overflow-y-auto scrollbar-hide"></div>
   </div>
   <div class="glass rounded-2xl p-4 mb-4">
+    <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+      <h3 class="font-bold">🗺️ Últimos Eventos Sísmicos</h3>
+      <div class="flex items-center gap-2">
+        <button onclick="toggleSismoMapLayer('zones')" id="togSismoZonas" class="px-2 py-1 rounded-lg bg-amber-500/20 border border-amber-500/30 text-[10px] font-medium">📍 Zonas</button>
+        <button onclick="toggleSismoMapLayer('quakes')" id="togSismoQuakes" class="px-2 py-1 rounded-lg bg-rose-500/30 border border-rose-500/50 text-[10px] font-medium">🌋 Sismos</button>
+        <span class="live-indicator">EN VIVO</span>
+      </div>
+    </div>
+    <p class="text-[10px] text-slate-400 mb-3">Mapa interactivo de los últimos sismos detectados por USGS y sensores locales. Hacé clic en cada marcador para ver detalles.</p>
+    <div id="sismoMap" class="w-full" style="height:480px;border-radius:12px;background:#0a0f1e;border:1px solid rgba(255,255,255,0.08);"></div>
+    <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[9px] text-slate-500">
+      <span>🌋 <span style="color:#f43f5e;">Sismos USGS</span> · tiempo real</span>
+      <span>📍 <span style="color:#f59e0b;">Zonas sísmicas</span> · monitoreo local</span>
+    </div>
+  </div>
+  <div class="glass rounded-2xl p-4 mb-4">
     <div class="flex items-center justify-between mb-3"><h3 class="font-bold">📈 Sismógrafos en Tiempo Real</h3><span class="live-indicator">REC</span></div>
     <div class="bg-black/50 rounded-xl p-3 mb-3">
       <div class="flex items-center justify-between mb-2"><span class="text-xs text-slate-400">Estación: Volcán Barú (CH-01)</span><span class="text-xs text-emerald-400">● En línea</span></div>
@@ -1504,6 +1520,16 @@ function showTab(tab) {
     renderMap();
     setTimeout(() => { if (leafletMap) leafletMap.invalidateSize(); }, 100);
   }
+  if (tab === 'sismico') {
+    initSismoMap();
+    renderSismoMapQuakes();
+    renderSismoMapZones();
+    setTimeout(() => { if (sismoMap) {
+      sismoMap.invalidateSize();
+      if (sismoLayersActive.zones) sismoMap.addLayer(sismoMapZones);
+      if (sismoLayersActive.quakes) sismoMap.addLayer(sismoMapQuakes);
+    } }, 200);
+  }
   if (tab === 'huracanes') {
     initHurricaneMap();
     fetchHurricaneData();
@@ -2092,6 +2118,87 @@ function toggleQuakeMarkers() {
     leafletMap.addLayer(quakeLayer);
     btn.textContent = '🌋 Ocultar Sismos';
     btn.className = 'px-2 py-1 rounded-lg bg-amber-500/30 border border-amber-500/50 text-[10px] font-medium';
+  }
+}
+// ============================================
+// 🗺️ MAPA SÍSMICO INTERACTIVO
+// ============================================
+let sismoMap = null;
+let sismoMapZones = null;
+let sismoMapQuakes = null;
+let sismoLayersActive = { zones: false, quakes: true };
+
+function initSismoMap() {
+  if (sismoMap) {
+    setTimeout(() => sismoMap.invalidateSize(), 100);
+    return;
+  }
+  const el = document.getElementById('sismoMap');
+  if (!el) return;
+  sismoMap = L.map(el, { center: [8.5, -80.5], zoom: 6, zoomControl: true, attributionControl: false });
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: '&copy; ESRI' }).addTo(sismoMap);
+  L.control.attribution({ position: 'bottomleft', prefix: false }).addTo(sismoMap);
+  sismoMapZones = L.layerGroup();
+  sismoMapQuakes = L.layerGroup();
+  renderSismoMapQuakes();
+  renderSismoMapZones();
+  if (sismoLayersActive.zones) sismoMap.addLayer(sismoMapZones);
+  if (sismoLayersActive.quakes) sismoMap.addLayer(sismoMapQuakes);
+  setTimeout(() => sismoMap.invalidateSize(), 300);
+}
+
+function renderSismoMapZones() {
+  if (!sismoMapZones) return;
+  sismoMapZones.clearLayers();
+  if (typeof seismicZones === 'undefined') return;
+  const colors = { Alta: '#f43f5e', Media: '#f59e0b', Baja: '#10b981' };
+  seismicZones.forEach(z => {
+    L.circleMarker([z.lat, z.lng], { radius: 8, color: '#fff', fillColor: colors[z.risk] || '#64748b', fillOpacity: 0.5, weight: 1.5 }).addTo(sismoMapZones)
+      .bindTooltip(`<b>${z.name}</b><br>Riesgo: ${z.risk}<br>${z.province}`, { className: 'quake-tooltip' });
+    L.circle([z.lat, z.lng], { radius: 2000, color: colors[z.risk], weight: 1, opacity: 0.2, fill: false }).addTo(sismoMapZones);
+  });
+}
+
+function renderSismoMapQuakes() {
+  if (!sismoMapQuakes) return;
+  sismoMapQuakes.clearLayers();
+  if (typeof quakeHistory === 'undefined') return;
+  quakeHistory.forEach(q => {
+    if (!q.lat || !q.lon) return;
+    const ll = [q.lat, q.lon];
+    const isBig = q.mag >= 4;
+    const color = q.mag >= 4 ? '#f43f5e' : q.mag >= 3 ? '#f59e0b' : '#22d3ee';
+    const radius = isBig ? 10 : 6;
+    L.circleMarker(ll, { radius, color: '#fff', fillColor: color, fillOpacity: 0.7, weight: 1.5 }).addTo(sismoMapQuakes)
+      .bindTooltip(`<div style="background:#0a0f1e;border:1px solid ${color};border-radius:8px;padding:6px 10px;max-width:200px;">
+        <p style="font-weight:bold;font-size:12px;margin:0 0 2px;">M${q.mag.toFixed(1)}</p>
+        <p style="font-size:9px;color:#94a3b8;margin:0;">${q.location || 'Desconocido'}</p>
+        <p style="font-size:9px;color:#94a3b8;margin:2px 0 0;">Prof: ${q.depth} km · ${q.time || ''}</p>
+      </div>`, { className: 'quake-tooltip', offset: [0, -10] })
+      .on('click', () => {
+        sismoMap.setView(ll, 10, { animate: true, duration: 0.8 });
+      });
+    if (isBig) {
+      L.circle(ll, { radius: 5000, color, weight: 1, opacity: 0.15, fillColor: color, fillOpacity: 0.05 }).addTo(sismoMapQuakes);
+    }
+  });
+}
+
+function toggleSismoMapLayer(name) {
+  sismoLayersActive[name] = !sismoLayersActive[name];
+  const layers = { zones: sismoMapZones, quakes: sismoMapQuakes };
+  const labels = { zones: '📍 Zonas', quakes: '🌋 Sismos' };
+  const activeLabels = { zones: '📍 Ocultar Zonas', quakes: '🌋 Ocultar Sismos' };
+  const layer = layers[name];
+  if (!layer || !sismoMap) return;
+  if (sismoLayersActive[name]) {
+    sismoMap.addLayer(layer);
+    if (name === 'zones') renderSismoMapZones();
+    if (name === 'quakes') renderSismoMapQuakes();
+    document.getElementById('togSismo' + name.charAt(0).toUpperCase() + name.slice(1)).textContent = activeLabels[name];
+  } else {
+    sismoMap.removeLayer(layer);
+    document.getElementById('togSismo' + name.charAt(0).toUpperCase() + name.slice(1)).textContent = labels[name];
   }
 }
 function renderMapQuakes() {
