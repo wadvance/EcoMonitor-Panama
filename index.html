@@ -380,65 +380,51 @@
   </div>
 </section>
 <!-- MAPA -->
-<section id="content-mapa" class="tab-content hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:10;display:none;flex-direction:column;">
-  <div style="position:relative;flex:1;width:100%;min-height:0;">
-    <div id="leafletMap" style="position:absolute;top:0;left:0;right:0;bottom:0;"></div>
-    <div style="position:absolute;top:10px;left:10px;right:10px;z-index:1000;display:flex;flex-wrap:wrap;gap:6px;pointer-events:none;">
-      <select id="baseMapSelector" onchange="switchBaseMap(this.value)" style="pointer-events:auto;" class="glass rounded-lg px-2.5 py-1.5 text-[11px] font-medium border border-slate-600 bg-black/70 text-white cursor-pointer backdrop-blur-md">
-        <option value="firefly">🔥 Firefly</option>
+<section id="content-mapa" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
+  <div class="glass rounded-2xl p-4 mb-4" style="background:rgba(5,10,25,0.6);">
+    <div id="leafletMap" style="height:600px;width:100%;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);"></div>
+    <div class="flex flex-wrap items-center gap-2 mt-2">
+      <select id="baseMapSelector" onchange="switchBaseMap(this.value)" class="glass rounded-lg px-2 py-1 text-[10px] font-medium border border-slate-600 bg-transparent text-white cursor-pointer">
+        <option value="firefly">🔥 Firefly (ESRI)</option>
         <option value="esri">🌍 ESRI</option>
         <option value="dark">🌑 Oscuro</option>
         <option value="osm">🗺️ Calles</option>
       </select>
-      <button onclick="toggleWeatherOverlay()" id="toggleWeatherBtn" style="pointer-events:auto;" class="px-2.5 py-1.5 rounded-lg bg-cyan-500/30 border border-cyan-500/50 text-[11px] font-medium backdrop-blur-md">☁️ Clima</button>
-      <button id="toggleSeismicMap" onclick="toggleSeismicMarkers()" style="pointer-events:auto;" class="px-2.5 py-1.5 rounded-lg bg-rose-500/30 border border-rose-500/50 text-[11px] font-medium backdrop-blur-md">🔴 Zonas</button>
-      <button id="toggleQuakesMap" onclick="toggleQuakeMarkers()" style="pointer-events:auto;" class="px-2.5 py-1.5 rounded-lg bg-amber-500/30 border border-amber-500/50 text-[11px] font-medium backdrop-blur-md">🌋 Sismos</button>
-      <span class="text-xs text-slate-300 py-1.5" id="mapTime" style="pointer-events:auto;">--:--</span>
-      <span style="margin-left:auto;pointer-events:auto;cursor:pointer;font-size:11px;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);padding:3px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);color:#94a3b8;" onclick="toggleMapPanel()" id="mapPanelToggle">📊 Datos ▴</span>
-    </div>
-    <div style="position:absolute;bottom:70px;left:10px;z-index:1000;display:flex;gap:4px;flex-wrap:wrap;pointer-events:none;">
-      <div style="pointer-events:auto;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);border-radius:8px;padding:3px 8px;border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:6px;">
-        <span style="color:#94a3b8;font-size:9px;">Leyenda:</span>
-        <span style="display:flex;align-items:center;gap:2px;font-size:9px;color:#94a3b8;"><span style="width:8px;height:8px;border-radius:50%;background:#f43f5e;display:inline-block;"></span>Alta</span>
-        <span style="display:flex;align-items:center;gap:2px;font-size:9px;color:#94a3b8;"><span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;display:inline-block;"></span>Media</span>
-        <span style="display:flex;align-items:center;gap:2px;font-size:9px;color:#94a3b8;"><span style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block;"></span>Baja</span>
-        <span style="display:flex;align-items:center;gap:2px;font-size:9px;color:#94a3b8;"><span style="width:8px;height:8px;border-radius:50%;background:#38bdf8;display:inline-block;"></span>Ciudad</span>
-      </div>
-    </div>
-    <p style="position:absolute;bottom:52px;right:10px;z-index:1000;font-size:8px;color:#64748b;text-shadow:0 1px 4px rgba(0,0,0,0.9);">🌤️ <span id="weatherLayerStatus">desactivada</span></p>
-  </div>
-  <div id="mapDataPanel" style="background:rgba(10,15,30,0.95);backdrop-filter:blur(12px);border-top:1px solid rgba(255,255,255,0.08);overflow-y:auto;transition:height 0.3s ease;height:200px;">
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-2 p-2.5 text-xs">
-      <div class="glass rounded-xl p-2.5 bg-gradient-to-br from-sky-500/10 to-indigo-500/10 border border-sky-500/20">
-        <div class="flex items-center gap-1.5 mb-1"><span class="text-sm" id="mapWeatherIcon">⛅</span><span class="font-bold text-sky-300 text-[11px]"><span id="mapTemp">--</span>°C</span><span class="text-slate-400" id="mapWeatherDesc">Cargando...</span></div>
-        <div class="flex gap-2 text-[10px] text-slate-400"><span>💧<span id="mapHumidity">--</span>%</span><span>💨<span id="mapWind">--</span></span><span>🌧️<span id="mapRain">--</span></span></div>
-      </div>
-      <div class="glass rounded-xl p-2.5 bg-gradient-to-br from-amber-500/10 to-rose-500/10 border border-amber-500/20">
-        <div class="font-bold text-amber-300 text-[11px] mb-1">🌋 Sismos</div>
-        <div id="mapQuakesList" class="max-h-12 overflow-y-auto scrollbar-hide text-[10px] text-slate-300">Cargando...</div>
-      </div>
-      <div class="glass rounded-xl p-2.5 bg-gradient-to-br from-purple-500/10 to-cyan-500/10 border border-purple-500/20">
-        <div class="font-bold text-purple-300 text-[11px] mb-1">🌀 Huracanes</div>
-        <div id="mapHurricanesList" class="max-h-12 overflow-y-auto scrollbar-hide text-[10px] text-slate-300">Cargando...</div>
-      </div>
-      <div class="glass rounded-xl p-2.5 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20">
-        <div class="font-bold text-emerald-300 text-[11px] mb-1">🌊 Mareas</div>
-        <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-[10px]"><span class="text-slate-400">Balboa:</span><span id="tideBalboa" class="text-cyan-400">0.00</span><span class="text-slate-400">Cristóbal:</span><span id="tideCristobal" class="text-cyan-400">0.00</span><span class="text-slate-400">Bocas:</span><span id="tideBocas" class="text-cyan-400">0.00</span></div>
-      </div>
-      <div class="glass rounded-xl p-2.5 bg-gradient-to-br from-violet-500/10 to-fuchsia-500/10 border border-violet-500/20">
-        <div class="font-bold text-violet-300 text-[11px] mb-1">✈️ Vuelos</div>
-        <div class="flex gap-2 text-[10px]"><span class="text-slate-400">PTY:<span id="flightsPTY" class="text-white font-bold">0</span></span><span class="text-slate-400">DAV:<span id="flightsDAV" class="text-white font-bold">0</span></span><span class="text-slate-400">Int:<span id="flightsInt" class="text-white font-bold">0</span></span></div>
-      </div>
-      <div class="glass rounded-xl p-2.5 bg-gradient-to-br from-slate-500/10 to-zinc-500/10 border border-slate-500/20">
-        <div class="font-bold text-slate-300 text-[11px] mb-1">🛰️ Sensores</div>
-        <div class="flex flex-wrap gap-x-2 gap-y-0.5 text-[10px]"><span>📳<span id="mapSensorSismic" class="text-emerald-400">10/10</span></span><span>🌊<span id="mapSensorDart" class="text-emerald-400">3/3</span></span><span>📏<span id="mapSensorMareo" class="text-emerald-400">5/5</span></span><span>📍<span id="mapSensorGps" class="text-emerald-400">4/4</span></span></div>
-      </div>
-    </div>
-    <div class="px-2.5 pb-2">
-      <div id="provDetail" class="glass rounded-xl p-2 hidden"><div class="flex items-center justify-between"><div><span class="font-bold text-xs" id="provName">-</span><span class="text-[10px] text-slate-400 ml-1" id="provLevel">-</span></div><span class="text-lg font-bold" id="provAQI">-</span></div></div>
-      <div id="rankingList" class="space-y-0.5 mt-1"></div>
+      <button onclick="toggleWeatherOverlay()" id="toggleWeatherBtn" class="px-2 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/30 text-[10px] font-medium">☁️ Clima</button>
+      <button id="toggleSeismicMap" onclick="toggleSeismicMarkers()" class="px-2 py-1 rounded-lg bg-rose-500/20 border border-rose-500/30 text-[10px] font-medium">🔴 Zonas</button>
+      <button id="toggleQuakesMap" onclick="toggleQuakeMarkers()" class="px-2 py-1 rounded-lg bg-amber-500/20 border border-amber-500/30 text-[10px] font-medium">🌋 Sismos</button>
+      <span class="text-xs text-slate-400" id="mapTime">--:--</span>
+      <span class="text-[9px] text-slate-500 ml-auto">🌤️ <span id="weatherLayerStatus">desactivada</span></span>
     </div>
   </div>
+  <div class="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
+    <div class="glass rounded-xl p-2.5 bg-gradient-to-br from-sky-500/10 to-indigo-500/10 border border-sky-500/20">
+      <div class="flex items-center gap-1.5 mb-1"><span class="text-sm" id="mapWeatherIcon">⛅</span><span class="font-bold text-sky-300 text-xs"><span id="mapTemp">--</span>°C</span><span class="text-[10px] text-slate-400" id="mapWeatherDesc">Cargando...</span></div>
+      <div class="flex gap-2 text-[10px] text-slate-400"><span>💧<span id="mapHumidity">--</span>%</span><span>💨<span id="mapWind">--</span></span><span>🌧️<span id="mapRain">--</span></span></div>
+    </div>
+    <div class="glass rounded-xl p-2.5 bg-gradient-to-br from-amber-500/10 to-rose-500/10 border border-amber-500/20">
+      <div class="font-bold text-amber-300 text-xs mb-1">🌋 Sismos</div>
+      <div id="mapQuakesList" class="max-h-10 overflow-y-auto scrollbar-hide text-[10px] text-slate-300">Cargando...</div>
+    </div>
+    <div class="glass rounded-xl p-2.5 bg-gradient-to-br from-purple-500/10 to-cyan-500/10 border border-purple-500/20">
+      <div class="font-bold text-purple-300 text-xs mb-1">🌀 Huracanes</div>
+      <div id="mapHurricanesList" class="max-h-10 overflow-y-auto scrollbar-hide text-[10px] text-slate-300">Cargando...</div>
+    </div>
+    <div class="glass rounded-xl p-2.5 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20">
+      <div class="font-bold text-emerald-300 text-xs mb-1">🌊 Mareas</div>
+      <div class="flex flex-wrap gap-x-2 text-[10px]"><span class="text-slate-400">Balboa:</span><span id="tideBalboa" class="text-cyan-400">0.00</span><span class="text-slate-400 ml-1">Cristóbal:</span><span id="tideCristobal" class="text-cyan-400">0.00</span></div>
+    </div>
+    <div class="glass rounded-xl p-2.5 bg-gradient-to-br from-violet-500/10 to-fuchsia-500/10 border border-violet-500/20">
+      <div class="font-bold text-violet-300 text-xs mb-1">✈️ Vuelos</div>
+      <div class="flex gap-2 text-[10px]"><span class="text-slate-400">PTY:<span id="flightsPTY" class="text-white font-bold">0</span></span><span class="text-slate-400">DAV:<span id="flightsDAV" class="text-white font-bold">0</span></span></div>
+    </div>
+    <div class="glass rounded-xl p-2.5 bg-gradient-to-br from-slate-500/10 to-zinc-500/10 border border-slate-500/20">
+      <div class="font-bold text-slate-300 text-xs mb-1">🛰️ Sensores</div>
+      <div class="flex flex-wrap gap-x-2 text-[10px]"><span>📳<span id="mapSensorSismic" class="text-emerald-400">10/10</span></span><span>🌊<span id="mapSensorDart" class="text-emerald-400">3/3</span></span><span>📏<span id="mapSensorMareo" class="text-emerald-400">5/5</span></span></div>
+    </div>
+  </div>
+  <div id="provDetail" class="glass rounded-2xl p-4 mb-4 hidden"><div class="flex items-center justify-between mb-3"><div><h4 class="font-bold text-lg" id="provName">-</h4><p class="text-xs" id="provLevel">-</p></div><div id="provAQI" class="text-3xl font-bold">-</div></div></div>
+  <div class="glass rounded-2xl p-4"><h4 class="font-bold mb-3 text-sm">📊 Ranking de Zonas</h4><div id="rankingList" class="space-y-1.5"></div></div>
 </section>
 
   <div id="provDetail" class="glass rounded-2xl p-4 mt-4 hidden">
@@ -1478,14 +1464,10 @@ function stopAlarm() {
 // TABS
 // ============================================
 function showTab(tab) {
-  document.querySelectorAll('.tab-content').forEach(el => {
-    el.classList.add('hidden');
-    if (el.id === 'content-mapa') el.style.display = 'none';
-  });
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
   document.querySelectorAll('.tab-btn').forEach(el => { el.classList.remove('tab-active'); el.classList.add('glass'); });
   const ct = document.getElementById(`content-${tab}`);
   ct.classList.remove('hidden');
-  if (tab === 'mapa') ct.style.display = 'flex';
   const btn = document.getElementById(`tab-${tab}`);
   btn.classList.add('tab-active'); btn.classList.remove('glass');
   if (tab === 'mapa') {
@@ -2081,18 +2063,6 @@ function renderMapFlights() {
   const ptyEl = document.getElementById('flightsPTY');
   const davEl = document.getElementById('flightsDAV');
   const intEl = document.getElementById('flightsInt');
-}
-function toggleMapPanel() {
-  const panel = document.getElementById('mapDataPanel');
-  const toggle = document.getElementById('mapPanelToggle');
-  if (!panel) return;
-  if (panel.style.height === '0px' || panel.style.height === '0') {
-    panel.style.height = '200px';
-    toggle.textContent = '📊 Datos ▴';
-  } else {
-    panel.style.height = '0px';
-    toggle.textContent = '📊 Datos ▾';
-  }
 }
 function renderMap() {
   renderMapQuakes();
