@@ -2346,10 +2346,10 @@ let hurrTsunamiLayer = null;
 let hurrLayersActive = { sismos: false, huracanes: true, tsunamis: false };
 
 const hurricaneDefaultData = [
-  { name: 'Tormenta Tropical Alberto', category: 'Tormenta Tropical', wind: 45, gust: 55, lat: 18.2, lon: -68.5, movement: 'NO a 15 mph', pressure: 1002, formed: '03 Jul 2026', details: 'Vientos máximos sostenidos de 45 mph. Se mueve hacia el norte-noroeste alejándose del Caribe.' },
-  { name: 'Huracán Beryl', category: 'Huracán Cat 3', wind: 120, gust: 140, lat: 22.8, lon: -72.3, movement: 'NO a 12 mph', pressure: 964, formed: '28 Jun 2026', details: 'Huracán categoría 3 en el Atlántico central. No representa amenaza directa a tierra firme por ahora.' },
-  { name: 'Depresión Tropical Tres', category: 'Depresión Tropical', wind: 35, gust: 45, lat: 12.5, lon: -42.8, movement: 'O a 10 mph', pressure: 1008, formed: '04 Jul 2026', details: 'Depresión tropical en formación en el Atlántico tropical. Podría fortalecerse en los próximos días.' },
-  { name: 'Potencial Ciclón Cuatro', category: 'Formación Potencial', wind: 30, gust: 40, lat: 9.8, lon: -55.2, movement: 'ONO a 8 mph', pressure: 1010, formed: '04 Jul 2026', details: 'Área de baja presión con potencial de desarrollo ciclónico en 48 horas. Monitoreo activo del NHC.' }
+  { name: 'Tormenta Tropical Alberto', category: 'Tormenta Tropical', wind: 45, gust: 55, lat: 18.2, lon: -68.5, movement: 'NO a 15 mph', pressure: 1002, formed: '03 Jul 2026', windDir: 315, windRadius34: 100, windRadius50: 40, windRadius64: 0, rainRate: 25, details: 'Vientos máximos sostenidos de 45 mph. Rachas de 55 mph. Lluvias intensas en el Caribe oriental. Se mueve hacia el norte-noroeste alejándose de tierra firme.' },
+  { name: 'Huracán Beryl', category: 'Huracán Cat 3', wind: 120, gust: 140, lat: 22.8, lon: -72.3, movement: 'NO a 12 mph', pressure: 964, formed: '28 Jun 2026', windDir: 320, windRadius34: 200, windRadius50: 120, windRadius64: 60, rainRate: 80, details: 'Huracán categoría 3 en la escala Saffir-Simpson. Vientos destructivos de 120 mph con rachas de 140 mph. Campo de vientos de huracán se extiende hasta 60 millas náuticas del centro. Lluvias torrenciales de hasta 80 mm/hr. No representa amenaza directa a tierra firme por ahora.' },
+  { name: 'Depresión Tropical Tres', category: 'Depresión Tropical', wind: 35, gust: 45, lat: 12.5, lon: -42.8, movement: 'O a 10 mph', pressure: 1008, formed: '04 Jul 2026', windDir: 270, windRadius34: 0, windRadius50: 0, windRadius64: 0, rainRate: 15, details: 'Depresión tropical en formación en el Atlántico tropical. Vientos de 35 mph con rachas de 45 mph. Lluvias moderadas. Podría fortalecerse a tormenta tropical en los próximos días.' },
+  { name: 'Ciclón Tropical Potencial Cuatro', category: 'Formación Potencial', wind: 30, gust: 40, lat: 9.8, lon: -55.2, movement: 'ONO a 8 mph', pressure: 1010, formed: '04 Jul 2026', windDir: 290, windRadius34: 0, windRadius50: 0, windRadius64: 0, rainRate: 10, details: 'Área de baja presión con potencial de desarrollo ciclónico en 48 horas. Vientos de 30 mph. Monitoreo activo del Centro Nacional de Huracanes (NHC) y la NOAA. Probabilidad de formación: 60%.' }
 ];
 
 function getHurricaneCatColor(cat) {
@@ -2451,18 +2451,59 @@ function toggleHurrWeather() {
 function renderHurricaneMarkers(storms) {
   if (!hurricaneLayer || !hurricaneMap) return;
   hurricaneLayer.clearLayers();
-  storms.forEach(s => {
+  storms.forEach((s, idx) => {
     const color = getHurricaneCatColor(s.category);
     const emoji = getCatEmoji(s.category);
+    const ll = [s.lat, s.lon];
+
+    // Radio de vientos de tormenta tropical (34kt)
+    if (s.windRadius34 > 0) {
+      L.circle(ll, { radius: s.windRadius34 * 1852, color: '#22d3ee', weight: 1.5, opacity: 0.3, fillColor: '#22d3ee', fillOpacity: 0.06, dashArray: '4 4' }).addTo(hurricaneLayer);
+    }
+    // Radio de vientos de 50kt
+    if (s.windRadius50 > 0) {
+      L.circle(ll, { radius: s.windRadius50 * 1852, color: '#fbbf24', weight: 1.5, opacity: 0.4, fillColor: '#fbbf24', fillOpacity: 0.08, dashArray: '3 3' }).addTo(hurricaneLayer);
+    }
+    // Radio de vientos de huracán (64kt)
+    if (s.windRadius64 > 0) {
+      L.circle(ll, { radius: s.windRadius64 * 1852, color: '#f43f5e', weight: 2, opacity: 0.5, fillColor: '#f43f5e', fillOpacity: 0.1 }).addTo(hurricaneLayer);
+    }
+
+    // Círculo de lluvia/rain band
+    const rainRad = 100 + (s.rainRate || 20) * 2;
+    L.circle(ll, { radius: rainRad * 1000, color: '#38bdf8', weight: 1, opacity: 0.15, fillColor: '#38bdf8', fillOpacity: 0.05, dashArray: '6 8' }).addTo(hurricaneLayer);
+
+    // Flecha de dirección del viento
+    if (s.windDir !== undefined) {
+      const arrowLen = 0.6;
+      const rad = s.windDir * Math.PI / 180;
+      const endLat = s.lat + arrowLen * Math.cos(rad);
+      const endLon = s.lon + arrowLen * Math.sin(rad);
+      const arrow = L.polyline([ll, [endLat, endLon]], { color, weight: 2.5, opacity: 0.5 }).addTo(hurricaneLayer);
+      // Punta de flecha
+      const aLen = 0.15, aAng = Math.PI / 6;
+      const r2 = rad + Math.PI;
+      const p1 = [endLat + aLen * Math.cos(r2 - aAng), endLon + aLen * Math.sin(r2 - aAng)];
+      const p2 = [endLat + aLen * Math.cos(r2 + aAng), endLon + aLen * Math.sin(r2 + aAng)];
+      L.polyline([p1, [endLat, endLon], p2], { color, weight: 2, opacity: 0.5 }).addTo(hurricaneLayer);
+    }
+
+    // Marcador principal
     const radius = s.category.includes('Cat 5') ? 30 : s.category.includes('Cat 4') ? 25 : s.category.includes('Cat 3') ? 20 : s.category.includes('Cat') ? 16 : 12;
-    L.circleMarker([s.lat, s.lon], { radius, color, fillColor: color, fillOpacity: 0.3, weight: 2, opacity: 0.8 }).addTo(hurricaneLayer);
-    L.marker([s.lat, s.lon], {
+    L.circleMarker(ll, { radius, color, fillColor: color, fillOpacity: 0.25, weight: 2, opacity: 0.7 }).addTo(hurricaneLayer);
+    L.marker(ll, {
       icon: L.divIcon({ className: '', html: `<div style="font-size:22px;text-align:center;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.8));">${emoji}</div>`, iconSize: [28, 28], iconAnchor: [14, 14] })
-    }).addTo(hurricaneLayer).bindTooltip(`
+    }).addTo(hurricaneLayer)
+    .on('click', () => {
+      hurricaneMap.setView(ll, 8, { animate: true, duration: 0.8 });
+      setTimeout(() => showHurricaneDetails(idx), 500);
+    })
+    .bindTooltip(`
       <div style="background:#0a0f1e;border:1px solid ${color};border-radius:8px;padding:6px 10px;max-width:220px;">
         <p style="font-weight:bold;font-size:11px;color:#fff;margin:0 0 2px;">${s.name}</p>
         <p style="font-size:9px;color:#94a3b8;margin:0;">${s.category} · ${s.wind} mph · ${s.pressure} mb</p>
         <p style="font-size:9px;color:#94a3b8;margin:0;">Mov: ${s.movement} · Formado: ${s.formed}</p>
+        ${s.rainRate ? `<p style="font-size:9px;color:#38bdf8;margin:2px 0 0;">🌧️ ${s.rainRate} mm/hr · Toca para ver detalles</p>` : ''}
       </div>`, { className: 'quake-tooltip', offset: [0, -14] });
   });
 }
@@ -2547,6 +2588,7 @@ function parseNHCData(data) {
             category: 'Huracán',
             wind: 0, gust: 0, lat: coords[1], lon: coords[0],
             movement: 'Variable', pressure: 0,
+            windDir: 0, windRadius34: 0, windRadius50: 0, windRadius64: 0, rainRate: 0,
             formed: f.properties.effective || 'Desconocido',
             details: f.properties.description || ''
           });
@@ -2564,7 +2606,7 @@ function renderActiveHurricanes(storms) {
   storms.forEach((s, idx) => {
     const color = getHurricaneCatColor(s.category);
     const emoji = getCatEmoji(s.category);
-    html += `<div class="glass rounded-xl p-3 cursor-pointer hover:bg-white/5 transition" onclick="showHurricaneDetails(${idx})">
+    html += `<div class="glass rounded-xl p-3 cursor-pointer hover:bg-white/5 transition" onclick="focusAndShow(${idx})">
       <div class="flex items-center gap-2 mb-1">
         <span style="font-size:18px;">${emoji}</span>
         <div class="flex-1 min-w-0">
@@ -2573,6 +2615,7 @@ function renderActiveHurricanes(storms) {
             <span class="text-[8px] px-1.5 py-0.5 rounded-full font-medium" style="background:${color}33;color:${color}">${s.category}</span>
           </div>
           <p class="text-[9px] text-slate-400">💨 ${s.wind} mph · 🌊 ${s.pressure} mb · ${s.movement}</p>
+          <p class="text-[8px] text-slate-500">🌧️ ${s.rainRate || 0} mm/hr · 🧭 ${s.windDir !== undefined ? s.windDir + '°' : 'N/A'}</p>
         </div>
         <span class="text-[9px] text-slate-500">${s.formed}</span>
       </div>
@@ -2581,11 +2624,20 @@ function renderActiveHurricanes(storms) {
   list.innerHTML = html;
 }
 
+function focusAndShow(idx) {
+  const storms = hurricaneDefaultData;
+  const s = storms[idx];
+  if (!s || !hurricaneMap) return;
+  hurricaneMap.setView([s.lat, s.lon], 8, { animate: true, duration: 0.8 });
+  setTimeout(() => showHurricaneDetails(idx), 500);
+}
+
 function showHurricaneDetails(idx) {
   const storms = hurricaneDefaultData;
   const s = storms[idx] || storms[0];
   const color = getHurricaneCatColor(s.category);
   const emoji = getCatEmoji(s.category);
+  const windField = s.windRadius64 > 0 ? `<div class="glass rounded-lg p-2"><span class="text-slate-400">Campo vientos huracán</span><br><span class="font-bold">${s.windRadius64} MN</span></div>` : '';
   const html = `<div class="space-y-3 p-2">
     <div class="flex items-center gap-3">
       <span style="font-size:36px;">${emoji}</span>
@@ -2595,13 +2647,23 @@ function showHurricaneDetails(idx) {
       </div>
     </div>
     <div class="grid grid-cols-2 gap-2 text-xs">
-      <div class="glass rounded-lg p-2"><span class="text-slate-400">Vientos</span><br><span class="font-bold">${s.wind} mph (rafagas ${s.gust} mph)</span></div>
-      <div class="glass rounded-lg p-2"><span class="text-slate-400">Presión</span><br><span class="font-bold">${s.pressure} mb</span></div>
+      <div class="glass rounded-lg p-2"><span class="text-slate-400">Vientos sostenidos</span><br><span class="font-bold">${s.wind} mph</span></div>
+      <div class="glass rounded-lg p-2"><span class="text-slate-400">Ráfagas máximas</span><br><span class="font-bold">${s.gust} mph</span></div>
+      <div class="glass rounded-lg p-2"><span class="text-slate-400">Presión central</span><br><span class="font-bold">${s.pressure} mb</span></div>
       <div class="glass rounded-lg p-2"><span class="text-slate-400">Movimiento</span><br><span class="font-bold">${s.movement}</span></div>
       <div class="glass rounded-lg p-2"><span class="text-slate-400">Formación</span><br><span class="font-bold">${s.formed}</span></div>
+      <div class="glass rounded-lg p-2"><span class="text-slate-400">Dirección del viento</span><br><span class="font-bold">${s.windDir !== undefined ? s.windDir + '°' : 'N/A'}</span></div>
+      <div class="glass rounded-lg p-2"><span class="text-slate-400">Lluvia estimada</span><br><span class="font-bold">${s.rainRate || 0} mm/hr</span></div>
+      ${s.windRadius34 > 0 ? `<div class="glass rounded-lg p-2"><span class="text-slate-400">Radio vientos 34kt</span><br><span class="font-bold">${s.windRadius34} MN</span></div>` : ''}
+      ${s.windRadius50 > 0 ? `<div class="glass rounded-lg p-2"><span class="text-slate-400">Radio vientos 50kt</span><br><span class="font-bold">${s.windRadius50} MN</span></div>` : ''}
+      ${windField}
     </div>
+    ${s.rainRate > 30 ? `<div class="glass rounded-xl p-3 border-l-4 border-cyan-500">
+      <p class="text-xs font-bold text-cyan-400 mb-1">🌧️ Alerta de Lluvias Intensas</p>
+      <p class="text-[10px] text-slate-300">Precipitación de ${s.rainRate} mm/hr cerca del centro del ciclón. Riesgo de inundaciones repentinas en áreas costeras y terrenos bajos.</p>
+    </div>` : ''}
     <div class="glass rounded-xl p-3 text-xs text-slate-300 leading-relaxed">${s.details}</div>
-    <p class="text-[9px] text-slate-500">Fuente: Centro Nacional de Huracanes (NHC) · NOAA</p>
+    <p class="text-[9px] text-slate-500">Fuente: Centro Nacional de Huracanes (NHC) · NOAA · Datos simulados para demostración</p>
   </div>`;
   openModal(`🌀 ${s.name}`, html, true);
 }
