@@ -1495,7 +1495,8 @@ function showTab(tab) {
   }
   if (tab === 'huracanes') {
     initHurricaneMap();
-    setTimeout(() => { if (hurricaneMap) hurricaneMap.invalidateSize(); }, 100);
+    fetchHurricaneData();
+    setTimeout(() => { if (hurricaneMap) hurricaneMap.invalidateSize(); }, 200);
   }
 }
 // ============================================
@@ -2346,7 +2347,10 @@ function getCatEmoji(cat) {
 }
 
 function initHurricaneMap() {
-  if (hurricaneMap) return;
+  if (hurricaneMap) {
+    setTimeout(() => hurricaneMap.invalidateSize(), 100);
+    return;
+  }
   const el = document.getElementById('hurricaneMap');
   if (!el) return;
   hurricaneMap = L.map(el, { center: [18, -60], zoom: 4, zoomControl: true, attributionControl: false });
@@ -3016,8 +3020,7 @@ function init() {
   fetchFlights();
   setInterval(fetchFlights, 60000);
   
-  // Huracanes en tiempo real
-  fetchHurricaneData();
+  // Huracanes en tiempo real (se activa al abrir la pestaña)
   setInterval(fetchHurricaneData, 10 * 60 * 1000); // cada 10 min
   
   // Monitoreo epidemiológico
