@@ -1366,7 +1366,7 @@ function addNotification(type, title, message, location, lat, lon) {
 function updateNotifBadge() {
   const badge = document.getElementById('notifBadge');
   const count = notifications.length;
-  if (count > 0) { badge.textContent = count > 9 ? '9+' : count; badge.classList.remove('hidden'); }
+  if (count > 0) { badge.textContent = count; badge.classList.remove('hidden'); }
   else badge.classList.add('hidden');
 }
 function renderNotifList() {
@@ -3333,6 +3333,8 @@ function init() {
   
   // Huracanes en tiempo real (se activa al abrir la pestaña)
   setInterval(fetchHurricaneData, 10 * 60 * 1000); // cada 10 min
+  // Limpiar historial de notificaciones cada 5 min
+  setInterval(() => { if (notifications.length > 0) { clearNotifications(); } }, 5 * 60 * 1000);
   
   // Monitoreo epidemiológico
   fetchNorovirusData();
