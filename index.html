@@ -10,9 +10,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="EcoMonitor">
 <meta name="mobile-web-app-capable" content="yes">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <link rel="icon" type="image/svg+xml" href="icons/icon-192.svg">
 <link rel="apple-touch-icon" type="image/svg+xml" href="icons/icon-192.svg">
 <link rel="manifest" href="manifest.json">
@@ -707,9 +708,20 @@ let USER_LON = -79.5199;
 let userLocationName = 'CD de Panamá';
 let userCountry = 'Panamá';
 let isInPanama = true;
+let watchId = null;
 
 function getUserLocation() {
+  // Intentar recuperar última ubicación guardada
+  const storedLat = localStorage.getItem('eco-lat');
+  const storedLon = localStorage.getItem('eco-lon');
+  if (storedLat && storedLon) {
+    USER_LAT = parseFloat(storedLat);
+    USER_LON = parseFloat(storedLon);
+    updateLocationBadge();
+    fetchLocationName();
+  }
   if ('geolocation' in navigator) {
+    // getCurrentPosition para obtener ubicación rápida
     navigator.geolocation.getCurrentPosition(
       pos => {
         USER_LAT = pos.coords.latitude;
@@ -724,15 +736,26 @@ function getUserLocation() {
       },
       err => {
         console.warn('Geolocation error:', err.message);
-        const storedLat = localStorage.getItem('eco-lat');
-        if (storedLat) {
-          USER_LAT = parseFloat(storedLat);
-          USER_LON = parseFloat(localStorage.getItem('eco-lon'));
+        if (!storedLat) {
+          updateLocationBadge();
+          fetchLocationName();
         }
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+    );
+    // watchPosition para tracking continuo al moverse
+    if (watchId) navigator.geolocation.clearWatch(watchId);
+    watchId = navigator.geolocation.watchPosition(
+      pos => {
+        USER_LAT = pos.coords.latitude;
+        USER_LON = pos.coords.longitude;
+        localStorage.setItem('eco-lat', USER_LAT);
+        localStorage.setItem('eco-lon', USER_LON);
         updateLocationBadge();
         fetchLocationName();
       },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+      null,
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 120000 }
     );
   } else {
     fetchLocationName();
@@ -2741,8 +2764,10 @@ function updateTime() {
   document.getElementById('appBody').className = (isNight ? 'night-mode' : 'gradient-bg') + ' text-white min-h-screen';
   document.getElementById('modeIcon').textContent = isNight ? '🌙' : '☀️';
   document.getElementById('modeText').textContent = isNight ? 'Noche' : 'Día';
-  document.getElementById('currentTime').textContent = now.toLocaleTimeString('es-PA');
-  document.getElementById('currentDate').textContent = now.toLocaleDateString('es-PA', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const timeEl = document.getElementById('currentTime');
+  const dateEl = document.getElementById('currentDate');
+  if (timeEl) timeEl.textContent = now.toLocaleTimeString('es-PA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  if (dateEl) dateEl.textContent = now.toLocaleDateString('es-PA', { day: '2-digit', month: '2-digit', year: 'numeric' });
   const mapTime = document.getElementById('mapTime');
   if (mapTime) mapTime.textContent = now.toLocaleTimeString('es-PA', { hour: '2-digit', minute: '2-digit' });
 }
@@ -3003,7 +3028,7 @@ function showInstallPrompts() {
 
 window.addEventListener('load', () => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js?v=4').then(() => {
+    navigator.serviceWorker.register('sw.js?v=5').then(() => {
       console.log('SW registrado');
     }).catch(() => {});
   }

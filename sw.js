@@ -1,4 +1,4 @@
-const CACHE = 'ecomonitor-v4';
+const CACHE = 'ecomonitor-v5';
 const ASSETS = [
   '.',
   'index.html',
