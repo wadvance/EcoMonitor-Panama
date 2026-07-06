@@ -1009,12 +1009,7 @@ async function fetchRealQuakes() {
         const place = props.place || 'Desconocido';
         const time = props.time ? timeAgo(props.time) : 'Desconocido';
         const quakeTime = props.time ? formatQuakeTime(props.time) : '--';
-        // Excluir Costa Rica, Nicaragua y Colombia (excepto cerca de frontera con Panamá)
-        const placeLower = place.toLowerCase();
-        const excludeCountries = ['costa rica', 'nicaragua', 'colombia'];
-        const isExcluded = excludeCountries.some(c => placeLower.includes(c));
-        const isPanamaBorder = placeLower.includes('panamá') || placeLower.includes('panama') || (lat >= 7 && lat <= 10 && lon >= -83 && lon <= -77);
-        if (isExcluded && !isPanamaBorder) return;
+        // Mostrar todos los sismos de la región (Centroamérica, Caribe, Sudamérica)
         usgsQuakes.push({ mag, depth: Math.round(depth), location: place, time, quakeTime, lat, lon });
         if (mag >= 2.5) {
           const icon = mag >= 5 ? '🚨' : mag >= 4 ? '⚠️' : '🌋';
@@ -1399,7 +1394,6 @@ function showEpicenterMarker(location, lat, lon) {
   if (epicenterGroup) leafletMap.removeLayer(epicenterGroup);
   epicenterGroup = L.layerGroup().addTo(leafletMap);
   let ll = null;
-  // Si se proporcionan coordenadas exactas, usarlas primero
   if (lat != null && lon != null) {
     ll = [lat, lon];
   }
@@ -1407,26 +1401,44 @@ function showEpicenterMarker(location, lat, lon) {
     const qLatLng = {
       'Costa Pacífico, Chiriquí': [7.8, -82.0], 'Volcán Barú, Chiriquí': [8.81, -82.54],
       'Golfo de Chiriquí': [8.0, -82.5], 'Colón': [9.36, -79.9], 'Darién': [8.0, -77.5],
-      'Paso Canoas, Chiriquí': [8.54, -82.84], 'Punta Burica, Chiriquí': [8.03, -82.87]
+      'Paso Canoas, Chiriquí': [8.54, -82.84], 'Punta Burica, Chiriquí': [8.03, -82.87],
+      'Simulación - Panamá': [8.5, -80.5]
     };
+    const regionMap = {
+      'costa rica': [9.75, -84.0], 'nicaragua': [12.5, -85.0], 'colombia': [4.5, -74.0],
+      'mexico': [20.0, -99.0], 'méxico': [20.0, -99.0], 'guatemala': [15.5, -90.5],
+      'el salvador': [13.7, -89.0], 'honduras': [14.0, -86.5], 'cuba': [22.0, -80.0],
+      'jamaica': [18.0, -77.0], 'haiti': [19.0, -72.0], 'haití': [19.0, -72.0],
+      'república dominicana': [19.0, -70.5], 'venezuela': [8.0, -66.0],
+      'ecuador': [-1.0, -78.0], 'peru': [-9.0, -75.0], 'perú': [-9.0, -75.0],
+      'panamá': [8.5, -80.5], 'panama': [8.5, -80.5]
+    };
+    const l = location.toLowerCase();
     ll = qLatLng[location];
     if (!ll) {
       for (const [k, v] of Object.entries(qLatLng)) {
-        if (location.includes(k) || k.includes(location)) { ll = v; break; }
+        if (l.includes(k.toLowerCase()) || k.toLowerCase().includes(l)) { ll = v; break; }
+      }
+    }
+    if (!ll) {
+      for (const [k, v] of Object.entries(regionMap)) {
+        if (l.includes(k) || k.includes(l)) { ll = v; break; }
       }
     }
     if (!ll) {
       seismicZones.forEach(z => {
-        if (location.toLowerCase().includes(z.name.toLowerCase())) ll = [z.lat, z.lng];
+        if (l.includes(z.name.toLowerCase())) ll = [z.lat, z.lng];
       });
     }
     if (!ll) {
-      const l = location.toLowerCase();
       if (l.includes('chiriquí')||l.includes('chiriqui')||l.includes('armuelles')||l.includes('burica')||l.includes('charco')) ll = [8.2, -82.5];
       else if (l.includes('panamá')||l.includes('panama')||l.includes('ciudad')||l.includes('cd')) ll = [8.98, -79.52];
       else if (l.includes('colón')||l.includes('colon')) ll = [9.36, -79.9];
       else if (l.includes('darién')||l.includes('darien')) ll = [8.0, -77.5];
       else if (l.includes('veraguas')||l.includes('simulación')) ll = [8.0, -81.0];
+      else if (l.includes('centroamérica')||l.includes('centroamerica')) ll = [10.0, -84.0];
+      else if (l.includes('caribe')) ll = [15.0, -75.0];
+      else if (l.includes('pacifico')||l.includes('pacífico')) ll = [5.0, -85.0];
       else ll = [8.5, -80.5];
     }
   }
@@ -1435,9 +1447,9 @@ function showEpicenterMarker(location, lat, lon) {
   L.polyline([[ll[0], ll[1]-0.03],[ll[0], ll[1]+0.03]], { color: '#f43f5e', weight: 1, dashArray: '3,5', opacity: 0.6 }).addTo(epicenterGroup);
   L.polyline([[ll[0]-0.03, ll[1]],[ll[0]+0.03, ll[1]]], { color: '#f43f5e', weight: 1, dashArray: '3,5', opacity: 0.6 }).addTo(epicenterGroup);
   L.marker(ll, { icon: L.divIcon({ html: '<div class="epicenter-pin"></div>', iconSize: [28, 28], iconAnchor: [14, 14], className: '' }), zIndexOffset: 1000 }).addTo(epicenterGroup).bindTooltip('📌 ' + location, { className: 'epicenter-tooltip', direction: 'top', offset: [0, -16] });
-  // Zoom dinámico: si está en Panamá zoom 8, si está lejos zoom 5
   const isPanama = ll[0] >= 7 && ll[0] <= 10 && ll[1] >= -83 && ll[1] <= -76;
-  const zoomLevel = isPanama ? 9 : 5;
+  const isCentralAm = ll[0] >= 7 && ll[0] <= 18 && ll[1] >= -90 && ll[1] <= -75;
+  const zoomLevel = isPanama ? 9 : isCentralAm ? 6 : 4;
   leafletMap.flyTo(ll, zoomLevel, { duration: 1.5 });
   if (epicenterTimer) clearTimeout(epicenterTimer);
   epicenterTimer = setTimeout(() => { if (epicenterGroup) leafletMap.removeLayer(epicenterGroup); epicenterGroup = null; }, 12000);
@@ -1861,11 +1873,11 @@ function simulateQuake() {
     document.getElementById('tsunamiRisk').textContent = 'Moderado'; document.getElementById('tsunamiRisk').className = 'text-xl font-bold text-amber-400';
     document.getElementById('quakeAlert').textContent = 'Amarillo'; document.getElementById('quakeAlert').className = 'text-sm font-bold text-amber-400';
   } else if (mag >= 3) {
-    addNotification('info', '📳 Sismo M' + mag.toFixed(1), `📍 Panamá · Prof. ${depth} km · 🕐 ${now}`, 'Simulación - Panamá');
+    addNotification('info', '📳 Sismo M' + mag.toFixed(1), `📍 Panamá · Prof. ${depth} km · 🕐 ${now}`, 'Simulación - Panamá', 8.5, -80.5);
     document.getElementById('tsunamiRisk').textContent = 'Nulo'; document.getElementById('tsunamiRisk').className = 'text-xl font-bold text-emerald-400';
     document.getElementById('quakeAlert').textContent = 'Verde'; document.getElementById('quakeAlert').className = 'text-sm font-bold text-emerald-400';
   } else {
-    addNotification('success', '✓ Microsismo M' + mag.toFixed(1), `📍 Panamá · Prof. ${depth} km · 🕐 ${now}`, 'Simulación - Panamá');
+    addNotification('success', '✓ Microsismo M' + mag.toFixed(1), `📍 Panamá · Prof. ${depth} km · 🕐 ${now}`, 'Simulación - Panamá', 8.5, -80.5);
   }
 }
 function renderMiniQuakes() {
@@ -1876,7 +1888,7 @@ function renderMiniQuakes() {
     const c = q.mag >= 3 ? 'amber' : q.mag >= 2 ? 'yellow' : 'emerald';
     const div = document.createElement('div');
     div.className = 'flex items-center gap-2 glass rounded-lg p-1.5 cursor-pointer hover:bg-white/10 transition';
-    div.onclick = function() { gotoMapWithQuake(q.location); };
+    div.onclick = function() { gotoMapWithQuake(q.location, q.lat || null, q.lon || null); };
     div.innerHTML = `<span class="text-xs font-bold text-${c}-400 w-8">M${q.mag.toFixed(1)}</span><div class="flex-1 min-w-0"><p class="text-[10px] truncate text-slate-200">${q.location}</p><p class="text-[8px] text-white">${q.depth}km · ${q.time}</p></div>`;
     list.appendChild(div);
   });
