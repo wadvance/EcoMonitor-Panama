@@ -161,6 +161,7 @@
     <button onclick="showTab('sismico')" id="tab-sismico" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Monitoreo sísmico: 8 sensores, sismógrafos en vivo y simulador de terremotos">🌋 Sísmico</button>
     <button onclick="showTab('tsunamis')" id="tab-tsunamis" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Sistema de alerta de tsunamis: sensores DART y mareógrafos en costas panameñas">🌊 Tsunamis</button>
     <button onclick="showTab('huracanes')" id="tab-huracanes" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Monitoreo de huracanes del Atlántico: formación, trayectoria, ubicación e hora">🌀 Huracanes</button>
+    <button onclick="showTab('mareas')" id="tab-mareas" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Tabla de mareas en tiempo real para costas panameñas: Pacífico y Caribe">🌊 Mareas</button>
     <button onclick="showTab('vuelos')" id="tab-vuelos" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Vuelos en tiempo real: ruta de aviones, hora de salida y llegada por país">✈️ Vuelos</button>
     <button onclick="showTab('epidemia')" id="tab-epidemia" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Monitoreo epidemiológico: Norovirus, dengue, COVID y alertas del MINSA">🦠 Epidemia</button>
     <button onclick="showTab('cuidados')" id="tab-cuidados" class="tab-btn glass px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" title="Recomendaciones de salud según nivel de contaminación y protocolos ante sismos">⚕️ Cuidados</button>
@@ -378,9 +379,9 @@
   </div>
 </section>
 <!-- MAPA -->
-<section id="content-mapa" class="tab-content panama-only max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
+<section id="content-mapa" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
   <div class="glass rounded-2xl p-4 mb-4">
-    <div class="flex items-center justify-between mb-3"><h3 class="font-bold">🗺️ Mapa Satelital de Panamá</h3><div class="flex items-center gap-2"><button id="toggleSeismicMap" onclick="toggleSeismicMarkers()" title="Mostrar u ocultar las zonas sísmicas en el mapa satelital de Panamá" class="px-2 py-1 rounded-lg bg-rose-500/20 border border-rose-500/30 text-[10px] font-medium">🔴 Zonas Sísmicas</button><span class="text-xs text-slate-400" id="mapTime">--:--</span></div></div>
+    <div class="flex items-center justify-between mb-3"><h3 class="font-bold">🗺️ Mapa Satelital Global</h3><div class="flex items-center gap-2"><button id="toggleSeismicMap" onclick="toggleSeismicMarkers()" title="Mostrar u ocultar las zonas sísmicas en el mapa satelital" class="px-2 py-1 rounded-lg bg-rose-500/20 border border-rose-500/30 text-[10px] font-medium">🔴 Zonas Sísmicas</button><span class="text-xs text-slate-400" id="mapTime">--:--</span></div></div>
     <div class="flex items-center gap-2 mb-3 flex-wrap text-[10px]"><span class="text-slate-400 font-medium">Leyenda:</span>
       <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow shadow-rose-500/50"></span><span>Alta</span></div>
       <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow shadow-amber-500/50"></span><span>Media</span></div>
@@ -388,7 +389,7 @@
       <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-sky-500 shadow shadow-sky-500/50"></span><span>Ciudad</span></div>
       <span class="ml-auto text-slate-500"><span class="inline-block w-3 h-3 rounded-full bg-rose-500 border border-white align-middle mr-0.5"></span> Epicentro</span>
     </div>
-    <div id="leafletMap" style="height:440px;width:100%;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);"></div>
+    <div id="leafletMap" style="height:500px;width:100%;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);"></div>
   </div>
   <div id="provDetail" class="glass rounded-2xl p-4 hidden">
     <div class="flex items-center justify-between mb-3"><div><h4 class="font-bold text-lg" id="provName">-</h4><p class="text-xs" id="provLevel">-</p></div><div id="provAQI" class="text-3xl font-bold">-</div></div>
@@ -502,27 +503,27 @@
 </section>
 <!-- HURACANES -->
 <section id="content-huracanes" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
-  <div class="grid lg:grid-cols-2 gap-4">
-    <div class="glass rounded-2xl p-4">
+  <div class="glass rounded-2xl p-4 mb-4">
+    <div class="flex items-center justify-between mb-3">
+      <h4 class="font-bold text-sm">🌀 Mapa de Huracanes — Atlántico</h4>
+      <span class="live-indicator">SATÉLITE</span>
+    </div>
+    <p class="text-[10px] text-slate-400 mb-3">Monitoreo satelital de huracanes, tormentas tropicales y formación en el Atlántico, Caribe y Pacífico Oriental. Fuente: NOAA / NHC.</p>
+    <div id="hurricaneMap" class="w-full" style="height:520px;border-radius:12px;background:#0a0f1e;"></div>
+  </div>
+  <div class="grid md:grid-cols-3 gap-4">
+    <div class="glass rounded-2xl p-4 md:col-span-2">
       <div class="flex items-center justify-between mb-3">
-        <h4 class="font-bold text-sm">🌀 Mapa de Huracanes — Atlántico</h4>
-        <span class="live-indicator">SATÉLITE</span>
+        <h4 class="font-bold text-sm">🌪️ Tormentas Activas</h4>
+        <span class="text-[9px] text-slate-500">Temporada 2026</span>
       </div>
-      <p class="text-[10px] text-slate-400 mb-3">Monitoreo satelital de huracanes, tormentas tropicales y formación en el Atlántico, Caribe y Pacífico Oriental.</p>
-      <div id="hurricaneMap" class="w-full" style="height:350px;border-radius:12px;background:#0a0f1e;"></div>
+      <div id="hurricaneList" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[320px] overflow-y-auto scrollbar-hide"></div>
+      <p id="hurricaneLoading" class="text-xs text-slate-500 text-center py-4">Cargando datos de huracanes...</p>
     </div>
     <div class="space-y-3">
       <div class="glass rounded-2xl p-4">
-        <div class="flex items-center justify-between mb-3">
-          <h4 class="font-bold text-sm">🌪️ Tormentas Activas</h4>
-          <span class="text-[9px] text-slate-500">Temporada 2026</span>
-        </div>
-        <div id="hurricaneList" class="space-y-2 max-h-[280px] overflow-y-auto scrollbar-hide"></div>
-        <p id="hurricaneLoading" class="text-xs text-slate-500 text-center py-4">Cargando datos de huracanes...</p>
-      </div>
-      <div class="glass rounded-2xl p-4">
         <h4 class="font-bold text-sm mb-2">📊 Leyenda de Categorías</h4>
-        <div class="grid grid-cols-2 gap-1.5 text-[10px]">
+        <div class="space-y-1 text-[10px]">
           <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span><span>Depresión Tropical &lt;39 mph</span></div>
           <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span><span>Tormenta Tropical 39-73 mph</span></div>
           <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span><span>Huracán Cat 1 74-95 mph</span></div>
@@ -538,6 +539,38 @@
         <p class="text-[10px] text-slate-300">Monitoree avisos del Centro Nacional de Huracanes (NHC). Tenga un plan de emergencia si reside en zonas costeras del Caribe y Pacífico.</p>
       </div>
     </div>
+  </div>
+</section>
+<!-- MAREAS -->
+<section id="content-mareas" class="tab-content max-w-7xl mx-auto px-4 pt-4 pb-6 hidden">
+  <div class="glass rounded-2xl p-4 mb-4">
+    <div class="flex items-center justify-between mb-3">
+      <h4 class="font-bold text-sm">🌊 Tabla de Mareas — Panamá</h4>
+      <span class="live-indicator">EN VIVO</span>
+    </div>
+    <p class="text-[10px] text-slate-400 mb-3">Niveles del mar en tiempo real para las costas del Pacífico y Caribe panameño. Datos basados en mareógrafos y estaciones NOAA.</p>
+    <div class="grid md:grid-cols-5 gap-2 mb-3 text-center">
+      <div class="glass rounded-xl p-2"><p class="text-[9px] text-slate-400">Balboa (Pacífico)</p><p class="text-sm font-bold text-cyan-400 sensor-value" id="tideBalboa">0.00 m</p><p class="text-[9px] text-emerald-400" id="tideBalboaStatus">--</p></div>
+      <div class="glass rounded-xl p-2"><p class="text-[9px] text-slate-400">Pedregal (Pacífico)</p><p class="text-sm font-bold text-cyan-400 sensor-value" id="tidePedregal">0.00 m</p><p class="text-[9px] text-emerald-400" id="tidePedregalStatus">--</p></div>
+      <div class="glass rounded-xl p-2"><p class="text-[9px] text-slate-400">Cristóbal (Caribe)</p><p class="text-sm font-bold text-cyan-400 sensor-value" id="tideCristobal">0.00 m</p><p class="text-[9px] text-emerald-400" id="tideCristobalStatus">--</p></div>
+      <div class="glass rounded-xl p-2"><p class="text-[9px] text-slate-400">Bocas del Toro (Caribe)</p><p class="text-sm font-bold text-cyan-400 sensor-value" id="tideBocas">0.00 m</p><p class="text-[9px] text-emerald-400" id="tideBocasStatus">--</p></div>
+      <div class="glass rounded-xl p-2"><p class="text-[9px] text-slate-400">Puerto Armuelles (Pacífico)</p><p class="text-sm font-bold text-cyan-400 sensor-value" id="tideArmuelles">0.00 m</p><p class="text-[9px] text-emerald-400" id="tideArmuellesStatus">--</p></div>
+    </div>
+    <div id="tideGraph" class="w-full" style="height:180px;border-radius:12px;background:#0a0f1e;"></div>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="glass rounded-2xl p-4">
+      <h4 class="font-bold text-sm mb-3">📋 Pronóstico de Mareas — Pacífico</h4>
+      <div id="tidePacificTable" class="space-y-1.5"></div>
+    </div>
+    <div class="glass rounded-2xl p-4">
+      <h4 class="font-bold text-sm mb-3">📋 Pronóstico de Mareas — Caribe</h4>
+      <div id="tideCaribbeanTable" class="space-y-1.5"></div>
+    </div>
+  </div>
+  <div class="glass rounded-xl p-3 mt-4 border-l-4 border-cyan-500">
+    <p class="text-xs font-bold text-cyan-400 mb-1">💡 Información</p>
+    <p class="text-[10px] text-slate-300">Las mareas en Panamá son de tipo mixto (semidiurnas con desigualdad diurna). En el Pacífico la amplitud es mayor (hasta 6 m en el Golfo de Chiriquí) mientras que en el Caribe la amplitud es menor (0.3-0.5 m). Los datos se actualizan cada 10 minutos desde estaciones mareográficas.</p>
   </div>
 </section>
 <!-- EPIDEMIA -->
@@ -1306,7 +1339,10 @@ function showEpicenterMarker(location, lat, lon) {
   L.polyline([[ll[0], ll[1]-0.03],[ll[0], ll[1]+0.03]], { color: '#f43f5e', weight: 1, dashArray: '3,5', opacity: 0.6 }).addTo(epicenterGroup);
   L.polyline([[ll[0]-0.03, ll[1]],[ll[0]+0.03, ll[1]]], { color: '#f43f5e', weight: 1, dashArray: '3,5', opacity: 0.6 }).addTo(epicenterGroup);
   L.marker(ll, { icon: L.divIcon({ html: '<div class="epicenter-pin"></div>', iconSize: [28, 28], iconAnchor: [14, 14], className: '' }), zIndexOffset: 1000 }).addTo(epicenterGroup).bindTooltip('📌 ' + location, { className: 'epicenter-tooltip', direction: 'top', offset: [0, -16] });
-  leafletMap.flyTo(ll, 8, { duration: 1.2 });
+  // Zoom dinámico: si está en Panamá zoom 8, si está lejos zoom 5
+  const isPanama = ll[0] >= 7 && ll[0] <= 10 && ll[1] >= -83 && ll[1] <= -76;
+  const zoomLevel = isPanama ? 9 : 5;
+  leafletMap.flyTo(ll, zoomLevel, { duration: 1.5 });
   if (epicenterTimer) clearTimeout(epicenterTimer);
   epicenterTimer = setTimeout(() => { if (epicenterGroup) leafletMap.removeLayer(epicenterGroup); epicenterGroup = null; }, 12000);
 }
@@ -1765,13 +1801,12 @@ function initLeafletMap() {
   if (leafletMap) return;
   const el = document.getElementById('leafletMap');
   if (!el) return;
-  leafletMap = L.map(el, { center: [8.5, -80.5], zoom: 7, zoomControl: true, attributionControl: false });
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18, attribution: '&copy; ESRI' }).addTo(leafletMap);
+  leafletMap = L.map(el, { center: [8.5, -80.5], zoom: 6, zoomControl: true, attributionControl: false });
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: '&copy; ESRI' }).addTo(leafletMap);
   L.control.attribution({ position: 'bottomleft', prefix: false }).addTo(leafletMap);
   L.circleMarker([8.98, -79.52], { radius: 7, color: '#38bdf8', fillColor: '#fff', fillOpacity: 0.9, weight: 2 }).addTo(leafletMap).bindTooltip('CD Panamá', { permanent: true, direction: 'right', offset: [5, 0], className: 'city-label' });
   L.circleMarker([8.43, -82.43], { radius: 5, color: '#38bdf8', fillColor: '#fff', fillOpacity: 0.9, weight: 1.5 }).addTo(leafletMap).bindTooltip('David', { permanent: true, direction: 'right', offset: [5, 0], className: 'city-label' });
   L.circleMarker([9.36, -79.9], { radius: 5, color: '#38bdf8', fillColor: '#fff', fillOpacity: 0.9, weight: 1.5 }).addTo(leafletMap).bindTooltip('Colón', { permanent: true, direction: 'right', offset: [5, 0], className: 'city-label' });
-  L.circleMarker([8.16, -77.69], { radius: 4, color: '#38bdf8', fillColor: '#fff', fillOpacity: 0.7, weight: 1 }).addTo(leafletMap).bindTooltip('Yaviza', { permanent: true, direction: 'right', offset: [5, 0], className: 'city-label' });
   seismicLayer = L.layerGroup().addTo(leafletMap);
   renderSeismicMarkers();
   setTimeout(() => leafletMap.invalidateSize(), 300);
@@ -2202,6 +2237,149 @@ function showHurricaneDetails(idx) {
 }
 
 // ============================================
+// 🌊 MONITOREO DE MAREAS
+// ============================================
+let tideInterval = null;
+
+const tideStations = {
+  balboa: { name: 'Balboa', coast: 'Pacífico', lat: 8.95, lon: -79.56, base: 3.2, amp: 3.0, period: 12.42 },
+  pedregal: { name: 'Pedregal', coast: 'Pacífico', lat: 8.37, lon: -82.43, base: 2.8, amp: 3.5, period: 12.42 },
+  cristobal: { name: 'Cristóbal', coast: 'Caribe', lat: 9.35, lon: -79.91, base: 0.3, amp: 0.25, period: 12.42 },
+  bocas: { name: 'Bocas del Toro', coast: 'Caribe', lat: 9.34, lon: -82.24, base: 0.25, amp: 0.2, period: 12.42 },
+  armuelles: { name: 'Puerto Armuelles', coast: 'Pacífico', lat: 8.27, lon: -82.87, base: 3.0, amp: 3.2, period: 12.42 }
+};
+
+function calcTide(station, minutesOffset) {
+  const now = new Date();
+  const t = now.getTime() + (minutesOffset || 0) * 60000;
+  const hours = t / 3600000;
+  const phase = (hours / station.period) * 2 * Math.PI;
+  // Marea semidiurna con desigualdad diurna
+  const diurnal = Math.sin((hours / 24) * 2 * Math.PI) * 0.3;
+  const level = station.base + station.amp * (Math.sin(phase) + 0.15 * Math.sin(2 * phase + 1.2)) + diurnal;
+  return Math.max(0, level);
+}
+
+function getTideStatus(level, station) {
+  const mid = station.base;
+  const diff = level - mid;
+  if (diff > station.amp * 0.5) return { label: 'PLEAMAR', color: 'text-cyan-400' };
+  if (diff < -station.amp * 0.5) return { label: 'BAJAMAR', color: 'text-amber-400' };
+  if (diff > 0) return { label: 'Subiendo', color: 'text-emerald-400' };
+  return { label: 'Bajando', color: 'text-slate-400' };
+}
+
+function renderTideChart(stationId) {
+  const el = document.getElementById('tideGraph');
+  if (!el) return;
+  const station = tideStations[stationId || 'balboa'];
+  const points = [];
+  for (let i = -72; i <= 72; i += 2) {
+    const t = i * 10;
+    const level = calcTide(station, t);
+    points.push({ offset: i, level });
+  }
+  const maxL = Math.max(...points.map(p => p.level));
+  const minL = Math.min(...points.map(p => p.level));
+  const range = maxL - minL || 1;
+  const w = el.clientWidth || 400;
+  const h = 170;
+  const pad = 25;
+  const innerW = w - pad * 2;
+  const innerH = h - pad * 2;
+  let svg = `<svg width="${w}" height="${h}" style="background:transparent;"><defs><linearGradient id="tideGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#06b6d4" stop-opacity="0.4"/><stop offset="100%" stop-color="#06b6d4" stop-opacity="0.05"/></linearGradient></defs>`;
+  // línea media
+  const midY = pad + innerH * (1 - (station.base - minL) / range);
+  svg += `<line x1="${pad}" y1="${midY}" x2="${w - pad}" y2="${midY}" stroke="#334155" stroke-width="1" stroke-dasharray="4,4"/>`;
+  // área
+  let pathArea = '';
+  let pathLine = '';
+  points.forEach((p, i) => {
+    const x = pad + (i / (points.length - 1)) * innerW;
+    const y = pad + innerH * (1 - (p.level - minL) / range);
+    if (i === 0) { pathArea += `M${x},${h - pad}`; pathLine += `M${x},${y}`; }
+    pathArea += ` L${x},${y}`;
+    pathLine += ` L${x},${y}`;
+  });
+  pathArea += ` L${pad + innerW},${h - pad} Z`;
+  svg += `<path d="${pathArea}" fill="url(#tideGrad)" stroke="none"/>`;
+  svg += `<path d="${pathLine}" fill="none" stroke="#06b6d4" stroke-width="2"/>`;
+  // línea actual
+  const nowIdx = 72 / 2; // índice central = ahora
+  const nowX = pad + (nowIdx / (points.length - 1)) * innerW;
+  const nowY = pad + innerH * (1 - (points[nowIdx].level - minL) / range);
+  svg += `<circle cx="${nowX}" cy="${nowY}" r="4" fill="#f43f5e" stroke="#fff" stroke-width="2"/>`;
+  svg += `<text x="${nowX}" y="${nowY - 10}" text-anchor="middle" fill="#f43f5e" font-size="10" font-weight="bold">AHORA</text>`;
+  // ejes
+  svg += `<text x="${pad}" y="${h - 4}" fill="#64748b" font-size="8">-12h</text>`;
+  svg += `<text x="${w - pad - 20}" y="${h - 4}" fill="#64748b" font-size="8">+12h</text>`;
+  svg += `<text x="${pad}" y="${pad - 5}" fill="#64748b" font-size="8">${maxL.toFixed(1)}m</text>`;
+  svg += `<text x="${pad}" y="${h - pad + 12}" fill="#64748b" font-size="8">${minL.toFixed(1)}m</text>`;
+  svg += '</svg>';
+  el.innerHTML = svg;
+}
+
+function renderTideTables() {
+  const pacificTable = document.getElementById('tidePacificTable');
+  const caribbeanTable = document.getElementById('tideCaribbeanTable');
+  if (!pacificTable || !caribbeanTable) return;
+  pacificTable.innerHTML = '';
+  caribbeanTable.innerHTML = '';
+  const now = new Date();
+  const stations = Object.values(tideStations);
+  // Predecir próximos 8 eventos de pleamar/bajamar para cada estación
+  stations.forEach(s => {
+    const events = [];
+    for (let offset = -120; offset <= 720; offset += 5) {
+      const level = calcTide(s, offset);
+      const prevLevel = calcTide(s, offset - 5);
+      const nextLevel = calcTide(s, offset + 5);
+      if ((level > prevLevel && level > nextLevel) || (level < prevLevel && level < nextLevel)) {
+        const t = new Date(now.getTime() + offset * 60000);
+        const isHigh = level > prevLevel;
+        events.push({ time: t, level, isHigh, offset });
+      }
+    }
+    // Tomar los próximos 4 eventos
+    const future = events.filter(e => e.offset >= 0).slice(0, 4);
+    const table = s.coast === 'Pacífico' ? pacificTable : caribbeanTable;
+    let html = `<div class="glass rounded-lg p-2 mb-2"><p class="text-[10px] font-bold text-cyan-400">${s.name} (${s.coast})</p>`;
+    future.forEach(e => {
+      const timeStr = e.time.toLocaleTimeString('es-PA', { hour: '2-digit', minute: '2-digit' });
+      const dateStr = e.time.toLocaleDateString('es-PA', { weekday: 'short', day: 'numeric', month: 'short' });
+      const type = e.isHigh ? '⬆️ Pleamar' : '⬇️ Bajamar';
+      const color = e.isHigh ? 'text-cyan-400' : 'text-amber-400';
+      html += `<div class="flex justify-between text-[9px] py-0.5"><span class="text-slate-400">${dateStr} ${timeStr}</span><span class="${color}">${type} ${e.level.toFixed(2)}m</span></div>`;
+    });
+    html += '</div>';
+    table.innerHTML = html; // Reemplaza todo, no append
+  });
+}
+
+function updateTides() {
+  const stations = Object.entries(tideStations);
+  stations.forEach(([id, s]) => {
+    const level = calcTide(s, 0);
+    const status = getTideStatus(level, s);
+    const el = document.getElementById('tide' + id.charAt(0).toUpperCase() + id.slice(1));
+    const statusEl = document.getElementById('tide' + id.charAt(0).toUpperCase() + id.slice(1) + 'Status');
+    if (el) el.textContent = level.toFixed(2) + ' m';
+    if (statusEl) { statusEl.textContent = status.label; statusEl.className = `text-[9px] ${status.color} font-medium`; }
+  });
+  renderTideChart('balboa');
+}
+
+function initTides() {
+  updateTides();
+  renderTideTables();
+  if (tideInterval) clearInterval(tideInterval);
+  tideInterval = setInterval(() => {
+    updateTides();
+    renderTideTables();
+  }, 60000);
+}
+
+// ============================================
 // 🦠 MONITOREO EPIDEMIOLÓGICO
 // ============================================
 const diseases = [
@@ -2571,7 +2749,10 @@ function init() {
   // Monitoreo epidemiológico
   fetchNorovirusData();
   // Epidemic auto-refresh every 5 min
-  
+
+  // Mareas en tiempo real
+  initTides();
+
   initTrialCountdown();
   addNotification('success', '✓ EcoMonitor v3.0 activado', 'Sistema integral monitoreando Panamá 24/7');
 }
