@@ -11,7 +11,9 @@ const CDN_CACHE = 'ecomonitor-cdn-v1';
 const CDN_URLS = [
   'https://cdn.tailwindcss.com',
   'https://cdn.jsdelivr.net/npm/chart.js',
-  'https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.0/index.css'
+  'https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.0/index.css',
+  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
 ];
 
 self.addEventListener('install', e => {
