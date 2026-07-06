@@ -942,11 +942,12 @@ function formatQuakeTime(ts) {
 
 async function fetchRealQuakes() {
   try {
-    const minLat = -5;
-    const maxLat = 25;
-    const minLon = -90;
-    const maxLon = -70;
-    const url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minlatitude=${minLat}&maxlatitude=${maxLat}&minlongitude=${minLon}&maxlongitude=${maxLon}&minmagnitude=2.5&orderby=time&limit=30`;
+    // Americas - Hemisferio Occidental completo para cobertura global
+    const minLat = -60;
+    const maxLat = 60;
+    const minLon = -130;
+    const maxLon = -30;
+    const url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minlatitude=${minLat}&maxlatitude=${maxLat}&minlongitude=${minLon}&maxlongitude=${maxLon}&minmagnitude=4.0&orderby=time&limit=50`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('USGS API error');
     const data = await res.json();
