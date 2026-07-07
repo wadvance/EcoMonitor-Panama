@@ -2544,7 +2544,7 @@ let hurricaneTimer = null;
 let hurricaneBaseLayer = null;
 let hurricaneWeatherLayer = null;
 let hurricaneRainLayer = null;
-let hurricaneWeatherEnabled = true;
+let hurricaneWeatherEnabled = false;
 let hurrSismosLayer = null;
 let hurrTsunamiLayer = null;
 let hurrLayersActive = { sismos: false, huracanes: true, tsunamis: false };
@@ -2594,12 +2594,8 @@ function initHurricaneMap() {
   if (hurrLayersActive.sismos) hurricaneMap.addLayer(hurrSismosLayer);
   if (hurrLayersActive.huracanes) hurricaneMap.addLayer(hurricaneLayer);
   if (hurrLayersActive.tsunamis) hurricaneMap.addLayer(hurrTsunamiLayer);
-  // Capas de clima (desactivadas: NOAA y RainViewer caídos)
+  // Capas de clima (desactivadas: tiles NOAA/RainViewer caídos)
   // Se usan los datos de Open-Meteo con marcadores de clima mundial
-  if (hurricaneWeatherEnabled) {
-    hurricaneMap.addLayer(hurricaneWeatherLayer);
-    hurricaneMap.addLayer(hurricaneRainLayer);
-  }
   setTimeout(() => hurricaneMap.invalidateSize(), 300);
 }
 
@@ -3691,7 +3687,7 @@ function showInstallPrompts() {
 
 window.addEventListener('load', () => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').then(() => {
+    navigator.serviceWorker.register('sw.js?v=8').then(() => {
       console.log('SW registrado');
     }).catch(() => {});
   }
