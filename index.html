@@ -2811,26 +2811,6 @@ function fetchHurricaneData() {
       renderActiveHurricanes(storms);
     });
 }
-  if (data && data.features) {
-    data.features.forEach(f => {
-      if (f.properties && f.properties.event && f.properties.event.toLowerCase().includes('hurricane')) {
-        const coords = f.geometry?.coordinates;
-        if (coords && coords.length >= 2) {
-          storms.push({
-            name: f.properties.event || 'Tormenta',
-            category: 'Huracán',
-            wind: 0, gust: 0, lat: coords[1], lon: coords[0],
-            movement: 'Variable', pressure: 0,
-            windDir: 0, windRadius34: 0, windRadius50: 0, windRadius64: 0, rainRate: 0,
-            formed: f.properties.effective || 'Desconocido',
-            details: f.properties.description || ''
-          });
-        }
-      }
-    });
-  }
-  return storms;
-}
 
 function renderActiveHurricanes(storms) {
   const list = document.getElementById('hurricaneList');
