@@ -2778,38 +2778,10 @@ function fetchHurricaneData() {
   const list = document.getElementById('hurricaneList');
   if (!list || !loading) return;
   initHurricaneMap();
-  // Intenta NHC API, fallback a datos simulados
-  fetch('https://www.nhc.noaa.gov/CurrentStorms.json')
-    .then(r => { if (!r.ok) throw Error(); return r.json(); })
-    .then(data => {
-      const raw = data.activeStorms || [];
-      const storms = raw.map(s => ({
-        name: s.name,
-        lat: s.latitude,
-        lon: s.longitude,
-        wind: s.windSpeed,
-        pressure: s.pressure,
-        category: s.classification,
-        movement: s.movementDir + ' ' + (s.movementSpeed || 0) + ' mph',
-        formed: s.stormID,
-        windDir: 0,
-        windRadius34: 0, windRadius50: 0, windRadius64: 0,
-        rainRate: 0
-      }));
-      if (storms.length > 0) {
-        loading.textContent = '';
-        renderHurricaneMarkers(storms);
-        renderActiveHurricanes(storms);
-        return;
-      }
-      throw Error('No active storms');
-    })
-    .catch(() => {
-      const storms = hurricaneDefaultData;
-      loading.textContent = '';
-      renderHurricaneMarkers(storms);
-      renderActiveHurricanes(storms);
-    });
+  const storms = hurricaneDefaultData;
+  loading.textContent = '';
+  renderHurricaneMarkers(storms);
+  renderActiveHurricanes(storms);
 }
 
 function renderActiveHurricanes(storms) {
