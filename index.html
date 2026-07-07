@@ -1020,7 +1020,7 @@ async function fetchRealQuakes() {
         const eventTime = props.time || 0;
         const time = eventTime ? timeAgo(eventTime) : 'Desconocido';
         const quakeTime = eventTime ? formatQuakeTime(eventTime) : '--';
-        const eventId = props.net + props.code || eventTime + place + mag;
+        const eventId = f.id;
         usgsQuakes.push({ mag, depth: Math.round(depth), location: place, time, quakeTime, lat, lon });
         if (mag >= 2.5 && eventTime > 0) {
           const hoursAge = (now - eventTime) / 3600000;
@@ -1063,7 +1063,7 @@ async function fetchRealQuakes() {
 
 async function fetchGlobalQuakes() {
   try {
-    const startTime = new Date(Date.now() - 2 * 3600000).toISOString().split('.')[0];
+    const startTime = new Date(Date.now() - 6 * 3600000).toISOString().split('.')[0];
     const url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${startTime}&minmagnitude=2.5&orderby=time&limit=200`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('USGS global error');
@@ -1078,7 +1078,7 @@ async function fetchGlobalQuakes() {
         const lat = f.geometry.coordinates[1];
         const place = props.place || 'Desconocido';
         const eventTime = props.time || 0;
-        const eventId = props.net + props.code || eventTime + place + mag;
+        const eventId = f.id;
         if (mag >= 2.5 && eventTime > 0) {
           const hoursAge = (now - eventTime) / 3600000;
           if (hoursAge <= 1 && !notifiedQuakes.has(eventId)) {
