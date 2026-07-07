@@ -2778,19 +2778,31 @@ function fetchHurricaneData() {
   const list = document.getElementById('hurricaneList');
   if (!list || !loading) return;
   initHurricaneMap();
-  // Intenta datos de NOAA/NHC API, fallback a datos simulados
-  const apiUrl = 'https://api.weather.gov/atcf';
-  fetch('https://api.weather.gov/alerts/active?area=AT', { headers: { 'User-Agent': 'EcoMonitor-Panama/1.0 (ecomonitor@panama.app)', 'Accept': 'application/geo+json' } })
+  // Intenta NHC API, fallback a datos simulados
+  fetch('https://www.nhc.noaa.gov/CurrentStorms.json')
     .then(r => { if (!r.ok) throw Error(); return r.json(); })
     .then(data => {
-      const storms = parseNHCData(data);
+      const raw = data.activeStorms || [];
+      const storms = raw.map(s => ({
+        name: s.name,
+        lat: s.latitude,
+        lon: s.longitude,
+        wind: s.windSpeed,
+        pressure: s.pressure,
+        category: s.classification,
+        movement: s.movementDir + ' ' + (s.movementSpeed || 0) + ' mph',
+        formed: s.stormID,
+        windDir: 0,
+        windRadius34: 0, windRadius50: 0, windRadius64: 0,
+        rainRate: 0
+      }));
       if (storms.length > 0) {
         loading.textContent = '';
         renderHurricaneMarkers(storms);
         renderActiveHurricanes(storms);
         return;
       }
-      throw Error('No storms');
+      throw Error('No active storms');
     })
     .catch(() => {
       const storms = hurricaneDefaultData;
@@ -2799,10 +2811,6 @@ function fetchHurricaneData() {
       renderActiveHurricanes(storms);
     });
 }
-
-function parseNHCData(data) {
-  // Intentar parsear alertas del NHC
-  const storms = [];
   if (data && data.features) {
     data.features.forEach(f => {
       if (f.properties && f.properties.event && f.properties.event.toLowerCase().includes('hurricane')) {
@@ -3185,34 +3193,11 @@ const diseases = [
 ];
 
 function fetchNorovirusData() {
-  const sources = [
-    'https://api.allorigins.win/raw?url=https://sertv.gob.pa/norovirus',
-    'https://api.allorigins.win/raw?url=https://tvn-2.com/nacionales/norovirus'
-  ];
-  fetch(sources[0])
-    .then(r => { if (!r.ok) throw Error(); return r.text(); })
-    .then(html => parseNorovirusFromHTML(html))
-    .catch(() => fetch(sources[1])
-      .then(r => { if (!r.ok) throw Error(); return r.text(); })
-      .then(html => parseNorovirusFromHTML(html))
-      .catch(() => {
-        const d = diseases.find(x => x.id === 'norovirus');
-        d.cases = Math.max(d.cases, 2583);
-        d.desc = 'Brote en David, Chiriquí — ' + d.cases.toLocaleString('es-PA') + ' casos acumulados (MINSA). Tendencia a la baja.';
-      })
-    )
-    .finally(() => updateEpidemicStatus());
-}
-
-function parseNorovirusFromHTML(html) {
-  const regex = /(\d[\d.,]*)\s*casos?\s*(de\s*)?norovirus/i;
-  const match = html.match(regex);
   const d = diseases.find(x => x.id === 'norovirus');
-  if (match) {
-    const num = parseInt(match[1].replace(/[,.]/g, ''));
-    if (num > 0) d.cases = num;
-  }
-  d.desc = 'Brote en David, Chiriquí — ' + d.cases + ' casos acumulados (MINSA). Tendencia a la baja.';
+  if (!d) return;
+  d.cases = Math.max(d.cases, 2583);
+  d.desc = 'Brote en David, Chiriquí — ' + d.cases.toLocaleString('es-PA') + ' casos acumulados (MINSA). Tendencia a la baja.';
+  updateEpidemicStatus();
 }
 
 function updateEpidemicStatus() {
