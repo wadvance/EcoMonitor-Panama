@@ -438,7 +438,7 @@
       <h3 class="font-bold">🗺️ Últimos Eventos Sísmicos</h3>
       <div class="flex items-center gap-2">
         <button onclick="toggleSismoMapLayer('zones')" id="togSismoZones" class="px-2 py-1 rounded-lg bg-amber-500/20 border border-amber-500/30 text-[10px] font-medium">📍 Zonas</button>
-        <button onclick="toggleSismoMapLayer('quakes')" id="togSismoQuakes" class="px-2 py-1 rounded-lg bg-rose-500/30 border border-rose-500/50 text-[10px] font-medium">🌋 Sismos</button>
+        <button onclick="toggleSismoMapLayer('quakes')" id="togSismoQuakes" class="px-2 py-1 rounded-lg bg-rose-500/30 border border-rose-500/50 text-[10px] font-medium">🌋 Ocultar Sismos</button>
         <span class="live-indicator">EN VIVO</span>
       </div>
     </div>
@@ -541,6 +541,8 @@
       <div class="flex items-center gap-2 flex-wrap">
         <select id="hurricaneBaseMapSelector" onchange="switchHurricaneBaseMap(this.value)" class="glass rounded-lg px-2 py-1 text-[10px] font-medium border border-slate-600 bg-transparent text-white cursor-pointer">
           <option value="esri">🛰️ Satélite ESRI</option>
+          <option value="topo">⛰️ Topográfico</option>
+          <option value="relief">🏔️ Relieve</option>
           <option value="firefly">🔥 Firefly</option>
           <option value="dark">🌑 Oscuro</option>
           <option value="osm">🗺️ Calles</option>
@@ -2041,6 +2043,8 @@ let weatherOverlayEnabled = false;
 const BASE_MAPS = {
   firefly: L.tileLayer('https://fly.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Firefly/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: '&copy; ESRI Firefly' }),
   esri: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: '&copy; ESRI' }),
+  topo: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: '&copy; ESRI Topo' }),
+  relief: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: '&copy; ESRI Relief' }),
   dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19, attribution: '&copy; CARTO' }),
   osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' })
 };
@@ -2225,6 +2229,7 @@ function initSismoMap() {
   if (!el) return;
   sismoMap = L.map(el, { center: [8.5, -80.5], zoom: 6, zoomControl: true, attributionControl: false });
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: '&copy; ESRI' }).addTo(sismoMap);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: '', zIndex: 2 }).addTo(sismoMap);
   L.control.attribution({ position: 'bottomleft', prefix: false }).addTo(sismoMap);
   sismoMapZones = L.layerGroup();
   sismoMapQuakes = L.layerGroup();
@@ -2622,6 +2627,7 @@ function initHurricaneMap() {
     if (!el) return;
     hurricaneMap = L.map(el, { center: [8.5, -80], zoom: 6, zoomControl: true, attributionControl: false });
     hurricaneBaseLayer = BASE_MAPS.esri.addTo(hurricaneMap);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: '', zIndex: 2 }).addTo(hurricaneMap);
     L.control.attribution({ position: 'bottomleft', prefix: false }).addTo(hurricaneMap);
     hurricaneMap.attributionControl.addAttribution('<a href="https://openweathermap.org" target="_blank" style="color:#64748b;">Clima © OpenWeatherMap</a>');
   hurricaneLayer = L.layerGroup();
@@ -2655,6 +2661,8 @@ function toggleHurrLayer(name) {
   const s = styles[name];
   if (hurrLayersActive[name]) {
     hurricaneMap.addLayer(layer);
+    if (name === 'sismos' && globalQuakes.length === 0) fetchGlobalQuakes();
+    if (name === 'sismos') renderHurrSismos();
     if (b) { b.textContent = s.activeLabel; b.className = s.active; }
   } else {
     hurricaneMap.removeLayer(layer);
