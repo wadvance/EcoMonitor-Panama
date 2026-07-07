@@ -1421,6 +1421,7 @@ function addNotification(type, title, message, location, lat, lon) {
   if (notifications.length > 50) notifications.pop();
   updateNotifBadge();
   renderNotifList();
+  playAlarmSound(type);
   if ('Notification' in window && Notification.permission === 'granted') {
     const isUrgent = type === 'danger' || type === 'warning';
     const n = new Notification(title, {
@@ -1430,7 +1431,6 @@ function addNotification(type, title, message, location, lat, lon) {
       tag: type,
       icon: 'icons/icon-192.svg'
     });
-    n.onshow = () => { if (isUrgent) playAlarmSound(); };
     setTimeout(() => { if (!isUrgent) n.close(); }, 8000);
   }
   if (vibrationEnabled && 'vibrate' in navigator) navigator.vibrate(type === 'danger' ? [500, 200, 500, 200, 500] : [200, 100, 200]);
@@ -1582,7 +1582,7 @@ function showEpicenterMarker(location, lat, lon) {
 }
 function toggleSound() { soundEnabled = !soundEnabled; document.getElementById('soundToggle').classList.toggle('active'); }
 function toggleVibration() { vibrationEnabled = !vibrationEnabled; document.getElementById('vibrationToggle').classList.toggle('active'); }
-function playAlarmSound() {
+function playAlarmSound(priority) {
   if (!soundEnabled) return;
   try {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1592,11 +1592,13 @@ function playAlarmSound() {
       const gain = audioCtx.createGain();
       osc.connect(gain); gain.connect(audioCtx.destination);
       osc.frequency.value = freq; osc.type = 'sine';
-      gain.gain.setValueAtTime(0.3, audioCtx.currentTime + delay);
+      gain.gain.setValueAtTime(priority === 'danger' ? 0.35 : 0.2, audioCtx.currentTime + delay);
       gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + delay + duration);
       osc.start(audioCtx.currentTime + delay); osc.stop(audioCtx.currentTime + delay + duration);
     };
-    playBeep(880, 0.3, 0); playBeep(880, 0.3, 0.4); playBeep(880, 0.3, 0.8);
+    if (priority === 'danger') { playBeep(880, 0.3, 0); playBeep(880, 0.3, 0.4); playBeep(880, 0.3, 0.8); }
+    else if (priority === 'warning') { playBeep(660, 0.25, 0); playBeep(660, 0.25, 0.35); }
+    else { playBeep(550, 0.15, 0); }
   } catch(e) {}
 }
 function triggerAlarm(type, title, message) {
@@ -1604,9 +1606,9 @@ function triggerAlarm(type, title, message) {
   document.getElementById('alarmTitle').textContent = title;
   document.getElementById('alarmMessage').textContent = message;
   document.getElementById('alarmTime').textContent = '📅 ' + getNow();
-  playAlarmSound();
+  playAlarmSound(type);
   if (alarmInterval) clearInterval(alarmInterval);
-  alarmInterval = setInterval(playAlarmSound, 2500);
+  alarmInterval = setInterval(() => playAlarmSound(type), 2500);
   addNotification(type, title, message);
   document.body.classList.add('shake');
   setTimeout(() => document.body.classList.remove('shake'), 500);
