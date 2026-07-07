@@ -548,7 +548,7 @@
         <button onclick="toggleHurrLayer('sismos')" id="togSismos" class="px-2 py-1 rounded-lg bg-amber-500/20 border border-amber-500/30 text-[10px] font-medium">🔴 Sismos</button>
         <button onclick="toggleHurrLayer('huracanes')" id="togHuracanes" class="px-2 py-1 rounded-lg bg-rose-500/20 border border-rose-500/30 text-[10px] font-medium">🌀 Huracanes</button>
         <button onclick="toggleHurrLayer('tsunamis')" id="togTsunamis" class="px-2 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/30 text-[10px] font-medium">🌊 Tsunamis</button>
-        <button onclick="toggleHurrWeather()" id="toggleHurrWeatherBtn" class="px-2 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/30 text-[10px] font-medium">☁️ Clima</button>
+        <button onclick="toggleHurrWeather()" id="toggleHurrWeatherBtn" class="px-2 py-1 rounded-lg bg-cyan-500/30 border border-cyan-500/50 text-[10px] font-medium">☁️ Ocultar Clima</button>
         <span class="live-indicator">SATÉLITE</span>
       </div>
     </div>
@@ -558,7 +558,7 @@
       <span>🔴 <span style="color:#f59e0b;">Sismos</span> · USGS</span>
       <span>🌀 <span style="color:#f43f5e;">Huracanes</span> · NOAA/NHC</span>
       <span>🌊 <span style="color:#06b6d4;">Tsunamis</span> · PTWC</span>
-      <span>☁️ <span id="hurrWeatherStatus">desactivado</span></span>
+      <span>☁️ <span id="hurrWeatherStatus">nubes satelitales + radar</span></span>
     </div>
   </div>
   <div class="grid md:grid-cols-3 gap-4">
@@ -2537,7 +2537,7 @@ let hurricaneTimer = null;
 let hurricaneBaseLayer = null;
 let hurricaneWeatherLayer = null;
 let hurricaneRainLayer = null;
-let hurricaneWeatherEnabled = false;
+let hurricaneWeatherEnabled = true;
 let hurrSismosLayer = null;
 let hurrTsunamiLayer = null;
 let hurrLayersActive = { sismos: false, huracanes: true, tsunamis: false };
@@ -2587,6 +2587,17 @@ function initHurricaneMap() {
   if (hurrLayersActive.sismos) hurricaneMap.addLayer(hurrSismosLayer);
   if (hurrLayersActive.huracanes) hurricaneMap.addLayer(hurricaneLayer);
   if (hurrLayersActive.tsunamis) hurricaneMap.addLayer(hurrTsunamiLayer);
+  // Capas de clima activas por defecto
+  if (!hurricaneWeatherLayer) {
+    hurricaneWeatherLayer = L.tileLayer('https://nowcoast.noaa.gov/arcgis/rest/services/nowcoast/satellite_goes_geocolor/MapServer/tile/{z}/{y}/{x}', { maxZoom: 12, opacity: 0.5, attribution: 'NOAA GOES' });
+  }
+  if (!hurricaneRainLayer) {
+    hurricaneRainLayer = L.tileLayer('https://tilecache.rainviewer.com/v2/radar/now/256/{z}/{x}/{y}/2/1_1.png', { maxZoom: 15, opacity: 0.4, attribution: 'RainViewer' });
+  }
+  if (hurricaneWeatherEnabled) {
+    hurricaneMap.addLayer(hurricaneWeatherLayer);
+    hurricaneMap.addLayer(hurricaneRainLayer);
+  }
   setTimeout(() => hurricaneMap.invalidateSize(), 300);
 }
 
