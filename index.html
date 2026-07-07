@@ -1069,15 +1069,37 @@ async function fetchGlobalQuakes() {
     if (!res.ok) throw new Error('USGS global error');
     const data = await res.json();
     if (data.features && data.features.length > 0) {
-      globalQuakes = data.features.map(f => ({
-        mag: f.properties.mag || 1,
-        depth: Math.round(f.geometry.coordinates[2] || 10),
-        location: f.properties.place || 'Desconocido',
-        time: f.properties.time ? timeAgo(f.properties.time) : 'Desconocido',
-        quakeTime: f.properties.time ? formatQuakeTime(f.properties.time) : '--',
-        lat: f.geometry.coordinates[1],
-        lon: f.geometry.coordinates[0]
-      }));
+      const now = Date.now();
+      globalQuakes = data.features.map(f => {
+        const props = f.properties;
+        const mag = props.mag || 1;
+        const depth = f.geometry.coordinates[2] || 10;
+        const lon = f.geometry.coordinates[0];
+        const lat = f.geometry.coordinates[1];
+        const place = props.place || 'Desconocido';
+        const eventTime = props.time || 0;
+        const eventId = props.net + props.code || eventTime + place + mag;
+        if (mag >= 2.5 && eventTime > 0) {
+          const hoursAge = (now - eventTime) / 3600000;
+          if (hoursAge <= 1 && !notifiedQuakes.has(eventId)) {
+            notifiedQuakes.add(eventId);
+            const icon = mag >= 5 ? '🚨' : mag >= 4 ? '⚠️' : '🌋';
+            const type = mag >= 5 ? 'danger' : mag >= 4 ? 'warning' : 'info';
+            addNotification(type, icon + ' Sismo M' + mag.toFixed(1),
+              '📍 ' + place + ' · Prof. ' + Math.round(depth) + ' km · 🕐 ' + formatQuakeTime(eventTime), place, lat, lon);
+          }
+        }
+        if (notifiedQuakes.size > 500) notifiedQuakes.clear();
+        return {
+          mag,
+          depth: Math.round(depth),
+          location: place,
+          time: eventTime ? timeAgo(eventTime) : 'Desconocido',
+          quakeTime: eventTime ? formatQuakeTime(eventTime) : '--',
+          lat,
+          lon
+        };
+      });
     }
     if (hurrSismosLayer && hurrLayersActive.sismos) renderHurrSismos();
   } catch (err) {
