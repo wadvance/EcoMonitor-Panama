@@ -1063,13 +1063,12 @@ async function fetchRealQuakes() {
 
 async function fetchGlobalQuakes() {
   try {
-    const startTime = new Date(Date.now() - 6 * 3600000).toISOString().split('.')[0];
-    const url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${startTime}&minmagnitude=2.5&orderby=time&limit=200`;
+    const startTime = new Date(Date.now() - 3600000).toISOString().split('.')[0];
+    const url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${startTime}&minmagnitude=2.0&orderby=time&limit=200`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('USGS global error');
     const data = await res.json();
     if (data.features && data.features.length > 0) {
-      const now = Date.now();
       globalQuakes = data.features.map(f => {
         const props = f.properties;
         const mag = props.mag || 1;
@@ -1079,15 +1078,12 @@ async function fetchGlobalQuakes() {
         const place = props.place || 'Desconocido';
         const eventTime = props.time || 0;
         const eventId = f.id;
-        if (mag >= 2.5 && eventTime > 0) {
-          const hoursAge = (now - eventTime) / 3600000;
-          if (hoursAge <= 1 && !notifiedQuakes.has(eventId)) {
-            notifiedQuakes.add(eventId);
+        if (mag >= 2.0 && eventTime > 0 && !notifiedQuakes.has(eventId)) {
+          notifiedQuakes.add(eventId);
             const icon = mag >= 5 ? '🚨' : mag >= 4 ? '⚠️' : '🌋';
             const type = mag >= 5 ? 'danger' : mag >= 4 ? 'warning' : 'info';
             addNotification(type, icon + ' Sismo M' + mag.toFixed(1),
               '📍 ' + place + ' · Prof. ' + Math.round(depth) + ' km · 🕐 ' + formatQuakeTime(eventTime), place, lat, lon);
-          }
         }
         if (notifiedQuakes.size > 500) notifiedQuakes.clear();
         return {
@@ -3563,8 +3559,6 @@ function init() {
   setInterval(fetchHurricaneData, 10 * 60 * 1000); // cada 10 min
   // Limpiar historial de notificaciones viejas cada 30 min
   setInterval(() => { if (notifications.length > 50) { notifications = notifications.slice(-50); updateNotifBadge(); renderNotifList(); } }, 30 * 60 * 1000);
-  // Limpiar historial de notificaciones cada 5 min
-  setInterval(() => { if (notifications.length > 0) { clearNotifications(); } }, 5 * 60 * 1000);
   
   // Monitoreo epidemiológico
   fetchNorovirusData();
