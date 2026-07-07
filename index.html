@@ -2220,17 +2220,14 @@ function renderSismoMapQuakes() {
     const ll = [q.lat, q.lon];
     const color = q.mag >= 6.5 ? '#ef4444' : q.mag >= 5.5 ? '#f97316' : q.mag >= 4.5 ? '#eab308' : '#22c55e';
     const radius = q.mag >= 6.5 ? 14 : q.mag >= 5.5 ? 11 : q.mag >= 4.5 ? 9 : 7;
-    L.circleMarker(ll, { radius, color: '#fff', fillColor: color, fillOpacity: 0.7, weight: 1.5 }).addTo(sismoMapQuakes)
-      .bindTooltip(`<div style="background:#0a0f1e;border:1px solid ${color};border-radius:8px;padding:6px 10px;max-width:200px;">
-        <p style="font-weight:bold;font-size:12px;margin:0 0 2px;">M${q.mag.toFixed(1)}</p>
-        <p style="font-size:9px;color:#94a3b8;margin:0;">${q.location || 'Desconocido'}</p>
-        <p style="font-size:9px;color:#94a3b8;margin:2px 0 0;">Prof: ${q.depth} km · ${q.time || ''}</p>
-      </div>`, { className: 'quake-tooltip', offset: [0, -10] })
+    L.circleMarker(ll, { radius, color: '#fff', fillColor: color, fillOpacity: 0.85, weight: 2 }).addTo(sismoMapQuakes)
+      .bindTooltip(`<b style="color:${color};font-size:11px;">M${q.mag.toFixed(1)}</b> ${q.location || '??'} <span style="color:#64748b;font-size:9px;">${q.time || ''}</span>`, { className: 'quake-tooltip', direction: 'top', offset: [0, -radius] })
       .on('click', () => {
-        sismoMap.setView(ll, 10, { animate: true, duration: 0.8 });
+        const zoom = q.mag >= 6.5 ? 6 : q.mag >= 5.5 ? 7 : 5;
+        sismoMap.setView(ll, zoom, { animate: true, duration: 0.8 });
       });
-    if (isBig) {
-      L.circle(ll, { radius: 5000, color, weight: 1, opacity: 0.15, fillColor: color, fillOpacity: 0.05 }).addTo(sismoMapQuakes);
+    if (q.mag >= 5.5) {
+      L.circle(ll, { radius: q.mag >= 6.5 ? 15000 : 10000, color, weight: 2, opacity: 0.3, fillColor: color, fillOpacity: 0.08, dashArray: '4 4' }).addTo(sismoMapQuakes);
     }
   });
 }
