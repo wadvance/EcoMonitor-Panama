@@ -1041,7 +1041,8 @@ async function fetchRealQuakes() {
             const type = mag >= 5 ? 'danger' : mag >= 4 ? 'warning' : 'info';
             addNotification(type, icon + ' Sismo M' + mag.toFixed(1),
               '📍 ' + place + ' · Prof. ' + Math.round(depth) + ' km · 🕐 ' + quakeTime, place, lat, lon);
-}
+          }
+        }
         });
       });
       const seedData = quakeHistory.filter(q => q.location.includes('Simulación') || q.location.includes('Paso Canoas') || q.location.includes('Punta Burica') || q.location.includes('Volcán Barú') || q.location.includes('Costa Pacífico') || q.location.includes('Golfo de Chiriquí'));
