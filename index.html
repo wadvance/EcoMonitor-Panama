@@ -2736,7 +2736,7 @@ function fetchHurricaneData() {
   initHurricaneMap();
   // Intenta datos de NOAA/NHC API, fallback a datos simulados
   const apiUrl = 'https://api.weather.gov/atcf';
-  fetch('https://api.weather.gov/alerts/active?area=AT')
+  fetch('https://api.weather.gov/alerts/active?area=AT', { headers: { 'User-Agent': 'EcoMonitor-Panama/1.0 (ecomonitor@panama.app)', 'Accept': 'application/geo+json' } })
     .then(r => { if (!r.ok) throw Error(); return r.json(); })
     .then(data => {
       const storms = parseNHCData(data);
@@ -3142,8 +3142,8 @@ const diseases = [
 
 function fetchNorovirusData() {
   const sources = [
-    'https://sertv.gob.pa/norovirus',
-    'https://tvn-2.com/nacionales/norovirus'
+    'https://api.allorigins.win/raw?url=https://sertv.gob.pa/norovirus',
+    'https://api.allorigins.win/raw?url=https://tvn-2.com/nacionales/norovirus'
   ];
   fetch(sources[0])
     .then(r => { if (!r.ok) throw Error(); return r.text(); })
