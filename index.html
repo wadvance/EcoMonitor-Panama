@@ -3536,6 +3536,8 @@ function init() {
   setInterval(fetchAirQuality, 15 * 60 * 1000);
   fetchRealQuakes();
   setInterval(fetchRealQuakes, 2 * 60 * 1000); // cada 2 min (tiempo real)
+  fetchGlobalQuakes();
+  setInterval(fetchGlobalQuakes, 2 * 60 * 1000); // cada 2 min
   
   // Cargar clima real (reemplaza fallback cuando llegue)
   fetchWeather();
@@ -3559,7 +3561,8 @@ function init() {
   
   // Huracanes en tiempo real (se activa al abrir la pestaña)
   setInterval(fetchHurricaneData, 10 * 60 * 1000); // cada 10 min
-  setInterval(fetchGlobalQuakes, 2 * 60 * 1000); // cada 2 min
+  // Limpiar historial de notificaciones viejas cada 30 min
+  setInterval(() => { if (notifications.length > 50) { notifications = notifications.slice(-50); updateNotifBadge(); renderNotifList(); } }, 30 * 60 * 1000);
   // Limpiar historial de notificaciones cada 5 min
   setInterval(() => { if (notifications.length > 0) { clearNotifications(); } }, 5 * 60 * 1000);
   
