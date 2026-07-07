@@ -2625,6 +2625,10 @@ function initHurricaneMap() {
   if (hurrLayersActive.huracanes) hurricaneMap.addLayer(hurricaneLayer);
   if (hurrLayersActive.tsunamis) hurricaneMap.addLayer(hurrTsunamiLayer);
   initOWMlayers();
+  if (owmCloudsLayer) { hurricaneMap.addLayer(owmCloudsLayer); owmCloudsEnabled = true; checkLayer('cbClouds'); }
+  if (owmPrecipLayer) { hurricaneMap.addLayer(owmPrecipLayer); owmPrecipEnabled = true; checkLayer('cbPrecip'); }
+  if (owmWindLayer) { hurricaneMap.addLayer(owmWindLayer); owmWindEnabled = true; checkLayer('cbWind'); }
+  if (owmTempLayer) { hurricaneMap.addLayer(owmTempLayer); owmTempEnabled = true; checkLayer('cbTemp'); }
   setTimeout(() => hurricaneMap.invalidateSize(), 300);
   } catch (e) { console.error('initHurricaneMap error:', e); }
 }
