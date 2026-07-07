@@ -548,18 +548,21 @@
         <button onclick="toggleHurrLayer('sismos')" id="togSismos" class="px-2 py-1 rounded-lg bg-amber-500/20 border border-amber-500/30 text-[10px] font-medium">🔴 Sismos</button>
         <button onclick="toggleHurrLayer('huracanes')" id="togHuracanes" class="px-2 py-1 rounded-lg bg-rose-500/20 border border-rose-500/30 text-[10px] font-medium">🌀 Huracanes</button>
         <button onclick="toggleHurrLayer('tsunamis')" id="togTsunamis" class="px-2 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/30 text-[10px] font-medium">🌊 Tsunamis</button>
-        <button onclick="toggleHurrWeather()" id="toggleHurrWeatherBtn" class="px-2 py-1 rounded-lg bg-cyan-500/30 border border-cyan-500/50 text-[10px] font-medium">☁️ Ocultar Clima</button>
+        <button onclick="toggleRadar()" id="togRadar" class="px-2 py-1 rounded-lg bg-green-500/20 border border-green-500/30 text-[10px] font-medium">📡 Radar</button>
+        <button onclick="toggleSatellite()" id="togSat" class="px-2 py-1 rounded-lg bg-purple-500/20 border border-purple-500/30 text-[10px] font-medium">🛰️ Satélite</button>
         <button onclick="toggleGlobalWeather()" id="toggleGlobalWeatherBtn" class="px-2 py-1 rounded-lg bg-emerald-500/30 border border-emerald-500/50 text-[10px] font-medium">🌡️ Ocultar Clima Mundial</button>
-        <span class="live-indicator">SATÉLITE</span>
+        <span class="live-indicator">LIVE</span>
       </div>
     </div>
-    <p class="text-[10px] text-slate-400 mb-3">Mapa del tiempo interactivo con capas de clima, huracanes activos, zonas sísmicas y alertas de tsunami. Datos de NOAA, USGS, PTWC y Open-Meteo.</p>
+    <p class="text-[10px] text-slate-400 mb-3">Mapa del tiempo interactivo con radar en vivo, satélite, huracanes activos, zonas sísmicas y alertas de tsunami. Datos de LibreWXR, NOAA, USGS, PTWC y Open-Meteo.</p>
     <div id="hurricaneMap" class="w-full" style="height:580px;border-radius:12px;background:#0a0f1e;border:1px solid rgba(255,255,255,0.08);"></div>
     <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[9px] text-slate-500">
       <span>🔴 <span style="color:#f59e0b;">Sismos</span> · USGS</span>
       <span>🌀 <span style="color:#f43f5e;">Huracanes</span> · NOAA/NHC</span>
       <span>🌊 <span style="color:#06b6d4;">Tsunamis</span> · PTWC</span>
-      <span>☁️ <span id="hurrWeatherStatus">temperatura, viento y condiciones globales</span></span>
+      <span>📡 <span style="color:#22c55e;">Radar</span> · LibreWXR</span>
+      <span>🛰️ <span style="color:#a855f7;">Satélite</span> · LibreWXR/NOAA</span>
+      <span>🌡️ <span id="hurrWeatherStatus">temperatura, viento y condiciones globales</span></span>
     </div>
   </div>
   <div class="grid md:grid-cols-3 gap-4">
@@ -2542,9 +2545,11 @@ let hurricaneMap = null;
 let hurricaneLayer = null;
 let hurricaneTimer = null;
 let hurricaneBaseLayer = null;
-let hurricaneWeatherLayer = null;
-let hurricaneRainLayer = null;
-let hurricaneWeatherEnabled = false;
+let libreWxrRadarLayer = null;
+let libreWxrSatLayer = null;
+let libreWxrRadarEnabled = false;
+let libreWxrSatEnabled = false;
+let libreWxrRefreshTimer = null;
 let hurrSismosLayer = null;
 let hurrTsunamiLayer = null;
 let hurrLayersActive = { sismos: false, huracanes: true, tsunamis: false };
@@ -2586,6 +2591,7 @@ function initHurricaneMap() {
   hurricaneMap = L.map(el, { center: [8.5, -80], zoom: 6, zoomControl: true, attributionControl: false });
   hurricaneBaseLayer = BASE_MAPS.esri.addTo(hurricaneMap);
   L.control.attribution({ position: 'bottomleft', prefix: false }).addTo(hurricaneMap);
+  hurricaneMap.attributionControl.addAttribution('<a href="https://librewxr.net" target="_blank" style="color:#64748b;">Radar/Sat © LibreWXR</a>');
   hurricaneLayer = L.layerGroup().addTo(hurricaneMap);
   hurrSismosLayer = L.layerGroup();
   hurrTsunamiLayer = L.layerGroup();
@@ -2594,8 +2600,7 @@ function initHurricaneMap() {
   if (hurrLayersActive.sismos) hurricaneMap.addLayer(hurrSismosLayer);
   if (hurrLayersActive.huracanes) hurricaneMap.addLayer(hurricaneLayer);
   if (hurrLayersActive.tsunamis) hurricaneMap.addLayer(hurrTsunamiLayer);
-  // Capas de clima (desactivadas: tiles NOAA/RainViewer caídos)
-  // Se usan los datos de Open-Meteo con marcadores de clima mundial
+  initLibreWxr();
   setTimeout(() => hurricaneMap.invalidateSize(), 300);
 }
 
@@ -2603,7 +2608,6 @@ function switchHurricaneBaseMap(id) {
   if (!hurricaneMap || !BASE_MAPS[id]) return;
   if (hurricaneBaseLayer) hurricaneMap.removeLayer(hurricaneBaseLayer);
   hurricaneBaseLayer = BASE_MAPS[id].addTo(hurricaneMap);
-  if (hurricaneWeatherEnabled && hurricaneWeatherLayer) hurricaneMap.addLayer(hurricaneWeatherLayer);
 }
 
 function toggleHurrLayer(name) {
@@ -2625,10 +2629,111 @@ function toggleHurrLayer(name) {
   }
 }
 
-function toggleHurrWeather() {
-  toggleGlobalWeather();
-  const btn = document.getElementById('toggleHurrWeatherBtn');
-  if (btn) btn.textContent = globalWeatherEnabled ? '☁️ Ocultar Clima' : '☁️ Clima';
+// ============================================
+// 📡 RADAR Y SATÉLITE VÍA LIBRE WXR
+// ============================================
+let libreWxrMetaVersion = 0;
+
+async function initLibreWxr() {
+  if (!hurricaneMap) return;
+  try {
+    const res = await fetch('https://api.librewxr.net/public/weather-maps.json');
+    const data = await res.json();
+    if (!data) return;
+    libreWxrMetaVersion = data.generated;
+
+    // Radar — latest past frame
+    const radarPast = data.radar?.past;
+    if (radarPast && radarPast.length > 0) {
+      const latest = radarPast[radarPast.length - 1];
+      const radarUrl = `https://api.librewxr.net${latest.path}/256/{z}/{x}/{y}/10/1_1.png`;
+      libreWxrRadarLayer = L.tileLayer(radarUrl, { opacity: 0.6, zIndex: 5 });
+    }
+
+    // Satélite — latest infrared frame
+    const satData = data.satellite?.infrared;
+    if (satData && satData.length > 0) {
+      const latest = satData[satData.length - 1];
+      const satUrl = `https://api.librewxr.net${latest.path}/256/{z}/{x}/{y}/0/0_0.png`;
+      libreWxrSatLayer = L.tileLayer(satUrl, { opacity: 0.7, zIndex: 4 });
+    }
+
+    // Auto‑refresh metadata cada 5 min
+    if (libreWxrRefreshTimer) clearInterval(libreWxrRefreshTimer);
+    libreWxrRefreshTimer = setInterval(refreshLibreWxr, 5 * 60 * 1000);
+  } catch (e) {
+    console.warn('LibreWXR init error:', e);
+  }
+}
+
+async function refreshLibreWxr() {
+  if (!hurricaneMap) return;
+  try {
+    const res = await fetch('https://api.librewxr.net/public/weather-maps.json');
+    const data = await res.json();
+    if (!data || data.generated === libreWxrMetaVersion) return;
+    libreWxrMetaVersion = data.generated;
+
+    const radarPast = data.radar?.past;
+    if (radarPast && radarPast.length > 0) {
+      const latest = radarPast[radarPast.length - 1];
+      const radarUrl = `https://api.librewxr.net${latest.path}/256/{z}/{x}/{y}/10/1_1.png`;
+      if (libreWxrRadarLayer) {
+        if (libreWxrRadarEnabled && hurricaneMap.hasLayer(libreWxrRadarLayer)) {
+          hurricaneMap.removeLayer(libreWxrRadarLayer);
+        }
+        libreWxrRadarLayer.setUrl(radarUrl);
+        if (libreWxrRadarEnabled) hurricaneMap.addLayer(libreWxrRadarLayer);
+      }
+    }
+
+    const satData = data.satellite?.infrared;
+    if (satData && satData.length > 0) {
+      const latest = satData[satData.length - 1];
+      const satUrl = `https://api.librewxr.net${latest.path}/256/{z}/{x}/{y}/0/0_0.png`;
+      if (libreWxrSatLayer) {
+        if (libreWxrSatEnabled && hurricaneMap.hasLayer(libreWxrSatLayer)) {
+          hurricaneMap.removeLayer(libreWxrSatLayer);
+        }
+        libreWxrSatLayer.setUrl(satUrl);
+        if (libreWxrSatEnabled) hurricaneMap.addLayer(libreWxrSatLayer);
+      }
+    }
+  } catch (e) {
+    console.warn('LibreWXR refresh error:', e);
+  }
+}
+
+function toggleRadar() {
+  if (!hurricaneMap || !libreWxrRadarLayer) return;
+  libreWxrRadarEnabled = !libreWxrRadarEnabled;
+  const btn = document.getElementById('togRadar');
+  if (!btn) return;
+  if (libreWxrRadarEnabled) {
+    hurricaneMap.addLayer(libreWxrRadarLayer);
+    btn.textContent = '📡 Ocultar Radar';
+    btn.className = 'px-2 py-1 rounded-lg bg-green-500/30 border border-green-500/50 text-[10px] font-medium';
+  } else {
+    hurricaneMap.removeLayer(libreWxrRadarLayer);
+    btn.textContent = '📡 Radar';
+    btn.className = 'px-2 py-1 rounded-lg bg-green-500/20 border border-green-500/30 text-[10px] font-medium';
+  }
+}
+
+function toggleSatellite() {
+  if (!hurricaneMap || !libreWxrSatLayer) return;
+  libreWxrSatEnabled = !libreWxrSatEnabled;
+  const btn = document.getElementById('togSat');
+  if (!btn) return;
+  if (libreWxrSatEnabled) {
+    hurricaneMap.addLayer(libreWxrSatLayer);
+    btn.textContent = '🛰️ Ocultar Satélite';
+    btn.className = 'px-2 py-1 rounded-lg bg-purple-500/30 border border-purple-500/50 text-[10px] font-medium';
+  } else {
+    hurricaneMap.removeLayer(libreWxrSatLayer);
+    btn.textContent = '🛰️ Satélite';
+    btn.className = 'px-2 py-1 rounded-lg bg-purple-500/20 border border-purple-500/30 text-[10px] font-medium';
+  }
 }
 
 function renderHurricaneMarkers(storms) {
