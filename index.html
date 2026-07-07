@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -437,7 +437,7 @@
     <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
       <h3 class="font-bold">🗺️ Últimos Eventos Sísmicos</h3>
       <div class="flex items-center gap-2">
-        <button onclick="toggleSismoMapLayer('zones')" id="togSismoZonas" class="px-2 py-1 rounded-lg bg-amber-500/20 border border-amber-500/30 text-[10px] font-medium">📍 Zonas</button>
+        <button onclick="toggleSismoMapLayer('zones')" id="togSismoZones" class="px-2 py-1 rounded-lg bg-amber-500/20 border border-amber-500/30 text-[10px] font-medium">📍 Zonas</button>
         <button onclick="toggleSismoMapLayer('quakes')" id="togSismoQuakes" class="px-2 py-1 rounded-lg bg-rose-500/30 border border-rose-500/50 text-[10px] font-medium">🌋 Sismos</button>
         <span class="live-indicator">EN VIVO</span>
       </div>
@@ -545,29 +545,15 @@
           <option value="dark">🌑 Oscuro</option>
           <option value="osm">🗺️ Calles</option>
         </select>
-        <span class="relative">
-          <button onclick="toggleLayersPanel()" id="layersBtn" class="px-2 py-1 rounded-lg glass border border-slate-500/50 text-[10px] font-medium">🗂️ Capas</button>
-        <div id="layersPanel" class="hidden absolute top-full left-0 mt-1 z-50 glass rounded-xl p-3 min-w-[210px] shadow-2xl border border-white/10" style="background:rgba(15,23,42,0.95);backdrop-filter:blur(16px);">
-          <div class="mb-2">
-            <h5 class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">☁️ Nubosidad</h5>
-            <label class="flex items-center gap-1.5 text-[10px] cursor-pointer py-0.5 hover:text-white"><input type="checkbox" id="cbSat" onchange="toggleSatellite()"> 🛰️ Satélite</label>
-            <label class="flex items-center gap-1.5 text-[10px] cursor-pointer py-0.5 hover:text-white"><input type="checkbox" id="cbClouds" onchange="toggleClouds()"> ☁️ Nubes</label>
-            <label class="flex items-center gap-1.5 text-[10px] cursor-pointer py-0.5 hover:text-white"><input type="checkbox" id="cbPrecip" onchange="togglePrecip()"> 🌧️ Lluvia</label>
-            <label class="flex items-center gap-1.5 text-[10px] cursor-pointer py-0.5 hover:text-white"><input type="checkbox" id="cbWind" onchange="toggleWind()"> 💨 Viento</label>
-            <label class="flex items-center gap-1.5 text-[10px] cursor-pointer py-0.5 hover:text-white"><input type="checkbox" id="cbTemp" onchange="toggleTemp()"> 🌡️ Temperatura</label>
-          </div>
-          <div class="mb-2">
-            <h5 class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">🌪️ Tormentas</h5>
-            <label class="flex items-center gap-1.5 text-[10px] cursor-pointer py-0.5 hover:text-white"><input type="checkbox" id="cbHuracanes" onchange="toggleHurrLayer('huracanes')" checked> 🌀 Huracanes</label>
-            <label class="flex items-center gap-1.5 text-[10px] cursor-pointer py-0.5 hover:text-white"><input type="checkbox" id="cbTsunamis" onchange="toggleHurrLayer('tsunamis')"> 🌊 Tsunamis</label>
-            <label class="flex items-center gap-1.5 text-[10px] cursor-pointer py-0.5 hover:text-white"><input type="checkbox" id="cbSismos" onchange="toggleHurrLayer('sismos')"> 🔴 Sismos</label>
-          </div>
-          <div>
-            <h5 class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">🌡️ Datos</h5>
-            <label class="flex items-center gap-1.5 text-[10px] cursor-pointer py-0.5 hover:text-white"><input type="checkbox" id="cbGlobal" onchange="toggleGlobalWeather()" checked> 🌍 Clima Mundial</label>
-          </div>
-        </div>
-        </span>
+        <button onclick="toggleSatellite()" id="btnSat" class="px-2 py-1 rounded-lg bg-purple-500/20 border border-purple-500/30 text-[10px] font-medium">🛰️ Satélite</button>
+        <button onclick="toggleClouds()" id="btnClouds" class="px-2 py-1 rounded-lg bg-sky-500/20 border border-sky-500/30 text-[10px] font-medium">☁️ Nubes</button>
+        <button onclick="togglePrecip()" id="btnPrecip" class="px-2 py-1 rounded-lg bg-blue-500/20 border border-blue-500/30 text-[10px] font-medium">🌧️ Lluvia</button>
+        <button onclick="toggleWind()" id="btnWind" class="px-2 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/30 text-[10px] font-medium">💨 Viento</button>
+        <button onclick="toggleTemp()" id="btnTemp" class="px-2 py-1 rounded-lg bg-orange-500/20 border border-orange-500/30 text-[10px] font-medium">🌡️ Temp</button>
+        <button onclick="toggleGlobalWeather()" id="btnGlobal" class="px-2 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-[10px] font-medium">🌍 Clima</button>
+        <button onclick="toggleHurrLayer('huracanes')" id="btnH" class="px-2 py-1 rounded-lg bg-rose-500/20 border border-rose-500/30 text-[10px] font-medium">🌀 Huracanes</button>
+        <button onclick="toggleHurrLayer('sismos')" id="btnS" class="px-2 py-1 rounded-lg bg-amber-500/20 border border-amber-500/30 text-[10px] font-medium">🔴 Sismos</button>
+        <button onclick="toggleHurrLayer('tsunamis')" id="btnT" class="px-2 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/30 text-[10px] font-medium">🌊 Tsunamis</button>
         <span class="live-indicator">LIVE</span>
       </div>
     </div>
@@ -999,6 +985,7 @@ async function fetchAirQuality() {
 let lastUsgsFetch = 0;
 let currentQuakeRange = '24h';
 let notifiedQuakes = new Set();
+let globalQuakes = [];
 function formatQuakeTime(ts) {
   const d = new Date(ts);
   return d.toLocaleDateString('es-PA', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' +
@@ -1069,6 +1056,30 @@ async function fetchRealQuakes() {
     }
   } catch (err) {
     console.error('USGS fetch error:', err);
+  }
+}
+
+async function fetchGlobalQuakes() {
+  try {
+    const startTime = new Date(Date.now() - 2 * 3600000).toISOString().split('.')[0];
+    const url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${startTime}&minmagnitude=2.5&orderby=time&limit=200`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('USGS global error');
+    const data = await res.json();
+    if (data.features && data.features.length > 0) {
+      globalQuakes = data.features.map(f => ({
+        mag: f.properties.mag || 1,
+        depth: Math.round(f.geometry.coordinates[2] || 10),
+        location: f.properties.place || 'Desconocido',
+        time: f.properties.time ? timeAgo(f.properties.time) : 'Desconocido',
+        quakeTime: f.properties.time ? formatQuakeTime(f.properties.time) : '--',
+        lat: f.geometry.coordinates[1],
+        lon: f.geometry.coordinates[0]
+      }));
+    }
+    if (hurrSismosLayer && hurrLayersActive.sismos) renderHurrSismos();
+  } catch (err) {
+    console.error('Global quakes fetch error:', err);
   }
 }
 
@@ -1607,14 +1618,11 @@ function showTab(tab) {
   if (tab === 'huracanes') {
     initHurricaneMap();
     fetchHurricaneData();
-    if (!globalWeatherEnabled) {
-      globalWeatherEnabled = true;
-      checkLayer('cbGlobal');
-    }
+    fetchGlobalQuakes();
     fetchGlobalWeather();
     setTimeout(() => { if (hurricaneMap) {
       hurricaneMap.invalidateSize();
-      if (hurrSismosLayer && hurrLayersActive.sismos) renderHurrSismos();
+      if (hurrSismosLayer && hurrLayersActive.sismos) { renderHurrSismos(); fetchGlobalQuakes(); }
       if (hurrTsunamiLayer && hurrLayersActive.tsunamis) renderHurrTsunamis();
     } }, 200);
   }
@@ -2575,7 +2583,7 @@ let owmTempEnabled = false;
 let libreWxrSatEnabled = false;
 let hurrSismosLayer = null;
 let hurrTsunamiLayer = null;
-let hurrLayersActive = { sismos: false, huracanes: true, tsunamis: false };
+let hurrLayersActive = { sismos: false, huracanes: false, tsunamis: false };
 
 const hurricaneDefaultData = [
   { name: 'Tormenta Tropical Alberto', category: 'Tormenta Tropical', wind: 45, gust: 55, lat: 18.2, lon: -68.5, movement: 'NO a 15 mph', pressure: 1002, formed: '03 Jul 2026', windDir: 315, windRadius34: 100, windRadius50: 40, windRadius64: 0, rainRate: 25, details: 'Vientos máximos sostenidos de 45 mph. Rachas de 55 mph. Lluvias intensas en el Caribe oriental. Se mueve hacia el norte-noroeste alejándose de tierra firme.' },
@@ -2616,19 +2624,12 @@ function initHurricaneMap() {
     hurricaneBaseLayer = BASE_MAPS.esri.addTo(hurricaneMap);
     L.control.attribution({ position: 'bottomleft', prefix: false }).addTo(hurricaneMap);
     hurricaneMap.attributionControl.addAttribution('<a href="https://openweathermap.org" target="_blank" style="color:#64748b;">Clima © OpenWeatherMap</a>');
-  hurricaneLayer = L.layerGroup().addTo(hurricaneMap);
+  hurricaneLayer = L.layerGroup();
   hurrSismosLayer = L.layerGroup();
   hurrTsunamiLayer = L.layerGroup();
   renderHurrTsunamis();
   renderHurrSismos();
-  if (hurrLayersActive.sismos) hurricaneMap.addLayer(hurrSismosLayer);
-  if (hurrLayersActive.huracanes) hurricaneMap.addLayer(hurricaneLayer);
-  if (hurrLayersActive.tsunamis) hurricaneMap.addLayer(hurrTsunamiLayer);
   initOWMlayers();
-  if (owmCloudsLayer) { hurricaneMap.addLayer(owmCloudsLayer); owmCloudsEnabled = true; checkLayer('cbClouds'); }
-  if (owmPrecipLayer) { hurricaneMap.addLayer(owmPrecipLayer); owmPrecipEnabled = true; checkLayer('cbPrecip'); }
-  if (owmWindLayer) { hurricaneMap.addLayer(owmWindLayer); owmWindEnabled = true; checkLayer('cbWind'); }
-  if (owmTempLayer) { hurricaneMap.addLayer(owmTempLayer); owmTempEnabled = true; checkLayer('cbTemp'); }
   setTimeout(() => hurricaneMap.invalidateSize(), 300);
   } catch (e) { console.error('initHurricaneMap error:', e); }
 }
@@ -2644,10 +2645,20 @@ function toggleHurrLayer(name) {
   const layers = { sismos: hurrSismosLayer, huracanes: hurricaneLayer, tsunamis: hurrTsunamiLayer };
   const layer = layers[name];
   if (!layer || !hurricaneMap) return;
+  const btns = { sismos: 'btnS', huracanes: 'btnH', tsunamis: 'btnT' };
+  const b = document.getElementById(btns[name]);
+  const styles = {
+    sismos: { active: 'bg-amber-500/30 border border-amber-500/50 text-[10px] font-medium', inactive: 'bg-amber-500/20 border border-amber-500/30 text-[10px] font-medium', activeLabel: '🔴 Ocultar Sismos', inactiveLabel: '🔴 Sismos' },
+    huracanes: { active: 'bg-rose-500/30 border border-rose-500/50 text-[10px] font-medium', inactive: 'bg-rose-500/20 border border-rose-500/30 text-[10px] font-medium', activeLabel: '🌀 Ocultar Huracanes', inactiveLabel: '🌀 Huracanes' },
+    tsunamis: { active: 'bg-cyan-500/30 border border-cyan-500/50 text-[10px] font-medium', inactive: 'bg-cyan-500/20 border border-cyan-500/30 text-[10px] font-medium', activeLabel: '🌊 Ocultar Tsunamis', inactiveLabel: '🌊 Tsunamis' }
+  };
+  const s = styles[name];
   if (hurrLayersActive[name]) {
-    hurricaneMap.addLayer(layer); checkLayer('cb' + name.charAt(0).toUpperCase() + name.slice(1));
+    hurricaneMap.addLayer(layer);
+    if (b) { b.textContent = s.activeLabel; b.className = s.active; }
   } else {
-    hurricaneMap.removeLayer(layer); uncheckLayer('cb' + name.charAt(0).toUpperCase() + name.slice(1));
+    hurricaneMap.removeLayer(layer);
+    if (b) { b.textContent = s.inactiveLabel; b.className = s.inactive; }
   }
 }
 
@@ -2682,50 +2693,41 @@ async function initLibreWxr() {
 function toggleClouds() {
   if (!hurricaneMap || !owmCloudsLayer) return;
   owmCloudsEnabled = !owmCloudsEnabled;
-  if (owmCloudsEnabled) { hurricaneMap.addLayer(owmCloudsLayer); checkLayer('cbClouds'); }
-  else { hurricaneMap.removeLayer(owmCloudsLayer); uncheckLayer('cbClouds'); }
+  const b = document.getElementById('btnClouds');
+  if (owmCloudsEnabled) { hurricaneMap.addLayer(owmCloudsLayer); b.textContent='☁️ Ocultar Nubes'; b.className='px-2 py-1 rounded-lg bg-sky-500/30 border border-sky-500/50 text-[10px] font-medium'; }
+  else { hurricaneMap.removeLayer(owmCloudsLayer); b.textContent='☁️ Nubes'; b.className='px-2 py-1 rounded-lg bg-sky-500/20 border border-sky-500/30 text-[10px] font-medium'; }
 }
 
 function togglePrecip() {
   if (!hurricaneMap || !owmPrecipLayer) return;
   owmPrecipEnabled = !owmPrecipEnabled;
-  if (owmPrecipEnabled) { hurricaneMap.addLayer(owmPrecipLayer); checkLayer('cbPrecip'); }
-  else { hurricaneMap.removeLayer(owmPrecipLayer); uncheckLayer('cbPrecip'); }
-}
-
-function checkLayer(id) {
-  const cb = document.getElementById(id);
-  if (cb) cb.checked = true;
-}
-function uncheckLayer(id) {
-  const cb = document.getElementById(id);
-  if (cb) cb.checked = false;
+  const b = document.getElementById('btnPrecip');
+  if (owmPrecipEnabled) { hurricaneMap.addLayer(owmPrecipLayer); b.textContent='🌧️ Ocultar Lluvia'; b.className='px-2 py-1 rounded-lg bg-blue-500/30 border border-blue-500/50 text-[10px] font-medium'; }
+  else { hurricaneMap.removeLayer(owmPrecipLayer); b.textContent='🌧️ Lluvia'; b.className='px-2 py-1 rounded-lg bg-blue-500/20 border border-blue-500/30 text-[10px] font-medium'; }
 }
 
 function toggleSatellite() {
   if (!hurricaneMap || !libreWxrSatLayer) return;
   libreWxrSatEnabled = !libreWxrSatEnabled;
-  if (libreWxrSatEnabled) { hurricaneMap.addLayer(libreWxrSatLayer); checkLayer('cbSat'); }
-  else { hurricaneMap.removeLayer(libreWxrSatLayer); uncheckLayer('cbSat'); }
+  const b = document.getElementById('btnSat');
+  if (libreWxrSatEnabled) { hurricaneMap.addLayer(libreWxrSatLayer); b.textContent='🛰️ Ocultar Satélite'; b.className='px-2 py-1 rounded-lg bg-purple-500/30 border border-purple-500/50 text-[10px] font-medium'; }
+  else { hurricaneMap.removeLayer(libreWxrSatLayer); b.textContent='🛰️ Satélite'; b.className='px-2 py-1 rounded-lg bg-purple-500/20 border border-purple-500/30 text-[10px] font-medium'; }
 }
 
 function toggleWind() {
   if (!hurricaneMap || !owmWindLayer) return;
   owmWindEnabled = !owmWindEnabled;
-  if (owmWindEnabled) { hurricaneMap.addLayer(owmWindLayer); checkLayer('cbWind'); }
-  else { hurricaneMap.removeLayer(owmWindLayer); uncheckLayer('cbWind'); }
+  const b = document.getElementById('btnWind');
+  if (owmWindEnabled) { hurricaneMap.addLayer(owmWindLayer); b.textContent='💨 Ocultar Viento'; b.className='px-2 py-1 rounded-lg bg-cyan-500/30 border border-cyan-500/50 text-[10px] font-medium'; }
+  else { hurricaneMap.removeLayer(owmWindLayer); b.textContent='💨 Viento'; b.className='px-2 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/30 text-[10px] font-medium'; }
 }
 
 function toggleTemp() {
   if (!hurricaneMap || !owmTempLayer) return;
   owmTempEnabled = !owmTempEnabled;
-  if (owmTempEnabled) { hurricaneMap.addLayer(owmTempLayer); checkLayer('cbTemp'); }
-  else { hurricaneMap.removeLayer(owmTempLayer); uncheckLayer('cbTemp'); }
-}
-
-function toggleLayersPanel() {
-  const p = document.getElementById('layersPanel');
-  if (p) p.classList.toggle('hidden');
+  const b = document.getElementById('btnTemp');
+  if (owmTempEnabled) { hurricaneMap.addLayer(owmTempLayer); b.textContent='🌡️ Ocultar Temp'; b.className='px-2 py-1 rounded-lg bg-orange-500/30 border border-orange-500/50 text-[10px] font-medium'; }
+  else { hurricaneMap.removeLayer(owmTempLayer); b.textContent='🌡️ Temp'; b.className='px-2 py-1 rounded-lg bg-orange-500/20 border border-orange-500/30 text-[10px] font-medium'; }
 }
 
 function renderHurricaneMarkers(storms) {
@@ -2797,11 +2799,13 @@ function renderHurrSismos() {
       L.circleMarker([z.lat, z.lng], { radius: 7, color: '#fff', fillColor: colors[z.risk] || '#64748b', fillOpacity: 0.5, weight: 1.5 }).addTo(hurrSismosLayer).bindTooltip(z.name + ' (' + z.risk + ')', { className: 'zone-label ' + (z.risk || '').toLowerCase(), direction: 'right', offset: [5, 0] });
     });
   }
-  if (typeof quakeHistory !== 'undefined') {
-    quakeHistory.forEach(q => {
-      const qll = { 'Costa Pacífico, Chiriquí': [7.8, -82.0], 'Volcán Barú, Chiriquí': [8.81, -82.54], 'Golfo de Chiriquí': [8.0, -82.5], 'Colón': [9.36, -79.9], 'Darién': [8.0, -77.5], 'Paso Canoas, Chiriquí': [8.54, -82.84], 'Punta Burica, Chiriquí': [8.03, -82.87] };
-      const ll = qll[q.location];
-      if (ll) L.marker(ll, { icon: L.divIcon({ html: '💥', iconSize: [18, 18], className: '' }) }).addTo(hurrSismosLayer).bindTooltip('M' + q.mag + ' · ' + q.location, { className: 'quake-tooltip' });
+  if (globalQuakes.length > 0) {
+    globalQuakes.forEach(q => {
+      const magColor = q.mag >= 6 ? '#f43f5e' : q.mag >= 5 ? '#f59e0b' : q.mag >= 4 ? '#06b6d4' : '#64748b';
+      const size = Math.min(12, 4 + q.mag * 1.5);
+      L.circleMarker([q.lat, q.lon], { radius: size, color: '#fff', fillColor: magColor, fillOpacity: 0.7, weight: 1.5 })
+        .addTo(hurrSismosLayer)
+        .bindTooltip('M' + q.mag.toFixed(1) + ' · ' + q.location, { className: 'quake-tooltip' });
     });
   }
 }
@@ -3027,12 +3031,13 @@ async function fetchGlobalWeather() {
 
 function toggleGlobalWeather() {
   globalWeatherEnabled = !globalWeatherEnabled;
+  const b = document.getElementById('btnGlobal');
   if (globalWeatherEnabled) {
-    checkLayer('cbGlobal');
+    b.textContent='🌍 Ocultar Clima'; b.className='px-2 py-1 rounded-lg bg-emerald-500/30 border border-emerald-500/50 text-[10px] font-medium';
     if (globalWeatherMarkers && hurricaneMap) hurricaneMap.addLayer(globalWeatherMarkers);
     fetchGlobalWeather();
   } else {
-    uncheckLayer('cbGlobal');
+    b.textContent='🌍 Clima'; b.className='px-2 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-[10px] font-medium';
     if (globalWeatherMarkers && hurricaneMap && hurricaneMap.hasLayer(globalWeatherMarkers)) hurricaneMap.removeLayer(globalWeatherMarkers);
   }
 }
@@ -3524,6 +3529,7 @@ function init() {
   
   // Huracanes en tiempo real (se activa al abrir la pestaña)
   setInterval(fetchHurricaneData, 10 * 60 * 1000); // cada 10 min
+  setInterval(fetchGlobalQuakes, 2 * 60 * 1000); // cada 2 min
   // Limpiar historial de notificaciones cada 5 min
   setInterval(() => { if (notifications.length > 0) { clearNotifications(); } }, 5 * 60 * 1000);
   
