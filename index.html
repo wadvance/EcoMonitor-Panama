@@ -2627,6 +2627,8 @@ function toggleHurrLayer(name) {
 
 function toggleHurrWeather() {
   toggleGlobalWeather();
+  const btn = document.getElementById('toggleHurrWeatherBtn');
+  if (btn) btn.textContent = globalWeatherEnabled ? '☁️ Ocultar Clima' : '☁️ Clima';
 }
 
 function renderHurricaneMarkers(storms) {
