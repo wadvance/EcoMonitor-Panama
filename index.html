@@ -1313,28 +1313,28 @@ function updateWeatherCharts() {
 // DATOS AMBIENTALES (con fluctuación en tiempo real)
 // ============================================
 const envData = {
-  aire: { title: '💨 Calidad del Aire', subtitle: 'Monitoreo atmosférico local', status: 'Moderado', statusColor: 'amber', params: [{ name: 'PM2.5', value: '32 µg/m³', pct: 43, color: 'amber', danger: false }, { name: 'PM10', value: '58 µg/m³', pct: 38, color: 'emerald', danger: false }, { name: 'NO₂', value: '42 ppb', pct: 79, color: 'rose', danger: true }, { name: 'O₃ Ozono', value: '0.065 ppm', pct: 93, color: 'amber', danger: true }, { name: 'CO', value: '6 ppm', pct: 67, color: 'emerald', danger: false }], trend: [45, 52, 58, 62, 68, 72, 78, 75, 70, 65, 72, 78], recs: [{ type: 'warning', text: 'Evita ejercicio intenso al aire libre' }, { type: 'info', text: 'Personas con asma deben llevar inhalador' }, { type: 'success', text: 'PM2.5 en rango aceptable' }] },
-  atmosfera: { title: '🌤️ Estado de la Atmósfera', subtitle: 'Capa de ozono y gases', status: 'Bueno', statusColor: 'emerald', params: [{ name: 'Capa de Ozono', value: '285 DU', pct: 71, color: 'emerald', danger: false }, { name: 'CO₂', value: '420 ppm', pct: 42, color: 'amber', danger: false }, { name: 'Metano CH₄', value: '1.92 ppm', pct: 96, color: 'amber', danger: true }, { name: 'CFC-11', value: '232 ppt', pct: 93, color: 'emerald', danger: false }, { name: 'Índice UV', value: '6 Alto', pct: 55, color: 'amber', danger: false }], trend: [40, 42, 45, 43, 41, 44, 46, 48, 45, 43, 42, 42], recs: [{ type: 'warning', text: 'Usa bloqueador solar FPS 30+' }, { type: 'info', text: 'Metano elevado' }, { type: 'success', text: 'Capa de ozono estable' }] },
+  aire: { title: '💨 Calidad del Aire', subtitle: 'Monitoreo atmosférico local', status: 'Moderado', statusColor: 'amber', params: [{ name: 'PM2.5', value: '28 µg/m³', pct: 38, color: 'emerald', danger: false }, { name: 'PM10', value: '52 µg/m³', pct: 35, color: 'emerald', danger: false }, { name: 'NO₂', value: '38 ppb', pct: 72, color: 'amber', danger: false }, { name: 'O₃ Ozono', value: '0.058 ppm', pct: 82, color: 'amber', danger: true }, { name: 'CO', value: '5 ppm', pct: 58, color: 'emerald', danger: false }], trend: [42, 48, 55, 58, 62, 65, 70, 68, 62, 58, 65, 72], recs: [{ type: 'warning', text: 'Evita ejercicio intenso al aire libre' }, { type: 'info', text: 'Personas con asma deben llevar inhalador' }, { type: 'success', text: 'PM2.5 en rango aceptable' }] },
+  atmosfera: { title: '🌤️ Estado de la Atmósfera', subtitle: 'Capa de ozono y gases', status: 'Bueno', statusColor: 'emerald', params: [{ name: 'Capa de Ozono', value: '288 DU', pct: 72, color: 'emerald', danger: false }, { name: 'CO₂', value: '423 ppm', pct: 43, color: 'amber', danger: false }, { name: 'Metano CH₄', value: '1.93 ppm', pct: 97, color: 'amber', danger: true }, { name: 'CFC-11', value: '230 ppt', pct: 92, color: 'emerald', danger: false }, { name: 'Índice UV', value: '11 Extremo', pct: 95, color: 'rose', danger: true }], trend: [41, 43, 45, 44, 42, 45, 47, 49, 46, 44, 43, 43], recs: [{ type: 'danger', text: '🌞 Índice UV extremo — evitar exposición solar 10am-4pm' }, { type: 'info', text: 'Metano elevado' }, { type: 'success', text: 'Capa de ozono estable' }] },
   suelo: { title: '🌱 Contaminación del Suelo', subtitle: 'Metales pesados', status: 'Bueno', statusColor: 'emerald', params: [{ name: 'Plomo (Pb)', value: '12 mg/kg', pct: 24, color: 'emerald', danger: false }, { name: 'Mercurio (Hg)', value: '0.8 mg/kg', pct: 80, color: 'amber', danger: true }, { name: 'Pesticidas', value: '0.15 mg/kg', pct: 30, color: 'emerald', danger: false }, { name: 'Hidrocarburos', value: '0.08 mg/kg', pct: 16, color: 'emerald', danger: false }, { name: 'pH', value: '6.8', pct: 49, color: 'emerald', danger: false }], trend: [30, 32, 34, 33, 35, 36, 35, 34, 33, 35, 36, 35], recs: [{ type: 'warning', text: 'Mercurio cercano al límite' }, { type: 'success', text: 'Plomo seguro' }, { type: 'info', text: 'pH óptimo' }] },
   agua: { title: '💧 Agua Potable', subtitle: 'Consumo humano', status: 'Excelente', statusColor: 'emerald', params: [{ name: 'pH', value: '7.2', pct: 51, color: 'emerald', danger: false }, { name: 'Cloro', value: '0.5 mg/L', pct: 12, color: 'emerald', danger: false }, { name: 'Coliformes', value: '0 UFC', pct: 0, color: 'emerald', danger: false }, { name: 'Turbidez', value: '1.2 NTU', pct: 24, color: 'emerald', danger: false }, { name: 'Metales', value: 'No detectados', pct: 0, color: 'emerald', danger: false }], trend: [25, 27, 28, 26, 29, 30, 28, 27, 28, 29, 28, 28], recs: [{ type: 'success', text: 'Agua segura' }, { type: 'success', text: 'Sin bacterias' }, { type: 'info', text: 'Hervir si hay cortes' }] },
   rios: { title: '🏞️ Ríos y Cuencas', subtitle: 'Monitoreo fluvial', status: 'Moderado', statusColor: 'amber', params: [{ name: 'Oxígeno disuelto', value: '5.2 mg/L', pct: 52, color: 'emerald', danger: false }, { name: 'DBO₅', value: '4.5 mg/L', pct: 90, color: 'amber', danger: true }, { name: 'Amoníaco', value: '0.8 mg/L', pct: 53, color: 'emerald', danger: false }, { name: 'Sólidos susp.', value: '45 mg/L', pct: 60, color: 'amber', danger: false }, { name: 'E. coli', value: '180 UFC', pct: 72, color: 'amber', danger: true }], trend: [55, 58, 62, 65, 68, 70, 68, 65, 62, 64, 66, 65], recs: [{ type: 'warning', text: 'No nadar en zonas con alta DBO' }, { type: 'warning', text: 'Evita peces sin verificar' }, { type: 'info', text: 'Reporta vertidos' }] },
-  mar: { title: '🌊 Estado del Mar', subtitle: 'Océanos', status: 'Peligroso', statusColor: 'rose', params: [{ name: 'Microplásticos', value: '8.5 items/m³', pct: 170, color: 'rose', danger: true }, { name: 'Temperatura', value: '24.5°C', pct: 82, color: 'emerald', danger: false }, { name: 'Acidez pH', value: '8.05', pct: 95, color: 'amber', danger: false }, { name: 'Hidrocarburos', value: '0.02 ppm', pct: 200, color: 'rose', danger: true }, { name: 'Salinidad', value: '35 ppt', pct: 70, color: 'emerald', danger: false }], trend: [75, 78, 82, 85, 88, 90, 88, 85, 87, 89, 90, 88], recs: [{ type: 'danger', text: 'Evita mariscos' }, { type: 'danger', text: 'Hidrocarburos detectados' }, { type: 'warning', text: 'No consumir pescado sin certificación' }] },
+  mar: { title: '🌊 Estado del Mar', subtitle: 'Océanos', status: 'Moderado', statusColor: 'amber', params: [{ name: 'Microplásticos', value: '7.2 items/m³', pct: 144, color: 'rose', danger: true }, { name: 'Temperatura', value: '25.8°C', pct: 86, color: 'amber', danger: false }, { name: 'Acidez pH', value: '8.06', pct: 96, color: 'amber', danger: false }, { name: 'Hidrocarburos', value: '0.015 ppm', pct: 150, color: 'rose', danger: true }, { name: 'Salinidad', value: '34.8 ppt', pct: 70, color: 'emerald', danger: false }], trend: [76, 79, 83, 86, 89, 91, 89, 86, 88, 90, 91, 89], recs: [{ type: 'warning', text: 'Microplásticos elevados' }, { type: 'danger', text: 'Hidrocarburos detectados' }, { type: 'warning', text: 'No consumir pescado sin certificación' }] },
   plantas: { title: '🌿 Plantas', subtitle: 'Bioindicadores', status: 'Moderado', statusColor: 'amber', params: [{ name: 'NDVI', value: '0.72', pct: 72, color: 'emerald', danger: false }, { name: 'Toxinas', value: '0.12 mg/kg', pct: 60, color: 'emerald', danger: false }, { name: 'Polen', value: 'Alto', pct: 78, color: 'amber', danger: true }, { name: 'Estrés hídrico', value: 'Medio', pct: 55, color: 'amber', danger: false }, { name: 'Daño ozono', value: 'Leve', pct: 25, color: 'emerald', danger: false }], trend: [50, 52, 55, 58, 55, 53, 55, 57, 56, 55, 54, 55], recs: [{ type: 'warning', text: 'Polen alto: alérgicos con mascarilla' }, { type: 'info', text: 'Estrés leve' }, { type: 'success', text: 'Sin toxinas peligrosas' }] },
   quimicos: { title: '⚗️ Químicos', subtitle: 'Sustancias peligrosas', status: 'Peligroso', statusColor: 'rose', params: [{ name: 'Benceno', value: '0.008 ppm', pct: 160, color: 'rose', danger: true }, { name: 'Formaldehído', value: '0.12 ppm', pct: 120, color: 'rose', danger: true }, { name: 'Amoníaco', value: '18 ppm', pct: 72, color: 'emerald', danger: false }, { name: 'CO', value: '6 ppm', pct: 67, color: 'emerald', danger: false }, { name: 'VOCs', value: '0.6 mg/m³', pct: 120, color: 'rose', danger: true }], trend: [70, 75, 80, 85, 88, 90, 92, 95, 93, 91, 92, 92], recs: [{ type: 'danger', text: '⚠️ Benceno sobre límite: evacuar' }, { type: 'danger', text: '⚠️ Formaldehído: ventilar' }, { type: 'warning', text: 'Mascarilla con filtro de carbón' }] }
 };
 const provinces = [
-  { id: 'bocas', name: 'Bocas del Toro', level: 'media', aqi: 68, pm25: '28 µg/m³', co2: '420 ppm', o3: '0.058 ppm', chem: 'Normal' },
-  { id: 'chiriqui', name: 'Chiriquí', level: 'media', aqi: 65, pm25: '25 µg/m³', co2: '410 ppm', o3: '0.055 ppm', chem: 'Normal' },
-  { id: 'veraguas', name: 'Veraguas', level: 'baja', aqi: 38, pm25: '12 µg/m³', co2: '390 ppm', o3: '0.040 ppm', chem: 'Normal' },
-  { id: 'cocle', name: 'Coclé', level: 'baja', aqi: 42, pm25: '15 µg/m³', co2: '395 ppm', o3: '0.042 ppm', chem: 'Normal' },
-  { id: 'herrera', name: 'Herrera', level: 'baja', aqi: 35, pm25: '10 µg/m³', co2: '385 ppm', o3: '0.038 ppm', chem: 'Normal' },
-  { id: 'lossantos', name: 'Los Santos', level: 'optima', aqi: 25, pm25: '8 µg/m³', co2: '380 ppm', o3: '0.035 ppm', chem: 'Normal' },
-  { id: 'panamaoeste', name: 'Panamá Oeste', level: 'alta', aqi: 85, pm25: '52 µg/m³', co2: '480 ppm', o3: '0.068 ppm', chem: 'Elevado' },
-  { id: 'panama', name: 'Ciudad de Panamá', level: 'alta', aqi: 92, pm25: '58 µg/m³', co2: '510 ppm', o3: '0.072 ppm', chem: 'Alto' },
-  { id: 'colon', name: 'Colón', level: 'media', aqi: 58, pm25: '22 µg/m³', co2: '405 ppm', o3: '0.050 ppm', chem: 'Normal' },
-  { id: 'darien', name: 'Darién', level: 'optima', aqi: 20, pm25: '6 µg/m³', co2: '375 ppm', o3: '0.030 ppm', chem: 'Normal' },
-  { id: 'embera', name: 'Emberá', level: 'optima', aqi: 18, pm25: '5 µg/m³', co2: '370 ppm', o3: '0.028 ppm', chem: 'Normal' },
-  { id: 'gunayala', name: 'Guna Yala', level: 'baja', aqi: 30, pm25: '9 µg/m³', co2: '382 ppm', o3: '0.036 ppm', chem: 'Normal' }
+  { id: 'bocas', name: 'Bocas del Toro', level: 'baja', aqi: 42, pm25: '15 µg/m³', co2: '395 ppm', o3: '0.040 ppm', chem: 'Normal' },
+  { id: 'chiriqui', name: 'Chiriquí', level: 'media', aqi: 58, pm25: '22 µg/m³', co2: '408 ppm', o3: '0.050 ppm', chem: 'Normal' },
+  { id: 'veraguas', name: 'Veraguas', level: 'baja', aqi: 35, pm25: '10 µg/m³', co2: '388 ppm', o3: '0.038 ppm', chem: 'Normal' },
+  { id: 'cocle', name: 'Coclé', level: 'baja', aqi: 38, pm25: '12 µg/m³', co2: '390 ppm', o3: '0.040 ppm', chem: 'Normal' },
+  { id: 'herrera', name: 'Herrera', level: 'baja', aqi: 32, pm25: '9 µg/m³', co2: '384 ppm', o3: '0.036 ppm', chem: 'Normal' },
+  { id: 'lossantos', name: 'Los Santos', level: 'optima', aqi: 22, pm25: '7 µg/m³', co2: '378 ppm', o3: '0.033 ppm', chem: 'Normal' },
+  { id: 'panamaoeste', name: 'Panamá Oeste', level: 'alta', aqi: 78, pm25: '45 µg/m³', co2: '465 ppm', o3: '0.064 ppm', chem: 'Elevado' },
+  { id: 'panama', name: 'Ciudad de Panamá', level: 'alta', aqi: 88, pm25: '52 µg/m³', co2: '495 ppm', o3: '0.068 ppm', chem: 'Alto' },
+  { id: 'colon', name: 'Colón', level: 'media', aqi: 55, pm25: '20 µg/m³', co2: '402 ppm', o3: '0.048 ppm', chem: 'Normal' },
+  { id: 'darien', name: 'Darién', level: 'optima', aqi: 18, pm25: '5 µg/m³', co2: '372 ppm', o3: '0.028 ppm', chem: 'Normal' },
+  { id: 'embera', name: 'Emberá', level: 'optima', aqi: 16, pm25: '4 µg/m³', co2: '368 ppm', o3: '0.026 ppm', chem: 'Normal' },
+  { id: 'gunayala', name: 'Guna Yala', level: 'baja', aqi: 28, pm25: '8 µg/m³', co2: '380 ppm', o3: '0.034 ppm', chem: 'Normal' }
 ];
 const provRecs = {
   alta: [{ icon: '🚨', text: 'Evita salir sin mascarilla N95', color: 'text-rose-400' }, { icon: '🏠', text: 'Mantén ventanas cerradas', color: 'text-rose-400' }],
@@ -1367,11 +1367,11 @@ const sensors = [
   { id: 'G-004', name: 'GPS Changuinola', type: 'gps', location: 'Bocas del Toro', active: true, signal: 92, reading: '0.1 mm/día' }
 ];
 let quakeHistory = [
-  { mag: 2.1, depth: 45, location: 'Costa Pacífico, Chiriquí', time: 'Hace 12 min', quakeTime: '' },
-  { mag: 1.8, depth: 32, location: 'Volcán Barú, Chiriquí', time: 'Hace 2 h', quakeTime: '' },
-  { mag: 3.4, depth: 68, location: 'Golfo de Chiriquí', time: 'Hace 5 h', quakeTime: '' },
-  { mag: 2.5, depth: 28, location: 'Paso Canoas, Chiriquí', time: 'Hace 3 h', quakeTime: '' },
-  { mag: 2.0, depth: 18, location: 'Punta Burica, Chiriquí', time: 'Hace 6 h', quakeTime: '' }
+  { mag: 4.3, depth: 200, location: 'Costa Pacífico, Chiriquí', time: 'Hace 10 h', quakeTime: '11 jul 2026 02:52' },
+  { mag: 3.7, depth: 52, location: 'Golfo de Chiriquí', time: 'Hace 1 d', quakeTime: '11 jul 2026 05:37' },
+  { mag: 3.6, depth: 44, location: 'Paso Canoas, Chiriquí', time: 'Hace 2 d', quakeTime: '10 jul 2026 10:09' },
+  { mag: 3.4, depth: 87, location: 'Volcán Barú, Chiriquí', time: 'Hace 3 d', quakeTime: '10 jul 2026 02:51' },
+  { mag: 3.5, depth: 39, location: 'Punta Burica, Chiriquí', time: 'Hace 4 d', quakeTime: '8 jul 2026 08:38' }
 ];
 const seismicZones = [
   { id: 'Z-01', name: 'Volcán Barú', province: 'Chiriquí', risk: 'Alta', svgX: 140, svgY: 95, lat: 8.81, lng: -82.54, events: 230, desc: 'Zona de subducción activa. Volcán dormido, actividad sísmica frecuente.' },
@@ -1497,6 +1497,7 @@ function showEpicenterMarker(location, lat, lon) {
       'Costa Pacífico, Chiriquí': [7.8, -82.0], 'Volcán Barú, Chiriquí': [8.81, -82.54],
       'Golfo de Chiriquí': [8.0, -82.5], 'Colón': [9.36, -79.9], 'Darién': [8.0, -77.5],
       'Paso Canoas, Chiriquí': [8.54, -82.84], 'Punta Burica, Chiriquí': [8.03, -82.87],
+      'Frontera Costa Rica, Chiriquí': [8.5, -82.8], 'Océano Pacífico, Chiriquí': [7.5, -82.5],
       'Simulación - Panamá': [8.5, -80.5]
     };
     const regionMap = {
@@ -2160,7 +2161,8 @@ function renderSeismicMarkers() {
   const qLatLng = {
     'Costa Pacífico, Chiriquí': [7.8, -82.0], 'Volcán Barú, Chiriquí': [8.81, -82.54],
     'Golfo de Chiriquí': [8.0, -82.5], 'Colón': [9.36, -79.9], 'Darién': [8.0, -77.5],
-    'Paso Canoas, Chiriquí': [8.54, -82.84], 'Punta Burica, Chiriquí': [8.03, -82.87]
+    'Paso Canoas, Chiriquí': [8.54, -82.84], 'Punta Burica, Chiriquí': [8.03, -82.87],
+    'Frontera Costa Rica, Chiriquí': [8.5, -82.8], 'Océano Pacífico, Chiriquí': [7.5, -82.5]
   };
   quakeHistory.forEach(q => {
     const ll = qLatLng[q.location];
@@ -2542,7 +2544,11 @@ const flightSimData = [
   { callsign: 'AV234', airline: 'Avianca', alt: 28000, speed: 470, heading: 170, airport: 'PTY', origin: 'Panamá, Panamá', dest: 'Quito, Ecuador' },
   { callsign: 'CM567', airline: 'Copa Airlines', alt: 22000, speed: 450, heading: 275, airport: 'PTY', origin: 'Panamá, Panamá', dest: 'San José, Costa Rica' },
   { callsign: 'KL789', airline: 'KLM', alt: 41000, speed: 570, heading: 40, airport: 'PTY', origin: 'Ámsterdam, Países Bajos', dest: 'Panamá, Panamá' },
-  { callsign: 'CM890', airline: 'Copa Airlines', alt: 18000, speed: 430, heading: 120, airport: 'PTY', origin: 'Panamá, Panamá', dest: 'Santo Domingo, Rep. Dominicana' }
+  { callsign: 'CM890', airline: 'Copa Airlines', alt: 18000, speed: 430, heading: 120, airport: 'PTY', origin: 'Panamá, Panamá', dest: 'Santo Domingo, Rep. Dominicana' },
+  { callsign: 'CM345', airline: 'Copa Airlines', alt: 26000, speed: 475, heading: 160, airport: 'PTY', origin: 'Panamá, Panamá', dest: 'Lima, Perú' },
+  { callsign: 'WW101', airline: 'Wingo', alt: 22000, speed: 440, heading: 250, airport: 'PTY', origin: 'Panamá, Panamá', dest: 'San José, Costa Rica' },
+  { callsign: 'CM555', airline: 'Copa Airlines', alt: 32000, speed: 510, heading: 200, airport: 'PTY', origin: 'Panamá, Panamá', dest: 'Buenos Aires, Argentina' },
+  { callsign: 'PA202', airline: 'Air Panama', alt: 5000, speed: 300, heading: 280, airport: 'DAV', origin: 'David, Panamá', dest: 'San José, Costa Rica' }
 ];
 
 function fetchFlights() {
@@ -2621,10 +2627,10 @@ let hurrTsunamiLayer = null;
 let hurrLayersActive = { sismos: false, huracanes: false, tsunamis: false };
 
 const hurricaneDefaultData = [
-  { name: 'Tormenta Tropical Alberto', category: 'Tormenta Tropical', wind: 45, gust: 55, lat: 18.2, lon: -68.5, movement: 'NO a 15 mph', pressure: 1002, formed: '03 Jul 2026', windDir: 315, windRadius34: 100, windRadius50: 40, windRadius64: 0, rainRate: 25, details: 'Vientos máximos sostenidos de 45 mph. Rachas de 55 mph. Lluvias intensas en el Caribe oriental. Se mueve hacia el norte-noroeste alejándose de tierra firme.' },
-  { name: 'Huracán Beryl', category: 'Huracán Cat 3', wind: 120, gust: 140, lat: 22.8, lon: -72.3, movement: 'NO a 12 mph', pressure: 964, formed: '28 Jun 2026', windDir: 320, windRadius34: 200, windRadius50: 120, windRadius64: 60, rainRate: 80, details: 'Huracán categoría 3 en la escala Saffir-Simpson. Vientos destructivos de 120 mph con rachas de 140 mph. Campo de vientos de huracán se extiende hasta 60 millas náuticas del centro. Lluvias torrenciales de hasta 80 mm/hr. No representa amenaza directa a tierra firme por ahora.' },
-  { name: 'Depresión Tropical Tres', category: 'Depresión Tropical', wind: 35, gust: 45, lat: 12.5, lon: -42.8, movement: 'O a 10 mph', pressure: 1008, formed: '04 Jul 2026', windDir: 270, windRadius34: 0, windRadius50: 0, windRadius64: 0, rainRate: 15, details: 'Depresión tropical en formación en el Atlántico tropical. Vientos de 35 mph con rachas de 45 mph. Lluvias moderadas. Podría fortalecerse a tormenta tropical en los próximos días.' },
-  { name: 'Ciclón Tropical Potencial Cuatro', category: 'Formación Potencial', wind: 30, gust: 40, lat: 9.8, lon: -55.2, movement: 'ONO a 8 mph', pressure: 1010, formed: '04 Jul 2026', windDir: 290, windRadius34: 0, windRadius50: 0, windRadius64: 0, rainRate: 10, details: 'Área de baja presión con potencial de desarrollo ciclónico en 48 horas. Vientos de 30 mph. Monitoreo activo del Centro Nacional de Huracanes (NHC) y la NOAA. Probabilidad de formación: 60%.' }
+  { name: 'Huracán Beryl', category: 'Huracán Cat 2', wind: 105, gust: 125, lat: 28.5, lon: -58.5, movement: 'NE a 18 mph', pressure: 972, formed: '28 Jun 2026', windDir: 45, windRadius34: 180, windRadius50: 110, windRadius64: 50, rainRate: 65, details: 'Huracán categoría 2 en el Atlántico norte. Vientos sostenidos de 105 mph. Se debilitó de categoría 3 a 2. Se aleja hacia el noreste, sin amenaza a tierra firme. Monitoreo satelital activo.' },
+  { name: 'Tormenta Tropical Alberto', category: 'Tormenta Tropical', wind: 60, gust: 75, lat: 15.8, lon: -72.5, movement: 'ONO a 14 mph', pressure: 995, formed: '03 Jul 2026', windDir: 300, windRadius34: 120, windRadius50: 50, windRadius64: 0, rainRate: 35, details: 'Tormenta tropical activa al sur de La Española. Vientos máximos sostenidos de 60 mph con rachas de 75 mph. Lluvias intensas en el Caribe central. Monitoreo de trayectoria hacia el noroeste.' },
+  { name: 'Tormenta Tropical Chris', category: 'Tormenta Tropical', wind: 50, gust: 65, lat: 18.2, lon: -93.8, movement: 'O a 10 mph', pressure: 1000, formed: '10 Jul 2026', windDir: 270, windRadius34: 90, windRadius50: 30, windRadius64: 0, rainRate: 30, details: 'Tormenta tropical en el Golfo de México. Vientos de 50 mph. Amenaza costas de Veracruz y Tamaulipas. Se espera que toque tierra en 48 horas. Lluvias torrenciales de hasta 30 mm/hr.' },
+  { name: 'Onda Tropical Este', category: 'Formación Potencial', wind: 25, gust: 35, lat: 11.0, lon: -48.0, movement: 'O a 12 mph', pressure: 1011, formed: '11 Jul 2026', windDir: 275, windRadius34: 0, windRadius50: 0, windRadius64: 0, rainRate: 10, details: 'Onda tropical saliendo de la costa africana con potencial de desarrollo ciclónico. Vientos de 25 mph. Monitoreo del NHC. Probabilidad de formación en 48h: 40%. Se dirige hacia el Caribe oriental.' }
 ];
 
 function getHurricaneCatColor(cat) {
@@ -3227,7 +3233,7 @@ function initTides() {
 // 🦠 MONITOREO EPIDEMIOLÓGICO
 // ============================================
 const diseases = [
-  { id: 'dengue', name: 'Dengue', level: 'bajo', icon: '🦟', desc: 'Transmitido por mosquito Aedes aegypti', active: true, cases: 124, rec: 'Eliminar criaderos de mosquitos. Usar repelente. Tapar tanques de agua.' },
+  { id: 'dengue', name: 'Dengue', level: 'medio', icon: '🦟', desc: 'Transmitido por mosquito Aedes aegypti. 100 casos en semana 1 de 2026 (MINSA).', active: true, cases: 1280, rec: 'Eliminar criaderos de mosquitos. Usar repelente. Tapar tanques de agua. Región Metropolitana lidera casos.' },
   { id: 'chikungunya', name: 'Chikungunya', level: 'bajo', icon: '🦟', desc: 'Virus transmitido por mosquitos', active: true, cases: 8, rec: 'Mismos cuidados que dengue. Repelente y mosquiteros.' },
   { id: 'zika', name: 'Zika', level: 'bajo', icon: '🦟', desc: 'Virus transmitido por mosquitos', active: true, cases: 2, rec: 'Mujeres embarazadas extremar precauciones. Usar repelente.' },
   { id: 'covid', name: 'COVID-19', level: 'bajo', icon: '🦠', desc: 'Coronavirus SARS-CoV-2', active: true, cases: 45, rec: 'Vacunación al día. Mascarilla en lugares cerrados si eres vulnerable.' },
@@ -3235,14 +3241,14 @@ const diseases = [
   { id: 'hantavirus', name: 'Hantavirus', level: 'nulo', icon: '🐀', desc: 'Virus transmitido por roedores', active: false, cases: 0, rec: 'Sin casos activos. Evitar contacto con roedores.' },
   { id: 'leptospirosis', name: 'Leptospirosis', level: 'nulo', icon: '🐀', desc: 'Bacteria en agua contaminada', active: false, cases: 0, rec: 'Sin casos activos. Evitar aguas estancadas.' },
   { id: 'malaria', name: 'Malaria', level: 'bajo', icon: '🦟', desc: 'Transmitido por mosquito Anopheles', active: true, cases: 3, rec: 'Repelente en áreas rurales. Mosquiteros en Darién y Guna Yala.' },
-  { id: 'norovirus', name: 'Norovirus', level: 'alto', icon: '🤢', desc: 'Brote en David, Chiriquí — 2,583 casos acumulados (MINSA). Tendencia a la baja.', active: true, cases: 2583, rec: 'Lavado frecuente de manos con agua y jabón (gel alcoholado no elimina el virus). Consumir agua potable o hervida. Manipular alimentos con higiene. Acudir al centro de salud si presenta vómito o diarrea. Evitar automedicación.' }
+  { id: 'norovirus', name: 'Norovirus', level: 'alto', icon: '🤢', desc: 'Brote en David, Chiriquí — 2,620 casos acumulados (MINSA). Tendencia a la baja — MINSA confirmó descenso de contagios.', active: true, cases: 2620, rec: 'Lavado frecuente de manos con agua y jabón (gel alcoholado no elimina el virus). Consumir agua potable o hervida. Manipular alimentos con higiene. Acudir al centro de salud si presenta vómito o diarrea. Evitar automedicación.' }
 ];
 
 function fetchNorovirusData() {
   const d = diseases.find(x => x.id === 'norovirus');
   if (!d) return;
-  d.cases = Math.max(d.cases, 2583);
-  d.desc = 'Brote en David, Chiriquí — ' + d.cases.toLocaleString('es-PA') + ' casos acumulados (MINSA). Tendencia a la baja.';
+  d.cases = Math.max(d.cases, 2620);
+  d.desc = 'Brote en David, Chiriquí — ' + d.cases.toLocaleString('es-PA') + ' casos acumulados (MINSA). Tendencia a la baja — MINSA confirmó descenso de contagios.';
   updateEpidemicStatus();
 }
 
@@ -3276,7 +3282,7 @@ function updateEpidemicStatus() {
     div.className = `glass rounded-xl p-2 flex items-center gap-2 ${isActive ? '' : 'opacity-50'}`;
     let casesText = isActive ? '· ' + d.cases.toLocaleString('es-PA') + ' casos' : '· Sin casos activos';
     if (d.id === 'norovirus' && isActive) {
-      const baseline = 2583;
+      const baseline = 2620;
       const pct = ((noro.cases - baseline) / baseline * 100).toFixed(0);
       const trend = pct > 0 ? `<span class="text-rose-400">↑</span>` : pct < 0 ? `<span class="text-emerald-400">↓</span>` : `→`;
       casesText = `· ${d.cases.toLocaleString('es-PA')} casos acumulados ${trend} ${Math.abs(pct)}%`;
