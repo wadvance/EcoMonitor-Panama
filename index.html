@@ -3936,8 +3936,6 @@ function getTrialStart() {
   let stored = localStorage.getItem(TRIAL_START_KEY);
   if (!stored) {
     const start = new Date();
-    start.setFullYear(2026, 6, 4); // 4 julio 2026
-    start.setHours(10, 0, 0, 0);
     localStorage.setItem(TRIAL_START_KEY, start.toISOString());
     return start;
   }
